@@ -1,0 +1,116 @@
+export type Entity = {
+    createdAt: number
+    updatedAt: string
+    version: number
+}
+
+export type AnswerInput = {
+    submittedAt: string
+    questionId: string
+    answerIndex: number
+}
+
+export type ScoreInput = {
+    key: string
+    answers: AnswerInput[]
+}
+
+export type Answer = {
+    submittedAt: string
+    answerIndex: number
+    expectedDuration: number
+    points: number
+    question: QuestionWithDetails
+}
+
+export type Score
+    = {
+        answers: Answer[]
+        startedAt: string
+        id: string
+        user: UserMetadata
+    }
+
+export type AnswerComputed
+    = Answer
+    & {
+        duration: number
+    }
+
+export type ScoreComputed
+    = Omit<Score, 'answers'>
+    & {
+        avgDifficulty: number
+        points: number
+        duration: number
+        answers: AnswerComputed[]
+    }
+
+export type Tag = {
+    id: string
+    name: string
+}
+
+export type QuestionInput = {
+    question: string
+    answer1: string
+    answer2: string
+    answer3: string
+    answer4: string
+    difficulty: number
+    source: string
+    tags: string[]
+}
+
+export type QuestionDetails = {
+    avgDuration: number
+    percentageAnswer1: number
+    percentageAnswer2: number
+    percentageAnswer3: number
+    percentageAnswer4: number
+    updatedAt: string
+}
+
+export type Question
+    = Omit<QuestionInput, 'tags'>
+    & Entity
+    & {
+        id: string
+        revisionComment: string
+        state: string
+        user: User
+        tags: Tag[]
+    }
+
+export type QuestionWithDetails
+    = Question
+    & { details: QuestionDetails }
+
+export type UserInput = {
+    id: string
+    name: string
+}
+
+export type UserMetadata = {
+    id: string
+    name: string
+    reputation: number
+    points: number
+    status: string
+}
+
+export type User
+    = UserInput
+    & UserMetadata
+    & {
+        scores: Score[]
+        questions: Question[]
+    }
+
+export type Search
+    = {
+        phrase: string,
+        tags: string[],
+        minDifficulty: number,
+        maxDifficulty: number,
+    }

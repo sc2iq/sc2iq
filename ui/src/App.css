@@ -1,0 +1,39 @@
+.sc2iq-app {
+  margin: 0 auto;
+  width: 800px;
+}
+
+nav {
+  display: grid;
+  grid-auto-flow: column;
+  justify-content: center;
+  align-content: center;
+}
+
+main {
+  padding: 2rem;
+}
+
+input {
+  width: 100%;
+}
+
+nav > div {
+  padding: 1rem 1.5rem;
+}
+nav a {
+  padding: 1rem 1.5rem;
+}
+
+nav a:hover {
+  background: rgba(0, 0, 0, 0.13);
+}
+
+nav a.active {
+  background: rgba(0, 0, 0, 0.062);
+}
+
+dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+}

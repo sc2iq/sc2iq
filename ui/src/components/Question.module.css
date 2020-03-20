@@ -1,0 +1,23 @@
+.question {
+    border: 1px solid brown;
+    padding: 1rem;
+}
+
+.title {
+    font-size: 2rem;
+}
+.answers {
+
+}
+.metadata {
+
+}
+.contact {
+
+}
+
+.tag {
+    padding: 0.125rem 0.25rem;
+    margin-right: 0.25rem;
+    background-color: rgb(205, 224, 255);
+}

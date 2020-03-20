@@ -1,0 +1,142 @@
+import * as models from '../models'
+
+const basedUrl = `http://localhost:3002`
+
+// Test
+export const getKey = async (): Promise<string> => {
+    const response = await fetch(`${basedUrl}/test`)
+
+    if (response.ok) {
+        const responseData = await response.text()
+        return responseData
+    }
+
+    throw new Error(`Error when attempting to get key.`)
+}
+
+// Questions
+export const getQuestions = get<models.Question[]>('/questions')
+export const getRandomQuestions = get<models.Question[]>('/questions/random')
+export const getQuestion = getById<models.QuestionWithDetails>('/questions')
+export const postQuestion = post<models.QuestionInput, models.Question>('/questions')
+export const postQuestionsSearch = async (search: models.Search): Promise<models.Question[]> => {
+    const path = `/questions/search`
+    const response = await fetch(`${basedUrl}${path}`, {
+        method: 'POST',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(search),
+    })
+
+    if (response.ok) {
+        const responseData = await response.json()
+        return responseData
+    }
+
+    throw new Error(`Error when attempting to POST ${path}.`)
+}
+
+// Scores
+export const getScores = get<models.Score[]>('/scores')
+export const getScore = getById<models.Score>('/scores')
+export const postScore = post<models.ScoreInput, models.Score>('/scores')
+
+// Users
+export const getUsers = get<models.UserMetadata[]>('/users')
+export const getUser = getById<models.UserMetadata>('/users')
+export const postUser = post<models.UserInput, models.User>('/users')
+
+// Profile
+export const verify = getWithToken('/verify')
+export const getUserInfo = async (token: string) => {
+    const response = await fetch(`https://sc2iq.auth0.com/userinfo`, {
+        headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${token}`
+        }
+    })
+
+    if (response.ok) {
+        const responseData = await response.json()
+        return responseData
+    }
+
+    throw new Error(`Error when attempting to get user info.`)
+}
+
+
+function getById<T>(subPath: string) {
+    return async function fn(id: string): Promise<T> {
+        const path = `${subPath}/${id}`
+        const response = await fetch(`${basedUrl}${path}`, {
+            headers: {
+                Accept: 'application/json',
+            }
+        })
+
+        if (response.ok) {
+            const responseData = await response.json()
+            return responseData
+        }
+
+        throw new Error(`Error when attempting to GET ${path}`)
+    }
+}
+
+function get<T>(path: string) {
+    return async function fn(): Promise<T> {
+        const response = await fetch(`${basedUrl}${path}`, {
+            headers: {
+                Accept: 'application/json',
+            }
+        })
+
+        if (response.ok) {
+            const responseData = await response.json()
+            return responseData
+        }
+
+        throw new Error(`Error when attempting to GET ${path}`)
+    }
+}
+
+function getWithToken(path: string) {
+    return async function fn(token: string) {
+        const response = await fetch(`${basedUrl}${path}`, {
+            headers: {
+                Accept: 'application/json',
+                Authorization: `Bearer ${token}`
+            }
+        })
+
+        if (response.ok) {
+            const responseData = await response.json()
+            return responseData
+        }
+
+        throw new Error(`Error when attempting to GET ${path}.`)
+    }
+}
+
+function post<Input, Output>(path: string) {
+    return async function (token: string, input: Input): Promise<Output> {
+        const response = await fetch(`${basedUrl}${path}`, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(input),
+        })
+
+        if (response.ok) {
+            const responseData = await response.json()
+            return responseData
+        }
+
+        throw new Error(`Error when attempting to POST ${path}.`)
+    }
+}

@@ -1,0 +1,25 @@
+{
+   "name": "sc2iq-service",
+   "version": "0.0.1",
+   "description": "Awesome project developed with TypeORM.",
+   "devDependencies": {
+      "@types/node": "^8.0.29",
+      "pino-pretty": "^3.6.1",
+      "typescript": "^3.8.3"
+   },
+   "dependencies": {
+      "fastify": "^2.12.0",
+      "fastify-auth0-verify": "^0.2.0",
+      "fastify-cors": "^3.0.1",
+      "fastify-plugin": "^1.6.1",
+      "fluent-schema": "^0.10.0",
+      "mssql": "^6.0.1",
+      "reflect-metadata": "^0.1.13",
+      "typeorm": "0.2.22"
+   },
+   "scripts": {
+      "build": "tsc",
+      "prestart": "npm run build",
+      "start": "node build/index.js"
+   }
+}

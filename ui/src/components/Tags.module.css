@@ -1,0 +1,13 @@
+.tag {
+    background: rgb(187, 216, 255);
+    padding: 0 0.5rem 0.2rem 0.5rem;
+    margin: 0 0.5rem 0.25rem 0;
+    display: inline-block;
+}
+
+.tag button {
+    border: 0;
+    background: none;
+    padding: 0;
+    margin: 0;
+}

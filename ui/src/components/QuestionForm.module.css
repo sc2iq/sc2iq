@@ -1,0 +1,64 @@
+.header {
+    display: grid;
+    grid-template-columns: 1fr min-content;
+    margin-bottom: .5rem;
+}
+
+.fields {
+    margin-top: .5rem;
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    grid-gap: 0.5rem;
+}
+
+.fields > *:nth-child(2n + 1) {
+    padding: 0.25rem;
+}
+
+.difficulty > div {
+    display: grid;
+    grid-auto-flow: column;
+    justify-items: stretch;
+}
+
+.difficulty > div > span:nth-child(2) {
+    text-align: center;
+}
+
+.difficulty > div > span:nth-child(3) {
+    text-align: right;
+}
+
+.difficulty > input {
+    width: 100%;
+}
+
+
+button {
+    cursor: pointer;
+}
+
+
+.tag {
+    background: rgb(187, 216, 255);
+    padding: 0 0.25rem;
+    margin: 0 0.25rem 0.25rem 0;
+    display: inline-block;
+}
+
+.tag button {
+    border: 0;
+    background: none;
+    padding: 0;
+    margin: 0;
+}
+
+.questionTextArea {
+    font: inherit;
+    font-size: inherit;
+    min-height: 2rem;
+}
+
+input {
+    padding: 0.125rem 0.25rem;
+}

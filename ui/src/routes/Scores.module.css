@@ -1,0 +1,15 @@
+.navigation {
+    border-bottom: 1px solid grey;
+}
+
+.navigation button {
+    border: 1px solid rgb(16, 114, 32);
+}
+
+.active {
+    background: red;
+}
+
+.scores {
+    
+}
