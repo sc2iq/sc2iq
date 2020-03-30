@@ -1,0 +1,17 @@
+{
+  "name": "sc2iq-community-client",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "prestart": "npm run build",
+    "start": "node ./build/index.js"
+  },
+  "dependencies": {
+    "@types/node": "^13.9.5",
+    "axios": "^0.19.2",
+    "dotenv": "^8.2.0",
+    "typescript": "^3.8.3"
+  }
+}
