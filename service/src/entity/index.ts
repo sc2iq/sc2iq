@@ -4,6 +4,8 @@ import { QuestionDetails } from "../entity/QuestionDetails"
 import { Score } from "../entity/Score"
 import { Tag } from "../entity/Tag"
 import { User } from "../entity/User"
+import { Poll } from "../entity/Poll"
+import { PollDetails } from "../entity/PollDetails"
 
 export {
     Answer,
@@ -12,4 +14,6 @@ export {
     Score,
     Tag,
     User,
+    Poll,
+    PollDetails,
 }

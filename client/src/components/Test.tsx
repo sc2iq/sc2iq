@@ -1,5 +1,6 @@
 import React from 'react'
 import * as models from '../models'
+import * as Utils from '../utils'
 import { usePrevious } from '../hooks/usePrevious'
 import { useEventListener } from '../hooks/useEventListener'
 import styles from './Test.module.css'
@@ -15,7 +16,7 @@ enum TestState {
 
 type Props = {
     onClickReady(): void
-    questions: models.Question[]
+    questions: models.Poll[]
     onSubmit(score: models.ScoreInput): void
     getKeyAsync(): Promise<string>
     score?: models.ScoreComputed
@@ -35,6 +36,11 @@ const Component: React.FC<Props> = (props) => {
     const [answers, setAnswers] = React.useState<models.AnswerInput[]>([])
 
     const currentQuestion = props.questions[currentQuestionIndex]
+    // const randomizedAnswers = React.useMemo(() => {
+    //     return currentQuestion
+    //         ? Utils.randomizeList([currentQuestion.answer1, currentQuestion.answer2, currentQuestion.answer3, currentQuestion.answer4])
+    //         : []
+    // }, [currentQuestionIndex])
 
     const onClickAnswer = (answerIndex: number) => () => {
         if (currentQuestion === undefined) {
@@ -52,8 +58,17 @@ const Component: React.FC<Props> = (props) => {
         setCurrentQuestionIndex(i => i + 1)
     }
 
+    console.count('render')
+    console.log(`render ${currentTestState.current} ${currentQuestionIndex}`)
+
+    const onClick1 = onClickAnswer(1)
+    const onClick2 = onClickAnswer(2)
+    const onClick3 = onClickAnswer(3)
+    const onClick4 = onClickAnswer(4)
+
     const listener = (event: KeyboardEvent) => {
-        console.log(`keydown: ${event.key} ${currentTestState.current}`)
+        console.count('listener')
+        console.log(`keydown: ${event.key} ${currentTestState.current} ${currentQuestionIndex}`)
 
         if (currentTestState.current === TestState.PreLoad) {
             switch (event.key) {
@@ -74,19 +89,19 @@ const Component: React.FC<Props> = (props) => {
         else if (currentTestState.current === TestState.Started) {
             switch (event.key) {
                 case "1": {
-                    onClickAnswer(1)()
+                    onClick1()
                     break
                 }
                 case "2": {
-                    onClickAnswer(2)()
+                    onClick2()
                     break
                 }
                 case "3": {
-                    onClickAnswer(3)()
+                    onClick3()
                     break
                 }
                 case "4": {
-                    onClickAnswer(4)()
+                    onClick4()
                     break
                 }
             }
@@ -203,6 +218,7 @@ const Component: React.FC<Props> = (props) => {
         const maxIndex = (props.score?.answers.length ?? 1) - 1
         setCurrentAnswerIndexReview(c => Math.min(maxIndex, c + 1))
     }
+
 
     if (testState === TestState.PreLoad) {
         return (
@@ -334,16 +350,16 @@ const Component: React.FC<Props> = (props) => {
                     <h2 className={styles.question}>{currentQuestion.question}</h2>
 
                     <div>A1:</div>
-                    <button onClick={onClickAnswer(1)}>{currentQuestion.answer1}</button>
+                    <button onClick={onClick1}>{currentQuestion.answer1}</button>
 
                     <div>A2:</div>
-                    <button onClick={onClickAnswer(2)}>{currentQuestion.answer2}</button>
+                    <button onClick={onClick2}>{currentQuestion.answer2}</button>
 
                     <div>A3:</div>
-                    <button onClick={onClickAnswer(3)}>{currentQuestion.answer3}</button>
+                    <button onClick={onClick3}>{currentQuestion.answer3}</button>
 
                     <div>A4:</div>
-                    <button onClick={onClickAnswer(4)}>{currentQuestion.answer4}</button>
+                    <button onClick={onClick4}>{currentQuestion.answer4}</button>
                 </div>
             </div>
         )

@@ -26,7 +26,8 @@ const ormPlugin: fastify.Plugin<unknown, unknown, unknown, unknown> = async (ins
             path.join(__dirname, "../migration/**/*")
         ],
         options: {
-            "encrypt": true
+            "encrypt": true,
+            // "enableArithAbort": true,
         }
     })
 

@@ -43,14 +43,42 @@ const Debug: React.FC<Props> = (props) => {
         await client.postQuestion(token, questionInput)
     }
 
+    const createPoll = async () => {
+        const pollInput: models.PollInput = {
+            question: faker.random.words(2),
+            answer1: faker.random.words(2),
+            answer2: faker.random.words(2),
+            answer3: faker.random.words(2),
+            answer4: faker.random.words(2),
+            tags: [
+                'terran',
+                'zerg',
+                faker.hacker.ingverb(),
+                faker.hacker.adjective(),
+                faker.hacker.verb(),
+                faker.hacker.verb(),
+            ],
+        }
+
+        const token = await getTokenSilently()
+        await client.postPoll(token, pollInput)
+    }
+
     const onChangeNumber = (event: React.ChangeEvent<HTMLInputElement>) => {
         setGenerateNumber(Number(event.target.value))
     }
 
-    const onClickGenerate = async (numQuestions: number) => {
+    const onClickGenerateQuestions = async (numQuestions: number) => {
         const max = numQuestions
-        for(let i = 0; i < max; i++) {
+        for (let i = 0; i < max; i++) {
             await createQuestion()
+        }
+    }
+
+    const onClickGeneratePolls = async (numQuestions: number) => {
+        const max = numQuestions
+        for (let i = 0; i < max; i++) {
+            await createPoll()
         }
     }
 
@@ -59,7 +87,12 @@ const Debug: React.FC<Props> = (props) => {
             <h1>Debug</h1>
             <div>
                 <input type="number" min={0} value={generateNumber} onChange={onChangeNumber} />
-                <button type="button" onClick={() => onClickGenerate(generateNumber)}>Generate</button>
+                <div>
+                    <button type="button" onClick={() => onClickGenerateQuestions(generateNumber)}>Generate {generateNumber} Questions</button>
+                </div>
+                <div>
+                    <button type="button" onClick={() => onClickGeneratePolls(generateNumber)}>Generate {generateNumber} Polls</button>
+                </div>
             </div>
         </div>
     )

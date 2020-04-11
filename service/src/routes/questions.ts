@@ -4,7 +4,6 @@ import { Question } from "../entity/Question"
 import { User } from "../entity/User"
 import { Tag, QuestionDetails } from "../entity"
 
-
 export default function (fastify: fastify.FastifyInstance, pluginOptions: unknown, done) {
     const connection = fastify.connection
 

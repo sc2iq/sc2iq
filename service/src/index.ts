@@ -5,6 +5,7 @@ import fastifyAuth0Verify from "fastify-auth0-verify"
 import UsersRoute from './routes/users'
 import QuestionsRoute from './routes/questions'
 import ScoresRoute from './routes/scores'
+import PollsRoute from './routes/polls'
 import TestRoute from './routes/test'
 import ormPlugin from './plugins/orm'
 
@@ -80,6 +81,7 @@ async function main() {
 
     server.register(UsersRoute, { prefix: '/users' })
     server.register(QuestionsRoute, { prefix: '/questions' })
+    server.register(PollsRoute, { prefix: '/polls' })
     server.register(ScoresRoute, { prefix: '/scores' })
     server.register(TestRoute, { prefix: '/test' })
 

@@ -4,11 +4,11 @@ import styles from './Question.module.css'
 import * as client from "../services/client"
 
 type Props = {
-    question: models.Question
+    poll: models.Poll
 }
 
-const Question: React.FC<Props> = ({ question }) => {
-
+const Poll: React.FC<Props> = ({ poll: question }) => {
+    
     const [details, setDetails] = React.useState<models.QuestionDetails>()
 
     const onClickLoadDetails = async () => {
@@ -35,12 +35,6 @@ const Question: React.FC<Props> = ({ question }) => {
                     <dd>{question.state}</dd>
                     <dt>Author</dt>
                     <dd>{question.user.name}</dd>
-                    <dt>Difficulty</dt>
-                    <dd>{question.difficulty}</dd>
-                    <dt>Avg. Correct</dt>
-                    <dd>79%</dd>
-                    <dt>Source:</dt>
-                    <dd>{question.source}</dd>
                 </dl>
             </div>
             <div>
@@ -54,4 +48,4 @@ const Question: React.FC<Props> = ({ question }) => {
     )
 }
 
-export default Question
+export default Poll

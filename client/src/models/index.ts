@@ -51,6 +51,40 @@ export type Tag = {
     name: string
 }
 
+
+export type PollInput = {
+    question: string
+    answer1: string
+    answer2: string
+    answer3: string
+    answer4: string
+    tags: string[]
+}
+
+export type Poll
+    = Omit<PollInput, 'tags'>
+    & Entity
+    & {
+        id: string
+        revisionComment: string
+        state: string
+        user: User
+        tags: Tag[]
+    }
+
+export type PollDetails = {
+    totalVotes: number
+    votesAnswer1: number
+    votesAnswer2: number
+    votesAnswer3: number
+    votesAnswer4: number
+    updatedAt: string
+}
+
+export type PollWithDetails
+    = Poll
+    & { details: PollDetails }
+
 export type QuestionInput = {
     question: string
     answer1: string

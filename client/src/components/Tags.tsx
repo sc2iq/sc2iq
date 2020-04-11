@@ -5,15 +5,16 @@ import styles from "./Tags.module.css"
 type Props = {
     tags: string[]
     setTags: React.Dispatch<React.SetStateAction<string[]>>
+    placeholder?: string
 }
 
-const Tags: React.FC<Props> = ({ tags, setTags }) => {
+const Tags: React.FC<Props> = (props) => {
     const [newTag, setNewTag, onChangeNewTag] = useInput()
     const onClickRemoveTag = (tagIndex: number): void => {
-        const newTags = [...tags]
+        const newTags = [...props.tags]
         newTags.splice(tagIndex, 1)
 
-        setTags(newTags)
+        props.setTags(newTags)
     }
 
     const onKeyDownTagInput = (event: React.KeyboardEvent<HTMLInputElement>): void => {
@@ -23,18 +24,18 @@ const Tags: React.FC<Props> = ({ tags, setTags }) => {
             case 'Tab': {
                 if (newTag.length >= 3) {
                     event.preventDefault()
-                    if (tags.includes(newTag)) {
+                    if (props.tags.includes(newTag)) {
                         return
                     }
 
-                    setTags(tags => [...tags, newTag])
+                    props.setTags(tags => [...tags, newTag])
                     setNewTag('')
                 }
                 break
             }
             case 'Backspace': {
                 if (newTag.length === 0) {
-                    setTags(tags => {
+                    props.setTags(tags => {
                         const tagsCopy = [...tags]
                         tagsCopy.pop()
                         return tagsCopy
@@ -52,11 +53,18 @@ const Tags: React.FC<Props> = ({ tags, setTags }) => {
     return (
         <div>
             <div>
-                {tags.map((t, i) =>
+                {props.tags.map((t, i) =>
                     <div className={styles.tag} key={i}>{t} <button type="button" onClick={() => onClickRemoveTag(i)}>✖</button></div>
                 )}
             </div>
-            <input type="text" value={newTag} onChange={onChangeNewTag} onKeyDown={onKeyDownTagInput} placeholder='terran' autoComplete="off" />
+            <input
+                type="text"
+                value={newTag}
+                onChange={onChangeNewTag}
+                onKeyDown={onKeyDownTagInput}
+                placeholder={props.placeholder}
+                autoComplete="off"
+            />
         </div>
     )
 }

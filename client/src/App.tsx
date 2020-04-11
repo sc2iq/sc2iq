@@ -4,6 +4,7 @@ import Index from './routes/Index'
 import Debug from './routes/Debug'
 import Questions from './routes/Questions'
 import Scores from './routes/Scores'
+import Polls from './routes/Polls'
 import Users from './routes/Users'
 import Profile from './routes/Profile'
 import Test from './routes/Test'
@@ -57,9 +58,9 @@ function App() {
                         <RRD.NavLink to="/questions">Questions</RRD.NavLink>
                         <RRD.NavLink to="/test">Test</RRD.NavLink>
                         <RRD.NavLink to="/scores">Scores</RRD.NavLink>
+                        <RRD.NavLink to="/polls">Polls</RRD.NavLink>
                         <RRD.NavLink to="/users">Users</RRD.NavLink>
                         <RRD.NavLink to="/profile">Profile</RRD.NavLink>
-                        <RRD.NavLink to="/debug">Debug</RRD.NavLink>
                     </nav>
                 </header>
                 <main>
@@ -68,11 +69,15 @@ function App() {
                         <RRD.Route path="questions" element={<Questions />} />
                         <RRD.Route path="test" element={<Test />} />
                         <RRD.Route path="scores" element={<Scores />} />
+                        <RRD.Route path="polls" element={<Polls />} />
                         <RRD.Route path="users" element={<Users />} />
                         <RRD.Route path="debug" element={<Debug />} />
                         <PrivateRoute path="profile" element={<Profile />} />
                     </Routes>
                 </main>
+                <footer>
+                    <RRD.NavLink to="/debug">Debug</RRD.NavLink>
+                </footer>
             </div>
         </RRD.Router>
     )

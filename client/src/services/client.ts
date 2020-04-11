@@ -38,6 +38,29 @@ export const postQuestionsSearch = async (search: models.Search): Promise<models
     throw new Error(`Error when attempting to POST ${path}.`)
 }
 
+// Polls
+export const getPolls = get<models.Poll[]>('/polls')
+export const getPoll = getById<models.PollWithDetails>('/polls')
+export const postPoll = post<models.PollInput, models.Poll>('/polls')
+export const postPollsSearch = async (search: models.Search): Promise<models.Poll[]> => {
+    const path = `/polls/search`
+    const response = await fetch(`${basedUrl}${path}`, {
+        method: 'POST',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(search),
+    })
+
+    if (response.ok) {
+        const responseData = await response.json()
+        return responseData
+    }
+
+    throw new Error(`Error when attempting to POST ${path}.`)
+}
+
 // Scores
 export const getScores = get<models.Score[]>('/scores')
 export const getScore = getById<models.Score>('/scores')

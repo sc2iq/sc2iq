@@ -7,7 +7,7 @@ import Test from '../components/Test'
 
 const TestRoute: React.FC = () => {
     const { getTokenSilently } = Auth0.useAuth0()
-    const [questions, setQuestions] = React.useState<models.Question[]>([])
+    const [questions, setQuestions] = React.useState<models.Poll[]>([])
     const [score, setScore] = React.useState<models.ScoreComputed>()
 
     const getKeyAsync = async () => {
