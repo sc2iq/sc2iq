@@ -1,6 +1,6 @@
 import React from 'react'
 import * as models from '../models'
-import { usePrevious } from '../hooks/userPrevious'
+import { usePrevious } from '../hooks/usePrevious'
 import styles from './Test.module.css'
 
 enum TestState {
