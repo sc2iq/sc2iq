@@ -1,6 +1,6 @@
 import React from 'react'
 import * as models from '../models'
-import * as Utils from '../utils'
+import * as Utils from '../utilities'
 import { usePrevious } from '../hooks/usePrevious'
 import { useEventListener } from '../hooks/useEventListener'
 import styles from './Test.module.css'

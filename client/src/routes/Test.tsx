@@ -2,7 +2,7 @@ import React from 'react'
 import * as Auth0 from "../react-auth0-spa"
 import * as client from '../services/client'
 import * as models from '../models'
-import * as util from '../utils'
+import * as util from '../utilities'
 import Test from '../components/Test'
 
 const TestRoute: React.FC = () => {

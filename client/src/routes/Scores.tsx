@@ -3,7 +3,7 @@ import * as client from '../services/client'
 import styles from "./Scores.module.css"
 import classnames from "classnames"
 import Score from "../components/Score"
-import * as utils from "../utils"
+import * as utils from "../utilities"
 import * as models from "../models"
 
 enum ScoreType {

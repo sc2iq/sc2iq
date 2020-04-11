@@ -2,7 +2,7 @@ import React from 'react'
 import * as RRD from 'react-router-dom'
 import Index from './routes/Index'
 import Debug from './routes/Debug'
-import Questions from './routes/Questions'
+import Questions from './routes/Questions/Questions'
 import Scores from './routes/Scores'
 import Polls from './routes/Polls'
 import Users from './routes/Users'
@@ -10,7 +10,7 @@ import Profile from './routes/Profile'
 import Test from './routes/Test'
 import PrivateRoute from './components/PrivateRoute'
 import { useAuth0 } from "./react-auth0-spa"
-import history from "./utils/history"
+import history from "./utilities/history"
 import * as client from './services/client'
 import { UserInput } from './models'
 import './App.css'
