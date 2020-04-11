@@ -23,7 +23,19 @@ const Component: React.FC<Props> = (props) => {
     const [difficulty, setDifficulty] = React.useState(1)
     const [source, setSource, onChangeSource, onKeyDownSource] = useInput()
     const [tags, setTags] = React.useState<string[]>([])
+    const [comment, setComment] = React.useState('')
     const onChangeDifficulty = onChangeInput(setDifficulty)
+    const [isSaveDisabled, setIsSaveDisabled] = React.useState(true)
+
+    React.useEffect(() => {
+        const isSaveDisabled = question === ''
+            || answer1 === ''
+            || answer2 === ''
+            || answer3 === ''
+            || answer4 === ''
+
+        setIsSaveDisabled(isSaveDisabled)
+    }, [question, answer1, answer2, answer3, answer4, difficulty])
 
     const resetForm = () => {
         setQuestion('')
@@ -55,6 +67,10 @@ const Component: React.FC<Props> = (props) => {
         resetForm()
     }
 
+    const onReset = () => {
+        resetForm()
+    }
+
     const onToggleOpen = () => {
         setIsOpen(formState => !formState)
     }
@@ -63,8 +79,13 @@ const Component: React.FC<Props> = (props) => {
         setIsOpen(true)
     }
 
+    const onChangeComment = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+        const comment = event.target.value
+        setComment(comment)
+    }
+
     return (
-        <form onSubmit={onSubmit}>
+        <form onSubmit={onSubmit} onReset={onReset}>
             <div>
                 <div className={styles.header}>
                     <h3>Create Question</h3>
@@ -89,13 +110,13 @@ const Component: React.FC<Props> = (props) => {
             {isOpen &&
                 <>
                     <div className={styles.fields}>
-                        <div>Answer 1:</div>
+                        <div>Correct Answer 1:</div>
                         <input type="text" value={answer1} onChange={onChangeAnswer1} onKeyDown={onKeyDownAnswer1} placeholder='First answer' autoComplete="off" required={true} />
-                        <div>Answer 2:</div>
+                        <div>Alternate Answer 2:</div>
                         <input type="text" value={answer2} onChange={onChangeAnswer2} onKeyDown={onKeyDownAnswer2} placeholder='Second answer' autoComplete="off" required={true} />
-                        <div>Answer 3:</div>
+                        <div>Alternate Answer 3:</div>
                         <input type="text" value={answer3} onChange={onChangeAnswer3} onKeyDown={onKeyDownAnswer3} placeholder='Third answer' autoComplete="off" required={true} />
-                        <div>Answer 4:</div>
+                        <div>Alternate Answer 4:</div>
                         <input type="text" value={answer4} onChange={onChangeAnswer4} onKeyDown={onKeyDownAnswer4} placeholder='Fourth answer' autoComplete="off" required={true} />
                         <div>Difficulty: </div>
                         <div className={styles.difficulty}>
@@ -109,11 +130,13 @@ const Component: React.FC<Props> = (props) => {
                         <div>Source:</div>
                         <input type="text" value={source} onChange={onChangeSource} onKeyDown={onKeyDownSource} placeholder='Example: https://liquipedia.net/starcraft2/Nexus_(Legacy_of_the_Void)' autoComplete="off" />
                         <div>Comment:</div>
-                        <textarea className={styles.questionTextArea} rows={3} placeholder="Enter reason or explanation for no source link"></textarea>
+                        <textarea className={styles.questionTextArea} rows={3} value={comment} onChange={onChangeComment} placeholder="Enter reason or explanation for no source link"></textarea>
                     </div>
 
-                    <button type="submit">Submit</button>
-
+                    <div>
+                        <button type="submit" disabled={isSaveDisabled}>Submit</button>
+                        <button type="reset">Reset</button>
+                    </div>
                 </>
             }
 
