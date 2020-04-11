@@ -7,14 +7,17 @@ const Home: React.FC = () => {
 
     return (
         <div>
-            <h1>Home</h1>
+            <h1>SC2IQ</h1>
 
-            <button
-                className={styles.loginButton}
-                onClick={() => loginWithRedirect()}
-            >
-                Login
-            </button>
+            {isAuthenticated === false
+                && (
+                    <button
+                        className={styles.loginButton}
+                        onClick={() => loginWithRedirect()}
+                    >
+                        Login
+                    </button>
+                )}
         </div>
     )
 }

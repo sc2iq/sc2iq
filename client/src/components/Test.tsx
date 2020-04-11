@@ -94,7 +94,12 @@ const Component: React.FC<Props> = (props) => {
         else if (currentTestState.current === TestState.Ended) {
             switch (event.key) {
                 case "Enter": {
-                    onClickDetails()
+                    if (event.ctrlKey) {
+                        onClickRestart()
+                    }
+                    else {
+                        onClickDetails()
+                    }
                     break
                 }
             }
