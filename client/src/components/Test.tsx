@@ -1,6 +1,7 @@
 import React from 'react'
 import * as models from '../models'
 import { usePrevious } from '../hooks/usePrevious'
+import { useEventListener } from '../hooks/useEventListener'
 import styles from './Test.module.css'
 
 enum TestState {
@@ -124,21 +125,7 @@ const Component: React.FC<Props> = (props) => {
         }
     }
 
-    const fakeListener = React.useCallback((event) => {
-        (fakeListener as any).updatedListener(event)
-    }, [])
-
-    React.useEffect(() => {
-        (fakeListener as any).updatedListener = listener
-    }, [listener])
-
-    React.useEffect(() => {
-        document.addEventListener('keydown', fakeListener)
-
-        return () => {
-            document.removeEventListener('keydown', fakeListener)
-        }
-    }, [])
+    useEventListener('keydown', listener, document)
 
     React.useEffect(() => {
         if (currentQuestionIndex >= props.questions.length
