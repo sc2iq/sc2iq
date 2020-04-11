@@ -50,7 +50,12 @@ async function main() {
     })
 
     server.register(ormPlugin)
+        .after(err => {
+            if (err) throw err
+        })
+
     server.register(fastifyCors)
+
 
     server.get("/", async (req, res) => {
         return `Server is running... ${new Date().toJSON()}`

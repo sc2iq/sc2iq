@@ -13,7 +13,7 @@ const typeDefs = gql`
     }
 
     extend type Query {
-        users(ignored: String): [User!]!
+        users: [User!]!
     }
 
     extend type Mutation {

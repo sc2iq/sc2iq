@@ -8,15 +8,23 @@ const Profile = () => {
     const { loading, user, isAuthenticated, getTokenSilently, loginWithRedirect, logout } = Auth0.useAuth0()
     const [serverUser, setServerUser] = React.useState<any>(undefined)
 
-    React.useEffect(() => {
+    React.useEffect(() => {  
+        let mounted = true
         async function getTokenData() {
             const t = await getTokenSilently()
             tokenData = await client.verify(t)
-            setServerUser(tokenData)
+
+            if (mounted) {
+                setServerUser(tokenData)
+            }
         }
 
         if (isAuthenticated && tokenData === undefined) {
             getTokenData()
+        }
+
+        return () => {
+            mounted = false
         }
     }, [isAuthenticated, getTokenSilently])
 

@@ -4,12 +4,12 @@ import { usePrevious } from '../hooks/userPrevious'
 import styles from './Test.module.css'
 
 enum TestState {
-    NotStarted,     // 1
-    Ready,          // 2
-    Started,        // 3
-    Saving,         // 4
-    Ended,          // 5
-    Details,        // 6
+    PreLoad = 'PreLoad',
+    Ready = 'Ready',
+    Started = 'Started',
+    Saving = 'Saving',
+    Ended = 'Ended',
+    Details = 'Details',
 }
 
 type Props = {
@@ -22,7 +22,11 @@ type Props = {
 
 const Component: React.FC<Props> = (props) => {
 
-    const [testState, setTestState] = React.useState<TestState>(TestState.NotStarted)
+    const [testState, setTestState] = React.useState<TestState>(TestState.PreLoad)
+    const currentTestState = React.useRef(testState)
+    React.useEffect(() => {
+        currentTestState.current = testState
+    }, [testState])
     const prevTestState = usePrevious(testState)
 
     const [currentQuestionIndex, setCurrentQuestionIndex] = React.useState(0)
@@ -32,6 +36,10 @@ const Component: React.FC<Props> = (props) => {
     const currentQuestion = props.questions[currentQuestionIndex]
 
     const onClickAnswer = (answerIndex: number) => () => {
+        if (currentQuestion === undefined) {
+            return
+        }
+
         const currentTime = new Date()
         const answer: models.AnswerInput = {
             questionId: currentQuestion.id,
@@ -43,7 +51,96 @@ const Component: React.FC<Props> = (props) => {
         setCurrentQuestionIndex(i => i + 1)
     }
 
-    React.useLayoutEffect(() => {
+    const listener = (event: KeyboardEvent) => {
+        console.log(`keydown: ${event.key} ${currentTestState.current}`)
+
+        if (currentTestState.current === TestState.PreLoad) {
+            switch (event.key) {
+                case "Enter": {
+                    onClickReady()
+                    break
+                }
+            }
+        }
+        else if (currentTestState.current === TestState.Ready) {
+            switch (event.key) {
+                case "Enter": {
+                    onClickStartTest()
+                    break
+                }
+            }
+        }
+        else if (currentTestState.current === TestState.Started) {
+            switch (event.key) {
+                case "1": {
+                    onClickAnswer(1)()
+                    break
+                }
+                case "2": {
+                    onClickAnswer(2)()
+                    break
+                }
+                case "3": {
+                    onClickAnswer(3)()
+                    break
+                }
+                case "4": {
+                    onClickAnswer(4)()
+                    break
+                }
+            }
+        }
+        else if (currentTestState.current === TestState.Ended) {
+            switch (event.key) {
+                case "Enter": {
+                    onClickDetails()
+                    break
+                }
+            }
+        }
+        else if (currentTestState.current === TestState.Details) {
+            switch (event.key) {
+                case "ArrowUp":
+                case "ArrowLeft": {
+                    onClickPreviousAnswerReview()
+                    break
+                }
+                case "ArrowDown":
+                case "ArrowRight": {
+                    onClickNextAnswerReview()
+                    break
+                }
+                case "Backspace": {
+                    onClickScoreOverview()
+                    break
+                }
+                case "Enter": {
+                    if (event.ctrlKey) {
+                        onClickRestart()
+                        break
+                    }
+                }
+            }
+        }
+    }
+
+    const fakeListener = React.useCallback((event) => {
+        (fakeListener as any).updatedListener(event)
+    }, [])
+
+    React.useEffect(() => {
+        (fakeListener as any).updatedListener = listener
+    }, [listener])
+
+    React.useEffect(() => {
+        document.addEventListener('keydown', fakeListener)
+
+        return () => {
+            document.removeEventListener('keydown', fakeListener)
+        }
+    }, [])
+
+    React.useEffect(() => {
         if (currentQuestionIndex >= props.questions.length
             && props.questions.length !== 0) {
             setTestState(TestState.Saving)
@@ -93,7 +190,7 @@ const Component: React.FC<Props> = (props) => {
     }
 
     const onClickRestart = () => {
-        setTestState(TestState.NotStarted)
+        setTestState(TestState.PreLoad)
 
         // Reset
         setCurrentQuestionIndex(0)
@@ -115,7 +212,7 @@ const Component: React.FC<Props> = (props) => {
         setCurrentAnswerIndexReview(c => Math.min(maxIndex, c + 1))
     }
 
-    if (testState === TestState.NotStarted) {
+    if (testState === TestState.PreLoad) {
         return (
             <div className={styles.test}>
                 <div className={"center"}>

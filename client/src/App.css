@@ -1,3 +1,17 @@
+body {
+  background: darkblue;
+  background: var(--darkBlue);
+  color: white;
+}
+
+a {
+  color: inherit;
+}
+
+button, input, textarea {
+  font-size: inherit;
+}
+
 .sc2iq-app {
   margin: 0 auto;
   width: 800px;
@@ -26,11 +40,11 @@ nav a {
 }
 
 nav a:hover {
-  background: rgba(0, 0, 0, 0.13);
+  background: rgb(59, 144, 255);
 }
 
 nav a.active {
-  background: rgba(0, 0, 0, 0.062);
+  background: rgb(78, 134, 255);
 }
 
 dl {

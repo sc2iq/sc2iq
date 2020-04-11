@@ -1,4 +1,7 @@
 import crypto from 'crypto'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 export function getNumberInRange(max: number, min: number = 0) {
     if (max < min) {
@@ -20,25 +23,28 @@ export function getExpectedDuration(difficulty: number, userPoints: number): num
 }
 
 const algorithm = 'aes-256-ctr'
-const password = 'd6F3Efeq'
+const password = process.env.CIHPER_PASSWORD
+if (!password) {
+    throw new Error(`No CIPHER_PASSWORD defined.`)
+}
 
-// make the key something other than a blank buffer
 let key = Buffer.alloc(32)
 key = Buffer.concat([Buffer.from(password)], key.length)
-
 const iv = crypto.randomBytes(16)
+const inputEncoding = 'utf8'
+const outputEncoding = 'hex'
 
 export function encrypt(text: string): string {
-    let cipher = crypto.createCipheriv(algorithm, key, iv)
-    let ecrypted = cipher.update(text, 'utf8', 'hex')
-    ecrypted += cipher.final('hex')
+    const cipher = crypto.createCipheriv(algorithm, key, iv)
+    let ecrypted = cipher.update(text, inputEncoding, outputEncoding)
+    ecrypted += cipher.final(outputEncoding)
     return ecrypted
 }
 
 export function decrypt(text: string): string {
-    let decipher = crypto.createDecipheriv(algorithm, key, iv)
-    let dec = decipher.update(text, 'hex', 'utf8')
-    dec += decipher.final('utf8')
+    const decipher = crypto.createDecipheriv(algorithm, key, iv)
+    let dec = decipher.update(text, outputEncoding, inputEncoding)
+    dec += decipher.final(inputEncoding)
     return dec
 }
 

@@ -98,8 +98,6 @@ const Search: React.FC<Props> = (props) => {
                             </div>
                             <input type="range" value={minDifficulty} onChange={onChangeMinDifficulty} min={1} max={10} />
                             <input type="range" value={maxDifficulty} onChange={onChangeMaxDifficulty} min={1} max={10} />
-                            <div className={styles.range}>
-                            </div>
                         </div>
                     </div>
 
