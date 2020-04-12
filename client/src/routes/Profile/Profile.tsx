@@ -34,30 +34,6 @@ const Profile: React.FC<Props> = (props) => {
 
 const ProfileContainer: React.FC = () => {
     const state = useSelector(ProfileSlice.selectProfile)
-    const dispatch = useDispatch()
-    const { isAuthenticated, user, getTokenSilently } = Auth0.useAuth0()
-
-    React.useEffect(() => {
-        let mounted = true
-        async function getTokenData() {
-            const t = await getTokenSilently()
-            const tokenData = await client.verify(t)
-            console.log(`ID Token: `, user)
-            console.log(`Access Token: `, tokenData)
-
-            if (mounted) {
-                dispatch(ProfileSlice.setAccessTokenData({ tokenData }))
-            }
-        }
-
-        if (isAuthenticated && state.accessTokenData === undefined) {
-            getTokenData()
-        }
-
-        return () => {
-            mounted = false
-        }
-    }, [isAuthenticated, getTokenSilently])
 
     return (
         <Profile
