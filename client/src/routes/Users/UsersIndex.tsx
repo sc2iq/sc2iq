@@ -19,7 +19,7 @@ const UsersIndex: React.FC<Props> = (props) => {
             {props.users.length === 0
                 ? <div>No users</div>
                 : props.users.map(user =>
-                    <RRD.NavLink key={user.id} to={`:${user.id}`}>
+                    <RRD.NavLink key={user.id} to={user.id}>
                         <User user={user}/>
                     </RRD.NavLink>
                 )}
