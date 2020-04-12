@@ -49,6 +49,10 @@ const Search: React.FC<Props> = (props) => {
         props.onSubmit(searchInput)
     }
 
+    const onReset = () => {
+        resetForm()
+    }
+
     const onToggleOpen = () => {
         setIsOpen(formState => !formState)
     }
@@ -76,7 +80,7 @@ const Search: React.FC<Props> = (props) => {
     }
 
     return (
-        <form onSubmit={onSubmit}>
+        <form onSubmit={onSubmit} onReset={onReset}>
             <div>
                 <div className={styles.header}>
                     <h3>Search</h3>
@@ -102,9 +106,8 @@ const Search: React.FC<Props> = (props) => {
                     </div>
 
                     <div>
-
-                    <button type="submit" disabled={isSaveDisabled}>Submit</button>
-                    <button type="reset" onClick={resetForm}>Reset</button>
+                        <button type="submit" disabled={isSaveDisabled}>Submit</button>
+                        <button type="reset">Reset</button>
                     </div>
                 </>
             }

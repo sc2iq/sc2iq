@@ -66,12 +66,12 @@ const PollsContainer: React.FC = () => {
     }, [])
 
     const getPollsAsync = async () => {
-        PollsSlice.getPollsThunk()
+        dispatch(PollsSlice.getPollsThunk())
     }
 
     const postPollAsync = async (pollInput: models.PollInput) => {
         const token = await getTokenSilently()
-        PollsSlice.postPollThunk(token, pollInput)
+        dispatch(PollsSlice.postPollThunk(token, pollInput))
     }
 
     return (

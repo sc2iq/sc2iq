@@ -11,10 +11,6 @@ type Props = {
 }
 
 const Users: React.FC<Props> = (props) => {
-    const onClickLoadUsers = async () => {
-        console.log(`on Click load more users`)
-    }
-
     return (
         <div>
             <h1>Users</h1>
@@ -24,12 +20,6 @@ const Users: React.FC<Props> = (props) => {
                 : props.users.map(user =>
                     <User user={user} key={user.id} />
                 )}
-
-            <div>
-                <button onClick={onClickLoadUsers}>
-                    Load More Users
-                </button>
-            </div>
         </div>
     )
 }
@@ -49,7 +39,7 @@ const UsersContainer: React.FC = () => {
     }, [])
 
     const getUsersAsync = async () => {
-        UsersSlice.getUsersThunk()
+        dispatch(UsersSlice.getUsersThunk())
     }
 
     return (

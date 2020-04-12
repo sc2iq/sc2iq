@@ -10,8 +10,11 @@ import * as QuestionsSlice from './questionsSlice'
 
 type Props = {
     questions: models.Question[]
+    searchFilter: models.Search | undefined
     getQuestionAsync: () => Promise<void>
+    clearSearchFilter: () => void
     postQuestionAsync: (questionInput: models.QuestionInput) => Promise<void>
+    submitSearchAsync: (search: models.Search) => Promise<void>
 }
 
 const Questions: React.FC<Props> = (props) => {
@@ -29,12 +32,25 @@ const Questions: React.FC<Props> = (props) => {
 
     const onSubmitSearch = async (search: models.Search) => {
         try {
-            console.log(`onClickSearch`)
+            props.submitSearchAsync(search)
         }
         catch (error) {
             console.error(error)
         }
     }
+
+    const onClickClearSearchFilter = async () => {
+        props.clearSearchFilter()
+    }
+
+    const searchFilter = props.searchFilter
+    const filteredQuestions = searchFilter
+        ? props.questions.filter(q => {
+            return searchFilter.minDifficulty <= q.difficulty
+                && q.difficulty >= searchFilter.maxDifficulty
+                && searchFilter.tags.every(tag => q.tags.map(t => t.name).includes(tag))
+        })
+        : props.questions
 
     return (
         <div>
@@ -42,16 +58,28 @@ const Questions: React.FC<Props> = (props) => {
             <Search onSubmit={onSubmitSearch} />
 
             <h3>Questions</h3>
-            {props.questions.length === 0
+            {props.searchFilter
+                && (
+                    <div>
+                        <button onClick={onClickClearSearchFilter}>
+                            Clear Search Filter ❌
+                        </button>
+                    </div>
+                )}
+
+            {filteredQuestions.length === 0
                 ? <div>
                     <div>No Questions</div>
-                    <button onClick={onClickLoadQuestions}>
-                        Load More Questions
-                    </button>
                 </div>
-                : props.questions.map((q, i) =>
+                : filteredQuestions.map((q, i) =>
                     <div key={q.id}>{i.toString().padStart(3, ' ')}: <Question question={q} /></div>
                 )}
+
+            <div>
+                <button onClick={onClickLoadQuestions}>
+                    Load More Questions
+                </button>
+            </div>
         </div>
     )
 }
@@ -72,19 +100,30 @@ const QuestionsContainer: React.FC = () => {
     }, [])
 
     const getQuestionAsync = async () => {
-        QuestionsSlice.getQuestionsThunk()
+        dispatch(QuestionsSlice.getQuestionsThunk())
     }
 
     const postQuestionAsync = async (question: models.QuestionInput) => {
         const token = await getTokenSilently()
-        QuestionsSlice.postQuestionThunk(token, question)
+        dispatch(QuestionsSlice.postQuestionThunk(token, question))
+    }
+
+    const submitSearchAsync = async (search: models.Search) => {
+        dispatch(QuestionsSlice.submitSearchThunk(search))
+    }
+
+    const clearSearchFilter = () => {
+        dispatch(QuestionsSlice.setSearchFilter({ search: undefined }))
     }
 
     return (
         <Questions
             questions={state.questions}
+            searchFilter={state.searchFilter}
+            clearSearchFilter={clearSearchFilter}
             getQuestionAsync={getQuestionAsync}
             postQuestionAsync={postQuestionAsync}
+            submitSearchAsync={submitSearchAsync}
         />
     )
 }

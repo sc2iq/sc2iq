@@ -83,12 +83,12 @@ const ScoresContainer: React.FC = () => {
     }, [])
 
     const getScoresAsync = async () => {
-        ScoresSlice.getScoresThunk()
+        dispatch(ScoresSlice.getScoresThunk())
     }
 
     const postScoreAsync = async (score: models.ScoreInput) => {
         const token = await getTokenSilently()
-        ScoresSlice.postScoreThunk(token, score)
+        dispatch(ScoresSlice.postScoreThunk(token, score))
     }
 
     return (
