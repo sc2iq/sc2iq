@@ -1,4 +1,5 @@
 import React from 'react'
+import * as Auth0 from "../react-auth0-spa"
 import useInput from '../hooks/useInput'
 import * as models from '../models'
 import Tags from './Tags'
@@ -14,6 +15,8 @@ const onChangeInput = (setFn: Function) => (event: React.ChangeEvent<HTMLInputEl
 }
 
 const Component: React.FC<Props> = (props) => {
+    const { isAuthenticated, loginWithRedirect } = Auth0.useAuth0()
+
     const [isOpen, setIsOpen] = React.useState(false)
     const [question, setQuestion, onChangeQuestion, onKeyDownQuestion] = useInput()
     const [answer1, setAnswer1, onChangeAnswer1, onKeyDownAnswer1] = useInput()
@@ -84,6 +87,10 @@ const Component: React.FC<Props> = (props) => {
         setComment(comment)
     }
 
+    const onClickLogIn = () => {
+        loginWithRedirect()
+    }
+
     return (
         <form onSubmit={onSubmit} onReset={onReset}>
             <div>
@@ -134,7 +141,10 @@ const Component: React.FC<Props> = (props) => {
                     </div>
 
                     <div>
-                        <button type="submit" disabled={isSaveDisabled}>Submit</button>
+                        {isAuthenticated
+                            ? <button type="submit" disabled={isSaveDisabled}>Submit</button>
+                            : <div>You must <button type="button" onClick={onClickLogIn}>Log In</button> to create a question.</div>
+                        }
                         <button type="reset">Reset</button>
                     </div>
                 </>

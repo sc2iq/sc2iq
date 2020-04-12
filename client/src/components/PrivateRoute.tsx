@@ -7,23 +7,19 @@ type Props = {
     path: string
 }
 const PrivateRoute: React.FC<Props> = ({ element, path, ...rest }) => {
-    const { loading, isAuthenticated, loginWithRedirect } = useAuth0()
+    const { isAuthenticated, loginWithRedirect } = useAuth0()
 
-    React.useEffect(() => {
-        if (loading || isAuthenticated) {
-            return
-        }
-        const fn = async () => {
-            await loginWithRedirect({
-                appState: { targetUrl: path }
-            })
-        }
-        fn()
-    }, [loading, isAuthenticated, loginWithRedirect, path])
+    const onClickLogin = () => {
+        loginWithRedirect({
+            appState: { targetUrl: path }
+        })
+    }
 
     const render = isAuthenticated === true
-            ? element
-            : null
+        ? element
+        : <div>
+            You must <button type="button" onClick={onClickLogin}>Log In</button> to continue.
+        </div>
 
     return <Route path={path} element={render} {...rest} />
 }

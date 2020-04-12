@@ -1,4 +1,5 @@
 import React from 'react'
+import * as Auth0 from "../react-auth0-spa"
 import * as models from '../models'
 import * as Utils from '../utilities'
 import { usePrevious } from '../hooks/usePrevious'
@@ -23,7 +24,7 @@ type Props = {
 }
 
 const Component: React.FC<Props> = (props) => {
-
+    const { isAuthenticated, loginWithRedirect } = Auth0.useAuth0()
     const [testState, setTestState] = React.useState<TestState>(TestState.PreLoad)
     const currentTestState = React.useRef(testState)
     React.useEffect(() => {
@@ -219,12 +220,21 @@ const Component: React.FC<Props> = (props) => {
         setCurrentAnswerIndexReview(c => Math.min(maxIndex, c + 1))
     }
 
+    const onClickLogIn = () => {
+        loginWithRedirect()
+    }
 
     if (testState === TestState.PreLoad) {
         return (
             <div className={styles.test}>
                 <div className={"center"}>
-                    <button onClick={onClickReady}>Ready</button>
+                    {isAuthenticated
+                        ? <button onClick={onClickReady}>Ready</button>
+                        : <div>
+                            You must <button onClick={onClickLogIn}>log in</button> to take tests.
+                        </div>
+
+                    }
                 </div>
             </div>
         )
@@ -366,7 +376,11 @@ const Component: React.FC<Props> = (props) => {
     }
 
     return (
-        <div>Unknown state</div>
+        <div>
+            <h2>Unknown Test State</h2>
+            <p>TestState: {currentTestState}</p>
+            <p>Question Index: {currentQuestionIndex}</p>
+        </div>
     )
 }
 
