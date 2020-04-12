@@ -3,7 +3,7 @@ import * as models from "../models"
 import styles from "./User.module.css"
 
 type Props = {
-    user: models.UserMetadata
+    user: models.User
 }
 
 const User: React.FC<Props> = ({ user }) => {

@@ -67,8 +67,8 @@ export const getScore = getById<models.Score>('/scores')
 export const postScore = post<models.ScoreInput, models.Score>('/scores')
 
 // Users
-export const getUsers = get<models.UserMetadata[]>('/users')
-export const getUser = getById<models.UserMetadata>('/users')
+export const getUsers = get<models.User[]>('/users')
+export const getUser = getById<models.User>('/users')
 export const postUser = post<models.UserInput, models.User>('/users')
 
 // Profile

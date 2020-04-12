@@ -37,6 +37,4 @@ export class User {
 
     @OneToMany(type => Question, question => question.user)
     questions: Question[]
-
-
 }

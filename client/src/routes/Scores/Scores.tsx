@@ -1,11 +1,9 @@
 import React from 'react'
 import * as Auth0 from "../../react-auth0-spa"
-import * as client from '../../services/client'
 import * as models from '../../models'
 import styles from "./Scores.module.css"
 import classnames from "classnames"
 import Score from "../../components/Score"
-import * as utils from "../../utilities"
 import { useSelector, useDispatch } from 'react-redux'
 import * as ScoresSlice from './scoresSlice'
 
@@ -20,7 +18,7 @@ const scoreTypeName: Record<ScoreType, string> = {
 }
 
 type Props = {
-    scores: models.ScoreComputed[] 
+    scores: models.ScoreComputed[]
     getScoresAsync: () => Promise<void>
     postScoreAsync: (scoreInput: models.ScoreInput) => Promise<void>
 }
@@ -51,11 +49,7 @@ const Scores: React.FC<Props> = (props) => {
                     My Scores
                 </button>
             </div>
-            <div>
-                <button onClick={onClickLoadScores}>
-                    Load Scores
-                </button>
-            </div>
+
             {props.scores.length === 0
                 ? <div>No Scores</div>
                 : <div className={styles.scores}>
@@ -63,6 +57,12 @@ const Scores: React.FC<Props> = (props) => {
                         <Score score={score} key={score.id} />
                     )}
                 </div>}
+
+            <div>
+                <button onClick={onClickLoadScores}>
+                    Load More Scores
+                </button>
+            </div>
         </div>
     )
 }

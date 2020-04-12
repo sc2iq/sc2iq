@@ -28,7 +28,7 @@ export type Score
         answers: Answer[]
         startedAt: string
         id: string
-        user: UserMetadata
+        user: User
     }
 
 export type AnswerComputed
@@ -126,8 +126,6 @@ export type UserInput = {
 }
 
 export type UserMetadata = {
-    id: string
-    name: string
     reputation: number
     points: number
     status: string

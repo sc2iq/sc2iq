@@ -17,17 +17,10 @@ export const slice = createSlice({
     initialState,
     reducers: {
         setScores: (state, action: PayloadAction<{ scores: models.Score[] }>) => {
-            state.scores = action.payload.scores.map(s => {
-                return {
-                    ...s,
-                    avgDifficulty: 0,
-                    duration: 0,
-                    points: 0,
-                }
-            })
+            state.scores = action.payload.scores.map<models.ScoreComputed>(s => utilities.computeDurationsOfScore(s))
         },
         addScore: (state, action: PayloadAction<{ score: models.Score }>) => {
-            state.scores.push(action.payload.score)
+            state.scores.push(utilities.computeDurationsOfScore(action.payload.score))
         }
     },
 })
