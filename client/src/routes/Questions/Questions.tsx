@@ -46,9 +46,10 @@ const Questions: React.FC<Props> = (props) => {
     const searchFilter = props.searchFilter
     const filteredQuestions = searchFilter
         ? props.questions.filter(q => {
+            const questionTags = q.tags.map(t => t.name)
             return searchFilter.minDifficulty <= q.difficulty
-                && q.difficulty >= searchFilter.maxDifficulty
-                && searchFilter.tags.every(tag => q.tags.map(t => t.name).includes(tag))
+                && q.difficulty <= searchFilter.maxDifficulty
+                && searchFilter.tags.some(tag => questionTags.includes(tag))
         })
         : props.questions
 

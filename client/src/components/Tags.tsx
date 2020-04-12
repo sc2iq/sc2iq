@@ -9,7 +9,7 @@ type Props = {
 }
 
 const Tags: React.FC<Props> = (props) => {
-    const [newTag, setNewTag, onChangeNewTag] = useInput()
+    const [tagInput, setTagInput, onChangeNewTag] = useInput()
     const onClickRemoveTag = (tagIndex: number): void => {
         const newTags = [...props.tags]
         newTags.splice(tagIndex, 1)
@@ -17,24 +17,34 @@ const Tags: React.FC<Props> = (props) => {
         props.setTags(newTags)
     }
 
-    const onKeyDownTagInput = (event: React.KeyboardEvent<HTMLInputElement>): void => {
+    const onBluerTagInput = (event: React.FocusEvent<HTMLInputElement>) => {
+        if (tagInput.length >= 3) {
+            if (props.tags.includes(tagInput)) {
+                return
+            }
 
+            props.setTags(tags => [...tags, tagInput])
+            setTagInput('')
+        }
+    }
+
+    const onKeyDownTagInput = (event: React.KeyboardEvent<HTMLInputElement>): void => {
         switch (event.key) {
             case 'Enter':
             case 'Tab': {
-                if (newTag.length >= 3) {
+                if (tagInput.length >= 3) {
                     event.preventDefault()
-                    if (props.tags.includes(newTag)) {
+                    if (props.tags.includes(tagInput)) {
                         return
                     }
 
-                    props.setTags(tags => [...tags, newTag])
-                    setNewTag('')
+                    props.setTags(tags => [...tags, tagInput])
+                    setTagInput('')
                 }
                 break
             }
             case 'Backspace': {
-                if (newTag.length === 0) {
+                if (tagInput.length === 0) {
                     props.setTags(tags => {
                         const tagsCopy = [...tags]
                         tagsCopy.pop()
@@ -59,9 +69,10 @@ const Tags: React.FC<Props> = (props) => {
             </div>
             <input
                 type="text"
-                value={newTag}
+                value={tagInput}
                 onChange={onChangeNewTag}
                 onKeyDown={onKeyDownTagInput}
+                onBlur={onBluerTagInput}
                 placeholder={props.placeholder}
                 autoComplete="off"
             />
