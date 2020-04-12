@@ -46,7 +46,7 @@ const Questions: React.FC<Props> = (props) => {
                 ? <div>
                     <div>No Questions</div>
                     <button onClick={onClickLoadQuestions}>
-                        Load Questions
+                        Load More Questions
                     </button>
                 </div>
                 : props.questions.map((q, i) =>
@@ -88,6 +88,5 @@ const QuestionsContainer: React.FC = () => {
         />
     )
 }
-
 
 export default QuestionsContainer
