@@ -146,3 +146,14 @@ export type Search
         minDifficulty: number,
         maxDifficulty: number,
     }
+
+export type AccessToken = {
+    iss: string
+    sub: string
+    aud: string[]
+    iat: number
+    exp: number
+    azp: string
+    scope: string
+    permissions: string[]
+}

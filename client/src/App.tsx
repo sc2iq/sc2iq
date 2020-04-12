@@ -6,7 +6,9 @@ import Questions from './routes/Questions/Questions'
 import Scores from './routes/Scores/Scores'
 import Polls from './routes/Polls/Polls'
 import Users from './routes/Users/Users'
-import Profile from './routes/Profile'
+import UsersIndex from './routes/Users/UsersIndex'
+import User from './routes/Users/User/User'
+import Profile from './routes/Profile/Profile'
 import Test from './routes/Test'
 import PrivateRoute from './components/PrivateRoute'
 import { useAuth0 } from "./react-auth0-spa"
@@ -70,7 +72,10 @@ function App() {
                         <RRD.Route path="test" element={<Test />} />
                         <RRD.Route path="scores" element={<Scores />} />
                         <RRD.Route path="polls" element={<Polls />} />
-                        <RRD.Route path="users" element={<Users />} />
+                        <RRD.Route path="users" element={<Users />} >
+                            <RRD.Route path="/" element={<UsersIndex />} />
+                            <RRD.Route path=":userId" element={<User />} />
+                        </RRD.Route>
                         <RRD.Route path="debug" element={<Debug />} />
                         <PrivateRoute path="profile" element={<Profile />} />
                     </Routes>

@@ -233,7 +233,6 @@ const Component: React.FC<Props> = (props) => {
                         : <div>
                             You must <button onClick={onClickLogIn}>log in</button> to take tests.
                         </div>
-
                     }
                 </div>
             </div>
