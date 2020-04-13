@@ -139,8 +139,11 @@ const Component: React.FC<Props> = (props) => {
                 case "Enter": {
                     if (event.ctrlKey) {
                         onClickRestart()
-                        break
                     }
+                    else {
+                        onClickScoreOverview()
+                    }
+                    break
                 }
             }
         }
@@ -164,8 +167,7 @@ const Component: React.FC<Props> = (props) => {
             props.onSubmit(score)
         }
 
-        // eslint-disable-next-line
-    }, [answers.length])
+    }, [props.questions.length, currentQuestionIndex, answers.length])
 
     const onClickReady = async () => {
         props.onClickReady()
@@ -377,7 +379,7 @@ const Component: React.FC<Props> = (props) => {
     return (
         <div>
             <h2>Unknown Test State</h2>
-            <p>TestState: {currentTestState}</p>
+            <p>TestState: {currentTestState.current}</p>
             <p>Question Index: {currentQuestionIndex}</p>
         </div>
     )
