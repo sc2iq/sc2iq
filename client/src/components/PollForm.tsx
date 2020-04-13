@@ -6,7 +6,7 @@ import Tags from './Tags'
 import styles from "./QuestionForm.module.css"
 
 type Props = {
-    onSubmit(question: models.PollInput): void
+    onSubmit(pollInput: models.PollInput): void
 }
 
 const onChangeInput = (setFn: Function) => (event: React.ChangeEvent<HTMLInputElement>) => {

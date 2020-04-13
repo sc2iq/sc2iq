@@ -17,7 +17,7 @@ enum TestState {
 
 type Props = {
     onClickReady(): void
-    questions: models.Poll[]
+    questions: models.Question[]
     onSubmit(score: models.ScoreInput): void
     getKeyAsync(): Promise<string>
     score?: models.ScoreComputed
