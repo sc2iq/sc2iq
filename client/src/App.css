@@ -1,7 +1,21 @@
+:root {
+  --lightBlue: #1C2739;
+  --darkBlue: #030D19;
+  --blue: #0C1828;
+  --blueText: #6F8EAE;
+  --green: #16B828;
+  --gold: #FBCF4A;
+}
+
 body {
-  background: darkblue;
   background: var(--darkBlue);
   color: white;
+}
+
+#root {
+  display: grid;
+  grid-template: max-content 1fr max-content / auto;
+  height: 100vh;
 }
 
 a {
@@ -12,27 +26,34 @@ button, input, textarea {
   font-size: inherit;
 }
 
-.sc2iq-app {
+.container {
+  margin: 0 auto;
+  width: 1000px;
+}
+
+.placeholder {
+  padding: 4rem;
+  text-align: center;
+}
+
+header {
+  background: var(--lightBlue);
+}
+
+footer {
+  background: var(--lightBlue);
+  padding: 2rem;
 }
 
 nav {
   display: grid;
-  grid-auto-flow: column;
-  justify-content: center;
-  align-content: center;
+  grid-template-columns: repeat(6, max-content) 1fr max-content;
 }
 
-main {
-  padding: 2rem;
-}
-
-input {
-  width: 100%;
-}
-
-nav > div {
+nav>div {
   padding: 1rem 1.5rem;
 }
+
 nav a {
   padding: 1rem 1.5rem;
 }
@@ -43,6 +64,14 @@ nav a:hover {
 
 nav a.active {
   background: rgb(78, 134, 255);
+}
+
+main {
+  padding: 2rem;
+}
+
+input {
+  width: 100%;
 }
 
 dl {

@@ -65,13 +65,17 @@ function App() {
     }, [isAuthenticated, getTokenSilently])
 
     if (loading) {
-        return <div>Loading...</div>
+        return <div className="placeholder">
+            <div className="container">
+                <div>Loading...</div>
+            </div>
+        </div>
     }
 
     return (
         <RRD.Router history={history}>
-            <div className="sc2iq-app">
-                <header>
+            <header>
+                <div className="container">
                     <nav>
                         <RRD.NavLink to="/">SC2IQ</RRD.NavLink>
                         <RRD.NavLink to="/questions">Questions</RRD.NavLink>
@@ -79,10 +83,13 @@ function App() {
                         <RRD.NavLink to="/scores">Scores</RRD.NavLink>
                         <RRD.NavLink to="/polls">Polls</RRD.NavLink>
                         <RRD.NavLink to="/users">Users</RRD.NavLink>
+                        <b></b>
                         <RRD.NavLink to="/profile">Profile</RRD.NavLink>
                     </nav>
-                </header>
-                <main>
+                </div>
+            </header>
+            <main>
+                <div className="container">
                     <Routes>
                         <RRD.Route path="/" element={<Index />} />
                         <RRD.Route path="questions" element={<Questions />} />
@@ -97,8 +104,10 @@ function App() {
                         <RRD.Route path="debug" element={<Debug />} />
                         <RRD.Route path="review" element={<Review />} />
                     </Routes>
-                </main>
-                <footer>
+                </div>
+            </main>
+            <footer>
+                <div className="container">
                     SC2IQ © 2020
                     {profileState.accessTokenData?.permissions.includes('write:all')
                         && (
@@ -107,8 +116,8 @@ function App() {
                                 <RRD.NavLink to="/review">Review</RRD.NavLink>
                             </div>
                         )}
-                </footer>
-            </div>
+                </div>
+            </footer>
         </RRD.Router>
     )
 }
