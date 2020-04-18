@@ -1,0 +1,42 @@
+.testLevelName {
+    font-size: 2rem;
+}
+
+.testLevelDescription {
+    font-size: 0.75rem;
+}
+
+.testLevelDropdown {
+    font-size: 2rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.325rem;
+}
+
+.fields {
+    margin-top: .5rem;
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    grid-gap: 0.5rem;
+}
+
+.fields>*:nth-child(2n + 1) {
+    padding: 0.25rem;
+}
+
+.difficulty>div {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-columns: max-content 1fr max-content;
+}
+
+.difficulty>div>span:nth-child(2) {
+    text-align: center;
+}
+
+.difficulty>div>span:nth-child(3) {
+    text-align: right;
+}
+
+.difficulty>input {
+    width: 100%;
+}

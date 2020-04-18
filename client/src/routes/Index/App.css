@@ -1,8 +1,9 @@
 :root {
-  --lightBlue: #1C2739;
-  --darkBlue: #030D19;
+  --lightBlue: #29364a;
+  --lightBlue2: rgb(23, 33, 49);
   --blue: #0C1828;
-  --blueText: #6F8EAE;
+  --darkBlue: #030D19;
+  --lightestBlue: #6F8EAE;
   --green: #16B828;
   --gold: #FBCF4A;
 }
@@ -40,6 +41,11 @@ header {
   background: var(--lightBlue);
 }
 
+.subheader {
+  padding: 1rem;
+  background: var(--lightBlue2);
+}
+
 footer {
   background: var(--lightBlue);
   padding: 2rem;
@@ -56,14 +62,16 @@ nav>div {
 
 nav a {
   padding: 1rem 1.5rem;
+  /* border-left: 1px solid #49505d; */
+  text-decoration: none;
 }
 
 nav a:hover {
-  background: rgb(59, 144, 255);
+  background: rgb(87, 111, 142);
 }
 
 nav a.active {
-  background: rgb(78, 134, 255);
+  background: rgb(68, 83, 115);
 }
 
 main {

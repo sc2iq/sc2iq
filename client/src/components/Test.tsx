@@ -5,6 +5,7 @@ import * as Utils from '../utilities'
 import { usePrevious } from '../hooks/usePrevious'
 import { useEventListener } from '../hooks/useEventListener'
 import styles from './Test.module.css'
+import TestLevelComponent, { TestLevel } from './TestLevel'
 
 enum TestState {
     PreLoad = 'PreLoad',
@@ -25,7 +26,8 @@ type Props = {
 
 const Component: React.FC<Props> = (props) => {
     const { isAuthenticated, loginWithRedirect } = Auth0.useAuth0()
-    const [testState, setTestState] = React.useState<TestState>(TestState.PreLoad)
+    const [testLevel, setTestLevel] = React.useState(TestLevel.Easy)
+    const [testState, setTestState] = React.useState(TestState.PreLoad)
     const currentTestState = React.useRef(testState)
     React.useEffect(() => {
         currentTestState.current = testState
@@ -226,16 +228,35 @@ const Component: React.FC<Props> = (props) => {
         loginWithRedirect()
     }
 
+    const onChangeTestLevel = (testLevel: TestLevel) => {
+        setTestLevel(testLevel)
+    }
+
+    if (isAuthenticated === false) {
+        return (
+            <div className={styles.test}>
+                <div>
+                    You must <button onClick={onClickLogIn}>log in</button> to take tests.
+                </div>
+            </div>
+        )
+    }
+
     if (testState === TestState.PreLoad) {
         return (
             <div className={styles.test}>
-                <div className={"center"}>
-                    {isAuthenticated
-                        ? <button onClick={onClickReady}>Ready</button>
-                        : <div>
-                            You must <button onClick={onClickLogIn}>log in</button> to take tests.
+                <div>
+                    <div>
+                        <div className={styles.testLevelDescription}>
+                            <TestLevelComponent
+                                testLevel={testLevel}
+                                onChange={onChangeTestLevel}
+                            />
                         </div>
-                    }
+                        <div className={"center"}>
+                            <button className={styles.testButton__Ready} onClick={onClickReady}>Ready</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         )
@@ -262,6 +283,7 @@ const Component: React.FC<Props> = (props) => {
     }
 
     if (testState === TestState.Ended && props.score) {
+        const correctAnswers = props.score.answers.filter(a => a.answerIndex === 1)
         const points = props.score.answers.reduce((s, a) => s + a.points, 0)
         const expectedPoints = props.score.answers.reduce((s, a) => s + a.expectedDuration, 0)
 
@@ -274,7 +296,7 @@ const Component: React.FC<Props> = (props) => {
                     </div>
 
                     <div className={styles.correctOutOfTotal}>
-                        8/10
+                        {correctAnswers.length}/{props.score.answers.length}
                     </div>
                     <div className={styles.correctList}>
                         {props.score.answers.map((a, i) => {
@@ -313,7 +335,9 @@ const Component: React.FC<Props> = (props) => {
                         <button
                             disabled={currentAnswerReviewIndex === 0}
                             onClick={onClickPreviousAnswerReview}
-                        >◀ Prev</button>
+                        >
+                            ◀ Prev
+                        </button>
                         {props.score.answers.map((answer, answerIndex) => {
                             const marking = answer.answerIndex === 1
                                 ? '✔'
@@ -336,7 +360,9 @@ const Component: React.FC<Props> = (props) => {
                         <button
                             disabled={currentAnswerReviewIndex === lastAnswerIndex}
                             onClick={onClickNextAnswerReview}
-                        >Next ▶</button>
+                        >
+                            Next ▶
+                        </button>
                     </div>
                     {
                         currentAnswer &&
@@ -356,10 +382,10 @@ const Component: React.FC<Props> = (props) => {
     if (currentQuestion) {
         return (
             <div className={styles.test}>
-                <div className={styles.testQuestion}>
-                    <div>Question:</div>
-                    <h2 className={styles.question}>{currentQuestion.question}</h2>
+                <div>Question:</div>
+                <h2 className={styles.question}>{currentQuestion.question}</h2>
 
+                <div className={styles.answers}>
                     <div>A1:</div>
                     <button onClick={onClick1}>{currentQuestion.answer1}</button>
 
@@ -377,10 +403,10 @@ const Component: React.FC<Props> = (props) => {
     }
 
     return (
-        <div>
-            <h2>Unknown Test State</h2>
-            <p>TestState: {currentTestState.current}</p>
-            <p>Question Index: {currentQuestionIndex}</p>
+        <div className={styles.test}>
+            <div className="center">
+                Loading...
+            </div>
         </div>
     )
 }
@@ -400,7 +426,7 @@ const AnswerDetails: React.FC<AnswerProps> = (props) => {
 
     return (
         <div>
-            <div>{question.question}</div>
+            <div className={styles.question}>{question.question}</div>
             <div className={styles.testAnswersReview}>
                 {answers.map(([a, percentage], i) => {
                     let marking = ' '

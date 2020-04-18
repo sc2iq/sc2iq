@@ -2,7 +2,7 @@ import React from "react"
 import * as Auth0 from "../../react-auth0-spa"
 import * as client from "../../services/client"
 import { useSelector, useDispatch } from 'react-redux'
-import * as ProfileSlice from './profileSlice'
+import * as UsersSlice from '../Users/usersSlice'
 import * as models from '../../models'
 
 type Props = {
@@ -33,7 +33,7 @@ const Profile: React.FC<Props> = (props) => {
 }
 
 const ProfileContainer: React.FC = () => {
-    const state = useSelector(ProfileSlice.selectProfile)
+    const state = useSelector(UsersSlice.selectUsers)
 
     return (
         <Profile

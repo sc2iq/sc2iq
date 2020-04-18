@@ -1,0 +1,30 @@
+
+
+.userBanner {
+    padding: .25rem 1.5rem;
+    display: grid;
+    grid-template-columns: minmax(max-content, 1fr) minmax(max-content, 2fr) minmax(max-content, 1fr) minmax(max-content, 1fr);
+    grid-gap: 2rem;
+    align-items: center;
+}
+
+.difficulty {
+    display: grid;
+    grid-template-columns: max-content 1fr max-content;
+    grid-gap: 0.5rem;
+    align-items: center;
+}
+
+.difficultyBar {
+    border: 2px solid white;
+    border-radius: 0.25rem;
+    display: flex;
+    height: 100%;
+}
+
+.difficultyBarMeter {
+    padding: 0.25rem 0.5rem;
+    background: #4b5971;
+    text-align: right;
+    white-space: nowrap;
+}

@@ -1,15 +1,42 @@
 .test {
-    border: 2px solid var(--blue);
+    border: 2px solid var(--lightestBlue);
+    padding: 4rem;
+}
+
+.testLevelDropdown {
+    padding: 0.25em 0.5em;
+    font-size: 1.5rem;
+}
+
+.testLevelDescription {
     padding: 1rem;
 }
 
-.testQuestion {
-    display: grid;
-    grid-template-columns: max-content 1fr;
+.testButton__Ready {
+    margin-top: 2rem;
+    padding: 0.5em;
+    font-size: 2rem;
 }
 
 .question {
-    min-height: 4.5rem;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--lightBlue);
+}
+
+.answers {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    grid-gap: 0.5rem 1rem;
+    align-items: center;
+}
+
+.answers button {
+    background: #1f528a;
+    border: none;
+    padding: 0.5rem 1rem;
+    text-align: left;
+    color: #deeeff;
 }
 
 .testFinished {

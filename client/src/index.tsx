@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import App from './App'
+import App from './routes/Index/App'
 import { store } from './app/store'
 import { Provider as ReduxProvider } from 'react-redux'
 import { Auth0Provider } from "./react-auth0-spa"
