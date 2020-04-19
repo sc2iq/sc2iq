@@ -1,0 +1,19 @@
+.tabs {
+    margin: 1rem 0; 
+    display: grid;
+    grid-auto-flow: column;
+    justify-content: start;
+    border-bottom: 1px solid grey;
+}
+
+.button.active {
+    background-color: rgba(255,255,255,0.5);
+}
+
+.button {
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-size: 1.25rem;
+    color: white;
+    background: rgba(255,255,255,0.2);
+}
