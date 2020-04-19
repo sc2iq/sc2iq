@@ -3,7 +3,7 @@ import { User } from './User'
 import { Tag } from "./Tag"
 import { QuestionDetails } from "./QuestionDetails"
 
-export enum QuestionStatus {
+export enum QuestionState {
     PENDING = 'pending',
     APPROVED = 'approved',
     REJECTED = 'rejected',
@@ -40,7 +40,7 @@ export class Question {
     revisionComment: string
 
     @TORM.Column({
-        default: QuestionStatus.PENDING
+        default: QuestionState.PENDING
     })
     state: string
 

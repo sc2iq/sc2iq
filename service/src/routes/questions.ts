@@ -1,6 +1,6 @@
 import fastify from "fastify"
 import * as models from "../models"
-import { Question } from "../entity/Question"
+import { QuestionState, Question } from "../entity/Question"
 import { User } from "../entity/User"
 import { Tag, QuestionDetails } from "../entity"
 
@@ -9,8 +9,14 @@ export default function (fastify: fastify.FastifyInstance, pluginOptions: unknow
 
     fastify.get(
         "/",
-        async () => {
-            const questions = await connection.manager.find(Question)
+        {
+            schema: {
+                querystring: models.Question.QuerySchema,
+            },
+        },
+        async (req) => {
+            const questionState = (req.query.state as string)?.toLowerCase() ?? QuestionState.APPROVED
+            const questions = await connection.manager.find(Question, { where: { state: questionState }})
 
             return questions
         })
@@ -82,7 +88,7 @@ export default function (fastify: fastify.FastifyInstance, pluginOptions: unknow
         {
             preValidation: [fastify.authenticate],
             schema: {
-                body: models.Question.Schema
+                body: models.Question.InputSchema
             }
         },
         async (req, res) => {

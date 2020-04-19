@@ -1,6 +1,6 @@
 import fastify from "fastify"
 import * as models from "../models"
-import { Poll } from "../entity/Poll"
+import { PollState, Poll } from "../entity/Poll"
 import { User } from "../entity/User"
 import { Tag, PollDetails } from "../entity"
 
@@ -9,8 +9,14 @@ export default function (fastify: fastify.FastifyInstance, pluginOptions: unknow
 
     fastify.get(
         "/",
-        async () => {
-            const polls = await connection.manager.find(Poll)
+        {
+            schema: {
+                querystring: models.Poll.QuerySchema,
+            },
+        },
+        async (req) => {
+            const pollState = (req.query.state as string)?.toLowerCase() ?? PollState.APPROVED
+            const polls = await connection.manager.find(Poll, { where: { state: pollState }})
 
             return polls
         })
@@ -80,7 +86,7 @@ export default function (fastify: fastify.FastifyInstance, pluginOptions: unknow
         {
             preValidation: [fastify.authenticate],
             schema: {
-                body: models.Poll.Schema
+                body: models.Poll.InputSchema
             }
         },
         async (req, res) => {

@@ -15,7 +15,8 @@ const ormPlugin: fastify.Plugin<unknown, unknown, unknown, unknown> = async (ins
         username: connectionOptions.username,
         password: connectionOptions.password,
         database: connectionOptions.database,
-
+        
+        maxQueryExecutionTime: 1000,
         synchronize: true,
         // dropSchema: true,
         logging: ["error"],

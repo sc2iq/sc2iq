@@ -11,7 +11,7 @@ export type Input = {
     tags: string[]
 }
 
-export const Schema = S.object()
+export const InputSchema = S.object()
     .prop('question', S.string().required())
     .prop('answer1', S.string().required())
     .prop('answer2', S.string().required())
@@ -20,3 +20,10 @@ export const Schema = S.object()
     .prop('difficulty', S.number().required())
     .prop('source', S.string().required())
     .prop('tags', S.array().items(S.string()))
+
+export type Query = {
+    status: string
+}
+
+export const QuerySchema = S.object()
+    .prop('state', S.string())
