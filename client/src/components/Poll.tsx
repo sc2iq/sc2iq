@@ -7,34 +7,34 @@ type Props = {
     poll: models.Poll
 }
 
-const Poll: React.FC<Props> = ({ poll: question }) => {
+const Poll: React.FC<Props> = ({ poll }) => {
     
-    const [details, setDetails] = React.useState<models.QuestionDetails>()
+    const [details, setDetails] = React.useState<models.PollDetails>()
 
     const onClickLoadDetails = async () => {
-        const questionWithDetails = await client.getQuestion(question.id)
-        setDetails(questionWithDetails.details)
+        const pollWithDetails = await client.getPoll(poll.id)
+        setDetails(pollWithDetails.details)
     }
 
     return (
         <div className={styles.question}>
             <div className={styles.title}>
-                {question.question}
+                {poll.question}
             </div>
             <div className={styles.answers}>
-                <div>{question.answer1}</div>
-                <div>{question.answer2}</div>
-                <div>{question.answer3}</div>
-                <div>{question.answer4}</div>
+                <div>{poll.answer1}</div>
+                <div>{poll.answer2}</div>
+                <div>{poll.answer3}</div>
+                <div>{poll.answer4}</div>
             </div>
             <div>
                 <dl>
                     <dt>Tags</dt>
-                    <dd>{question.tags.map(t => <span className={styles.tag} key={t.id}>{t.name}</span>)}</dd>
+                    <dd>{poll.tags.map(t => <span className={styles.tag} key={t.id}>{t.name}</span>)}</dd>
                     <dt>State:</dt>
-                    <dd>{question.state}</dd>
+                    <dd>{poll.state}</dd>
                     <dt>Author</dt>
-                    <dd>{question.user.name}</dd>
+                    <dd>{poll.user.name}</dd>
                 </dl>
             </div>
             <div>
