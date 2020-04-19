@@ -47,16 +47,28 @@ const DifficultyBar: React.FC<BarProps> = (props) => {
     console.log({ props, percentage })
 
     const style = {
-        flex: `${percentage}`,
+        flex: `${percentage.toFixed(3)}`,
+    }
+    
+    let leftText: string
+    let rightText: string
+    if (percentage <= 0.50) {
+        leftText = ''
+        rightText = `${props.value} (${displayPercentage}%)`
+    }
+    else {
+        leftText = `${props.value} (${displayPercentage}%)`
+        rightText = ''
     }
 
     return (
         <div className={styles.difficulty}>
             <div>{props.min}</div>
             <div className={styles.difficultyBar}>
-                <div className={styles.difficultyBarMeter} style={style}></div>
+                <div className={styles.difficultyBarLeft} style={style}>{leftText}</div>
+                <div className={styles.difficultyBarRight}>{rightText}</div>
             </div>
-            <div>{props.max} ({displayPercentage}%)</div>
+            <div>{props.max}</div>
         </div>
     )
 }
@@ -71,7 +83,7 @@ const UserBanner: React.FC<Props> = (props) => {
             <div>League: {league}</div>
             <DifficultyBar
                 min={1}
-                value={1.34}
+                value={1.65}
                 max={2}
             />
             <div>Points: {props.user.points}</div>

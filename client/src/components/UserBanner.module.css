@@ -1,7 +1,7 @@
 
 
 .userBanner {
-    padding: .25rem 1.5rem;
+    padding: 0 1.5rem;
     display: grid;
     grid-template-columns: minmax(max-content, 1fr) minmax(max-content, 2fr) minmax(max-content, 1fr) minmax(max-content, 1fr);
     grid-gap: 2rem;
@@ -16,15 +16,19 @@
 }
 
 .difficultyBar {
-    border: 2px solid white;
+    border: 2px solid #7489af;
     border-radius: 0.25rem;
     display: flex;
     height: 100%;
 }
 
-.difficultyBarMeter {
+.difficultyBarLeft {
     padding: 0.25rem 0.5rem;
     background: #4b5971;
     text-align: right;
     white-space: nowrap;
+}
+
+.difficultyBarRight {
+    padding: 0.25rem 0.5rem;
 }
