@@ -28,8 +28,8 @@ export const slice = createSlice({
 const { setPolls, addPoll } = slice.actions
 export { }
 
-export const getPollsThunk = (): AppThunk => async dispatch => {
-    const polls = await client.getPolls()
+export const getPollsThunk = (state: models.PollState): AppThunk => async dispatch => {
+    const polls = await client.getPolls(state)
     dispatch(setPolls({ polls }))
 }
 

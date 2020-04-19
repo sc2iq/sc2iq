@@ -90,11 +90,11 @@ const ReviewContainer: React.FC = () => {
 
     React.useEffect(() => {
         async function loadQuestions() {
-            dispatch(QuestionsSlice.getQuestionsThunk())
+            dispatch(QuestionsSlice.getQuestionsThunk(models.QuestionState.PENDING))
         }
 
         async function loadPolls() {
-            dispatch(PollsSlice.getPollsThunk())
+            dispatch(PollsSlice.getPollsThunk(models.PollState.PENDING))
         }
 
         if (view === ReviewState.Questions && questionsState.questions.length === 0) {

@@ -44,14 +44,19 @@ const Questions: React.FC<Props> = (props) => {
     }
 
     const searchFilter = props.searchFilter
-    const filteredQuestions = searchFilter
-        ? props.questions.filter(q => {
-            const questionTags = q.tags.map(t => t.name)
-            return searchFilter.minDifficulty <= q.difficulty
-                && q.difficulty <= searchFilter.maxDifficulty
-                && searchFilter.tags.some(tag => questionTags.includes(tag))
-        })
-        : props.questions
+    let filteredQuestions = props.questions
+        .filter(q => q.state === models.QuestionState.APPROVED)
+
+    // Apply search filters
+    if (searchFilter) {
+        filteredQuestions = filteredQuestions
+            .filter(q => {
+                const questionTags = q.tags.map(t => t.name)
+                return searchFilter.minDifficulty <= q.difficulty
+                    && q.difficulty <= searchFilter.maxDifficulty
+                    && searchFilter.tags.some(tag => questionTags.includes(tag))
+            })
+    }
 
     return (
         <div>
@@ -92,7 +97,7 @@ const QuestionsContainer: React.FC = () => {
 
     React.useEffect(() => {
         async function loadQuestions() {
-            dispatch(QuestionsSlice.getQuestionsThunk())
+            dispatch(QuestionsSlice.getQuestionsThunk(models.QuestionState.APPROVED))
         }
 
         if (state.questions.length === 0) {
@@ -101,7 +106,7 @@ const QuestionsContainer: React.FC = () => {
     }, [])
 
     const getQuestionAsync = async () => {
-        dispatch(QuestionsSlice.getQuestionsThunk())
+        dispatch(QuestionsSlice.getQuestionsThunk(models.QuestionState.APPROVED))
     }
 
     const postQuestionAsync = async (question: models.QuestionInput) => {

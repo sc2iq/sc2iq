@@ -61,6 +61,12 @@ export type PollInput = {
     tags: string[]
 }
 
+export enum PollState {
+    PENDING = 'pending',
+    APPROVED = 'approved',
+    REJECTED = 'rejected',
+}
+
 export type Poll
     = Omit<PollInput, 'tags'>
     & Entity
@@ -105,13 +111,19 @@ export type QuestionDetails = {
     updatedAt: string
 }
 
+export enum QuestionState {
+    PENDING = 'pending',
+    APPROVED = 'approved',
+    REJECTED = 'rejected',
+}
+
 export type Question
     = Omit<QuestionInput, 'tags'>
     & Entity
     & {
         id: string
         revisionComment: string
-        state: string
+        state: QuestionState
         user: User
         tags: Tag[]
     }
@@ -129,7 +141,7 @@ export type UserMetadata = {
     reputation: number
     points: number
     status: string
-    difficultyRating:  number
+    difficultyRating: number
 }
 
 export type User

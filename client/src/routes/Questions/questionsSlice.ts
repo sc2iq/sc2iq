@@ -33,8 +33,8 @@ export const slice = createSlice({
 const { setQuestions, setSearchFilter, addQuestion } = slice.actions
 export { setSearchFilter }
 
-export const getQuestionsThunk = (): AppThunk => async dispatch => {
-    const questions = await client.getQuestions()
+export const getQuestionsThunk = (state: models.QuestionState): AppThunk => async dispatch => {
+    const questions = await client.getQuestions(state)
     dispatch(setQuestions({ questions }))
 }
 

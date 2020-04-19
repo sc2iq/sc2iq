@@ -40,7 +40,9 @@ async function main() {
 
     const server = fastify({
         logger: {
+            // redact: ['req.headers.authorization'],
             prettyPrint: true,
+            // level: ['info']
         },
         caseSensitive: false,
     })

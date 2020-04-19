@@ -15,7 +15,22 @@ export const getKey = async (): Promise<string> => {
 }
 
 // Questions
-export const getQuestions = get<models.Question[]>('/questions')
+export const getQuestions = async (state?: models.QuestionState): Promise<models.Question[]> => {
+    const path = `/questions${state ? `?state=${state}` : ''}`
+    const response = await fetch(`${basedUrl}${path}`, {
+        headers: {
+            Accept: 'application/json',
+        }
+    })
+
+    if (response.ok) {
+        const responseData = await response.json()
+        return responseData
+    }
+
+    throw new Error(`Error when attempting to GET ${path}`)
+}
+
 export const getRandomQuestions = get<models.Question[]>('/questions/random')
 export const getQuestion = getById<models.QuestionWithDetails>('/questions')
 export const postQuestion = post<models.QuestionInput, models.Question>('/questions')
@@ -39,7 +54,22 @@ export const postQuestionsSearch = async (search: models.Search): Promise<models
 }
 
 // Polls
-export const getPolls = get<models.Poll[]>('/polls')
+export const getPolls = async (state?: models.PollState): Promise<models.Poll[]> => {
+    const path = `/polls${state ? `?state=${state}` : ''}`
+    const response = await fetch(`${basedUrl}${path}`, {
+        headers: {
+            Accept: 'application/json',
+        }
+    })
+
+    if (response.ok) {
+        const responseData = await response.json()
+        return responseData
+    }
+
+    throw new Error(`Error when attempting to GET ${path}`)
+}
+
 export const getPoll = getById<models.PollWithDetails>('/polls')
 export const postPoll = post<models.PollInput, models.Poll>('/polls')
 export const postPollsSearch = async (search: models.Search): Promise<models.Poll[]> => {
@@ -72,7 +102,7 @@ export const getUser = getById<models.User>('/users')
 export const postUser = post<models.UserInput, models.User>('/users')
 
 // Profile
-export const verify = getWithToken('/verify')
+export const verify = getWithToken<models.AccessToken>('/verify')
 export const getUserInfo = async (token: string) => {
     const response = await fetch(`https://sc2iq.auth0.com/userinfo`, {
         headers: {
@@ -99,12 +129,7 @@ function getById<T>(subPath: string) {
             }
         })
 
-        if (response.ok) {
-            const responseData = await response.json()
-            return responseData
-        }
-
-        throw new Error(`Error when attempting to GET ${path}`)
+        return returnJson(response, path)
     }
 }
 
@@ -116,30 +141,13 @@ function get<T>(path: string) {
             }
         })
 
-        if (response.ok) {
-            const responseData = await response.json()
-            return responseData
-        }
-
-        throw new Error(`Error when attempting to GET ${path}`)
+        return returnJson(response, path)
     }
 }
 
-function getWithToken(path: string) {
-    return async function fn(token: string) {
-        const response = await fetch(`${basedUrl}${path}`, {
-            headers: {
-                Accept: 'application/json',
-                Authorization: `Bearer ${token}`
-            }
-        })
-
-        if (response.ok) {
-            const responseData = await response.json()
-            return responseData
-        }
-
-        throw new Error(`Error when attempting to GET ${path}.`)
+function getWithToken<T>(path: string) {
+    return async function fn(token: string): Promise<T> {
+        return fetchPath<T>(path, token)
     }
 }
 
@@ -162,4 +170,25 @@ function post<Input, Output>(path: string) {
 
         throw new Error(`Error when attempting to POST ${path}.`)
     }
+}
+
+
+async function fetchPath<T>(path: string, token: string): Promise<T> {
+    const response = await fetch(`${basedUrl}${path}`, {
+        headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${token}`
+        }
+    })
+
+    return returnJson(response, path)
+}
+
+async function returnJson<T>(response: Response, path: string): Promise<T> {
+    if (response.ok) {
+        const responseData = await response.json()
+        return responseData as T
+    }
+
+    throw new Error(`Error when attempting to GET ${path}`)
 }

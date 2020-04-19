@@ -28,17 +28,20 @@ const Polls: React.FC<Props> = (props) => {
         console.log('on click submit search', search)
     }
 
+    let filteredPolls = props.polls
+        .filter(q => q.state === models.PollState.APPROVED)
+
     return (
         <div>
             <PollForm onSubmit={onSubmitPoll} />
             <Search onSubmit={onSubmitSearch} />
 
             <h3>Polls</h3>
-            {props.polls.length === 0
+            {filteredPolls.length === 0
                 ? <div>
                     <div>No Polls</div>
                 </div>
-                : props.polls.map((poll, i) =>
+                : filteredPolls.map((poll, i) =>
                     <div key={poll.id}>{i.toString().padStart(3, ' ')}: <Poll poll={poll} /></div>
                 )}
 
@@ -57,7 +60,7 @@ const PollsContainer: React.FC = () => {
     const { getTokenSilently } = Auth0.useAuth0()
     React.useEffect(() => {
         async function loadUsers() {
-            dispatch(PollsSlice.getPollsThunk())
+            dispatch(PollsSlice.getPollsThunk(models.PollState.APPROVED))
         }
 
         if (state.polls.length === 0) {
@@ -66,7 +69,7 @@ const PollsContainer: React.FC = () => {
     }, [])
 
     const getPollsAsync = async () => {
-        dispatch(PollsSlice.getPollsThunk())
+        dispatch(PollsSlice.getPollsThunk(models.PollState.APPROVED))
     }
 
     const postPollAsync = async (pollInput: models.PollInput) => {
