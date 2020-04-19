@@ -5,6 +5,7 @@ import * as models from '../../models'
 import User from "../../components/User"
 import { useSelector, useDispatch } from 'react-redux'
 import * as UsersSlice from './usersSlice'
+import styles from "./UsersIndex.module.css"
 
 type Props = {
     users: models.User[]
@@ -18,11 +19,21 @@ const UsersIndex: React.FC<Props> = (props) => {
 
             {props.users.length === 0
                 ? <div>No users</div>
-                : props.users.map(user =>
-                    <RRD.NavLink key={user.id} to={user.id}>
-                        <User user={user}/>
-                    </RRD.NavLink>
-                )}
+                : <div className={styles.users}>
+                    <div className={styles.columnHeaders}>
+                        <div>Name:</div>
+                        <div>Difficulty Rating:</div>
+                        <div>Points:</div>
+                        <div>Reputation:</div>
+                        <div>Status</div>
+                    </div>
+                    {props.users.map(user =>
+                        <RRD.NavLink key={user.id} to={user.id} className={styles.user}>
+                            <User user={user} />
+                        </RRD.NavLink>
+                    )}
+                </div>
+            }
         </div>
     )
 }

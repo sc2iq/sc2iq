@@ -82,14 +82,16 @@ const App: React.FC<Props> = (props) => {
             </main>
             <footer>
                 <div className="container">
-                    SC2IQ © 2020
-                    {props.permissions.includes('write:all')
-                        && (
-                            <div>
-                                <RRD.NavLink to="/debug">Debug</RRD.NavLink> &nbsp;
-                                <RRD.NavLink to="/review">Review</RRD.NavLink>
-                            </div>
-                        )}
+                    <div className="footer">
+                        <div>SC2IQ © 2020</div>
+                        {props.permissions.includes('write:all')
+                            && (
+                                <div className="links">
+                                    <RRD.NavLink to="/review">Review</RRD.NavLink>
+                                    <RRD.NavLink to="/debug">Debug</RRD.NavLink>
+                                </div>
+                            )}
+                    </div>
                 </div>
             </footer>
         </RRD.Router>

@@ -29,7 +29,13 @@ button, input, textarea {
 
 .container {
   margin: 0 auto;
-  width: 1000px;
+  width: 1200px;
+}
+
+@media (max-width: 1440px) {
+  .container {
+    width: 1000px;
+  }
 }
 
 .placeholder {
@@ -85,4 +91,20 @@ input {
 dl {
   display: grid;
   grid-template-columns: max-content 1fr;
+}
+
+.footer {
+  display: grid;
+  grid-template-columns:  max-content max-content;
+  grid-gap: 4rem;
+}
+
+.footer .links {
+  display: grid;
+  grid-auto-flow: column;
+  grid-gap: 1rem;
+}
+
+.footer .links a {
+  text-underline-offset: 7px;
 }

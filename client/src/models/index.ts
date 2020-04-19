@@ -129,6 +129,7 @@ export type UserMetadata = {
     reputation: number
     points: number
     status: string
+    difficultyRating:  number
 }
 
 export type User

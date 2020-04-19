@@ -9,8 +9,11 @@ type Props = {
 const User: React.FC<Props> = ({ user }) => {
     return (
         <div className={styles.user}>
-            <div>Name: {user.name}</div>
-            <div>Points: {user.points}</div>
+            <div>{user.name}</div>
+            <div>{user.difficultyRating}</div>
+            <div>{user.points}</div>
+            <div>{user.reputation}</div>
+            <div>{user.status}</div>
         </div>
     )
 }
