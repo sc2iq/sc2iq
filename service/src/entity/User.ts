@@ -27,6 +27,11 @@ export class User {
     status: string
 
     @Column({
+        default: 1
+    })
+    difficultyRating: number
+
+    @Column({
         default: 0
     })
     points: number
