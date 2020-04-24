@@ -6,6 +6,60 @@ import { usePrevious } from '../hooks/usePrevious'
 import { useEventListener } from '../hooks/useEventListener'
 import styles from './Test.module.css'
 import TestLevelComponent, { TestLevel } from './TestLevel'
+import { Machine, interpret } from 'xstate'
+import { useMachine } from '@xstate/react'
+
+const testStateMachine = Machine({
+    id: 'testState',
+    initial: 'preload',
+    states: {
+        preload: {
+            on: {
+                LOAD: {
+                    target: 'ready',
+                },
+            },
+        },
+        ready: {
+            on: {
+                START: {
+                    target: 'started',
+                },
+            }
+        },
+        started: {
+            on: {
+                END: {
+                    target: 'ended',
+                }
+            }
+        },
+        ended: {
+            on: {
+                RESTART: {
+                    target: 'preload',
+                },
+            },
+            initial: 'overview',
+            states: {
+                overview: {
+                    on: {
+                        DETAILS: {
+                            target: 'details'
+                        }
+                    },
+                },
+                details: {
+                    on: {
+                        OVERVIEW: {
+                            target: 'overview'
+                        }
+                    }
+                },
+            }
+        },
+    }
+})
 
 enum TestState {
     PreLoad = 'PreLoad',
@@ -25,6 +79,16 @@ type Props = {
 }
 
 const Component: React.FC<Props> = (props) => {
+    const [state, dispatch, service] = useMachine(testStateMachine)
+    React.useEffect(() => {
+        const subscription = service.subscribe((state) => {
+            // simple state logging
+            console.log(`State: `, state.value, state.event, state)
+        })
+
+        return subscription.unsubscribe
+    }, [service])
+
     const { isAuthenticated, loginWithRedirect } = Auth0.useAuth0()
     const [testLevel, setTestLevel] = React.useState(TestLevel.Easy)
     const [testState, setTestState] = React.useState(TestState.PreLoad)
@@ -32,7 +96,6 @@ const Component: React.FC<Props> = (props) => {
     React.useEffect(() => {
         currentTestState.current = testState
     }, [testState])
-    const prevTestState = usePrevious(testState)
 
     const [currentQuestionIndex, setCurrentQuestionIndex] = React.useState(0)
     const [key, setKey] = React.useState<string>()
@@ -178,27 +241,32 @@ const Component: React.FC<Props> = (props) => {
     React.useEffect(() => {
         if (props.score) {
             setTestState(TestState.Ended)
+            dispatch('END')
         }
     }, [props.score])
 
     React.useEffect(() => {
         if (props.questions.length > 5) {
             setTestState(TestState.Ready)
+            dispatch('READY')
         }
     }, [props.questions])
 
     const onClickStartTest = async () => {
         const key = await props.getKeyAsync()
         setTestState(TestState.Started)
+        dispatch('START')
         setKey(key)
     }
 
     const onClickDetails = () => {
         setTestState(TestState.Details)
+        dispatch('END.DETAILS')
     }
 
     const onClickScoreOverview = () => {
         setTestState(TestState.Ended)
+        dispatch('END.OVERVIEW')
     }
 
     const onClickRestart = () => {
