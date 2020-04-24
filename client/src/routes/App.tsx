@@ -1,25 +1,25 @@
 import React from 'react'
 import * as RRD from 'react-router-dom'
-import Index from '../Index'
-import Debug from '../Debug'
-import Questions from '../Questions/Questions'
-import Scores from '../Scores/Scores'
-import Polls from '../Polls/Polls'
-import Users from '../Users/Users'
-import UsersIndex from '../Users/UsersIndex'
-import User from '../Users/User/User'
-import Profile from '../Profile/Profile'
-import Review from '../Review/Review'
-import Test from '../Test'
-import PrivateRoute from '../../components/PrivateRoute'
-import UserBanner from '../../components/UserBanner'
-import { useAuth0 } from "../../react-auth0-spa"
-import history from "../../utilities/history"
-import * as client from '../../services/client'
-import * as models from '../../models'
+import Index from './Index/Index'
+import Debug from './Debug'
+import Questions from './Questions/Questions'
+import Scores from './Scores/Scores'
+import Polls from './Polls/Polls'
+import Users from './Users/Users'
+import UsersIndex from './Users/UsersIndex'
+import User from './Users/User/User'
+import Profile from './Profile/Profile'
+import Review from './Review/Review'
+import Test from './Test/Test'
+import PrivateRoute from '../components/PrivateRoute'
+import UserBanner from '../components/UserBanner'
+import { useAuth0 } from "../react-auth0-spa"
+import history from "../utilities/history"
+import * as client from '../services/client'
+import * as models from '../models'
 import './App.css'
 import { useSelector, useDispatch } from 'react-redux'
-import * as UsersSlice from '../Users/usersSlice'
+import * as UsersSlice from './Users/usersSlice'
 
 const Routes = (RRD as any).Routes
 

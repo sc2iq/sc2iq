@@ -1,5 +1,5 @@
 import React from 'react'
-import * as Auth0 from "../react-auth0-spa"
+import * as Auth0 from "../../react-auth0-spa"
 import styles from './Index.module.css'
 
 const Home: React.FC = () => {
