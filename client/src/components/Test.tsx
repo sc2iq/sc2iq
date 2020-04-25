@@ -92,10 +92,10 @@ const Component: React.FC<Props> = (props) => {
     const [testLevel, setTestLevel] = React.useState(TestLevel.Easy)
     const [testState, setTestState] = React.useState(TestState.PreLoad)
     const [currentQuestionIndex, setCurrentQuestionIndex] = React.useState(0)
+    const currentQuestion = props.questions[currentQuestionIndex]
     const [key, setKey] = React.useState<string>()
     const [answers, setAnswers] = React.useState<models.AnswerInput[]>([])
 
-    const currentQuestion = props.questions[currentQuestionIndex]
     // const randomizedAnswers = React.useMemo(() => {
     //     return currentQuestion
     //         ? Utils.randomizeList([currentQuestion.answer1, currentQuestion.answer2, currentQuestion.answer3, currentQuestion.answer4])
@@ -118,18 +118,12 @@ const Component: React.FC<Props> = (props) => {
         setCurrentQuestionIndex(i => i + 1)
     }
 
-    console.count('render')
-    console.log(`render ${testState} ${currentQuestionIndex}`)
-
     const onClick1 = onClickAnswer(1)
     const onClick2 = onClickAnswer(2)
     const onClick3 = onClickAnswer(3)
     const onClick4 = onClickAnswer(4)
 
     const listener = (event: KeyboardEvent) => {
-        console.count('listener')
-        console.log(`keydown: ${event.key} ${testState} ${currentQuestionIndex}`)
-
         if (testState === TestState.PreLoad) {
             switch (event.key) {
                 case "Enter": {
@@ -211,6 +205,7 @@ const Component: React.FC<Props> = (props) => {
     useEventListener('keydown', listener, document)
 
     React.useEffect(() => {
+        // If user answers the last question, stop and submits answers
         if (currentQuestionIndex >= props.questions.length
             && props.questions.length !== 0) {
             setTestState(TestState.Saving)
