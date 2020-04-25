@@ -1,7 +1,6 @@
 import React from 'react'
 import * as Auth0 from "../react-auth0-spa"
 import * as models from '../models'
-import * as utils from '../utilities'
 import { useEventListener } from '../hooks/useEventListener'
 import styles from './Test.module.css'
 import TestLevelComponent, { TestLevel } from './TestLevel'
@@ -59,6 +58,7 @@ const testStateMachine = Machine({
                 src: 'loadQuestions',
                 onDone: {
                     target: 'ready',
+                    actions: ['saveQuestions']
                 },
             },
         },
@@ -73,7 +73,8 @@ const testStateMachine = Machine({
             invoke: {
                 src: 'getKey',
                 onDone: {
-                    target: 'started'
+                    target: 'started',
+                    actions: ['setKey']
                 }
             }
         },
@@ -116,6 +117,26 @@ const testStateMachine = Machine({
                 },
             }
         },
+    },
+},
+{
+    services: {
+        loadQuestions: async (context, event) => {
+            const questions = await client.getRandomQuestions()
+            return questions.slice(0, 10)
+        },
+        getKey: async (context, event) => {
+            const key = await client.getKey()
+            return key
+        },
+    },
+    actions: {
+        saveQuestions: (context, event) => {
+            context.questions = event.data
+        },
+        setKey: (context, event) => {
+            context.key = event.data
+        }
     }
 })
 
@@ -134,18 +155,6 @@ type Props = {
 const Component: React.FC<Props> = (props) => {
     const { getTokenSilently } = Auth0.useAuth0()
 
-    const loadQuestions = React.useCallback(async (context, event) => {
-        const questions = await client.getRandomQuestions()
-        context.questions = questions.slice(0, 10)
-        return questions
-    }, [])
-
-    const getKey = React.useCallback(async (context, event) => {
-        const key = await client.getKey()
-        context.key = key
-        return key
-    }, [])
-
     const submitScore = React.useCallback(async (context, event) => {
         const token = await getTokenSilently()
         const score = await client.postScore(token, event.score)
@@ -157,11 +166,10 @@ const Component: React.FC<Props> = (props) => {
     // Use State machine to manage test states
     const [testState, send, service] = useMachine(testStateMachine, {
         services: {
-            loadQuestions,
-            getKey,
             submitScore,
         }
     })
+    
     React.useEffect(() => {
         service.onEvent(event => {
             console.log(`Event:  `, event.type, event)
