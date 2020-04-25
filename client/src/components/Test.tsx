@@ -36,6 +36,10 @@ type TestContext =
     | {
         value: 'ended'
     }
+    | {
+        type: 'done.invoke.loadQuestions',
+        questions: models.Question[]
+    }
 
 const testStateMachine = Machine({
     id: 'testState',
