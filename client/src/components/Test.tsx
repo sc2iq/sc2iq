@@ -2,7 +2,6 @@ import React from 'react'
 import * as Auth0 from "../react-auth0-spa"
 import * as models from '../models'
 import * as Utils from '../utilities'
-import { usePrevious } from '../hooks/usePrevious'
 import { useEventListener } from '../hooks/useEventListener'
 import styles from './Test.module.css'
 import TestLevelComponent, { TestLevel } from './TestLevel'
@@ -92,11 +91,6 @@ const Component: React.FC<Props> = (props) => {
     const { isAuthenticated, loginWithRedirect } = Auth0.useAuth0()
     const [testLevel, setTestLevel] = React.useState(TestLevel.Easy)
     const [testState, setTestState] = React.useState(TestState.PreLoad)
-    const currentTestState = React.useRef(testState)
-    React.useEffect(() => {
-        currentTestState.current = testState
-    }, [testState])
-
     const [currentQuestionIndex, setCurrentQuestionIndex] = React.useState(0)
     const [key, setKey] = React.useState<string>()
     const [answers, setAnswers] = React.useState<models.AnswerInput[]>([])
@@ -125,7 +119,7 @@ const Component: React.FC<Props> = (props) => {
     }
 
     console.count('render')
-    console.log(`render ${currentTestState.current} ${currentQuestionIndex}`)
+    console.log(`render ${testState} ${currentQuestionIndex}`)
 
     const onClick1 = onClickAnswer(1)
     const onClick2 = onClickAnswer(2)
@@ -134,9 +128,9 @@ const Component: React.FC<Props> = (props) => {
 
     const listener = (event: KeyboardEvent) => {
         console.count('listener')
-        console.log(`keydown: ${event.key} ${currentTestState.current} ${currentQuestionIndex}`)
+        console.log(`keydown: ${event.key} ${testState} ${currentQuestionIndex}`)
 
-        if (currentTestState.current === TestState.PreLoad) {
+        if (testState === TestState.PreLoad) {
             switch (event.key) {
                 case "Enter": {
                     onClickReady()
@@ -144,7 +138,7 @@ const Component: React.FC<Props> = (props) => {
                 }
             }
         }
-        else if (currentTestState.current === TestState.Ready) {
+        else if (testState === TestState.Ready) {
             switch (event.key) {
                 case "Enter": {
                     onClickStartTest()
@@ -152,7 +146,7 @@ const Component: React.FC<Props> = (props) => {
                 }
             }
         }
-        else if (currentTestState.current === TestState.Started) {
+        else if (testState === TestState.Started) {
             switch (event.key) {
                 case "1": {
                     onClick1()
@@ -172,7 +166,7 @@ const Component: React.FC<Props> = (props) => {
                 }
             }
         }
-        else if (currentTestState.current === TestState.Ended) {
+        else if (testState === TestState.Ended) {
             switch (event.key) {
                 case "Enter": {
                     if (event.ctrlKey) {
@@ -185,7 +179,7 @@ const Component: React.FC<Props> = (props) => {
                 }
             }
         }
-        else if (currentTestState.current === TestState.Details) {
+        else if (testState === TestState.Details) {
             switch (event.key) {
                 case "ArrowUp":
                 case "ArrowLeft": {
