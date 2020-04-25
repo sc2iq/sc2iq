@@ -1,20 +1,63 @@
 import React from 'react'
 import * as Auth0 from "../react-auth0-spa"
 import * as models from '../models'
-import * as Utils from '../utilities'
+import * as utils from '../utilities'
 import { useEventListener } from '../hooks/useEventListener'
 import styles from './Test.module.css'
 import TestLevelComponent, { TestLevel } from './TestLevel'
-import { Machine, interpret } from 'xstate'
+import { Machine } from 'xstate'
 import { useMachine } from '@xstate/react'
+import * as client from '../services/client'
+import * as util from '../utilities'
+
+type TestEvent =
+    | { type: 'LOAD' }
+    | { type: 'START' }
+    | { type: 'END' }
+    | { type: 'DETAILS' }
+    | { type: 'OVERVIEW' }
+    | { type: 'RESTART' }
+
+type TestContext =
+    | {
+        value: 'preload'
+    }
+    | {
+        value: 'loading'
+    }
+    | {
+        value: 'ready',
+        questions: models.Question[],
+    }
+    | {
+        value: 'started',
+        key: string | undefined,
+        questions: models.Question[],
+    }
+    | {
+        value: 'ended'
+    }
 
 const testStateMachine = Machine({
     id: 'testState',
     initial: 'preload',
+    context: {
+        key: '',
+        questions: [] as models.Question[],
+        score: undefined as (models.ScoreComputed | undefined),
+    },
     states: {
         preload: {
             on: {
                 LOAD: {
+                    target: 'loading',
+                },
+            },
+        },
+        loading: {
+            invoke: {
+                src: 'loadQuestions',
+                onDone: {
                     target: 'ready',
                 },
             },
@@ -22,13 +65,29 @@ const testStateMachine = Machine({
         ready: {
             on: {
                 START: {
-                    target: 'started',
+                    target: 'starting',
                 },
+            }
+        },
+        starting: {
+            invoke: {
+                src: 'getKey',
+                onDone: {
+                    target: 'started'
+                }
             }
         },
         started: {
             on: {
-                END: {
+                SAVE: {
+                    target: 'saving',
+                }
+            }
+        },
+        saving: {
+            invoke: {
+                src: 'submitScore',
+                onDone: {
                     target: 'ended',
                 }
             }
@@ -70,19 +129,46 @@ enum TestState {
 }
 
 type Props = {
-    onClickReady(): void
-    questions: models.Question[]
-    onSubmit(score: models.ScoreInput): void
-    getKeyAsync(): Promise<string>
-    score?: models.ScoreComputed
 }
 
 const Component: React.FC<Props> = (props) => {
-    const [state, dispatch, service] = useMachine(testStateMachine)
+    const { getTokenSilently } = Auth0.useAuth0()
+
+    const loadQuestions = React.useCallback(async (context, event) => {
+        const questions = await client.getRandomQuestions()
+        context.questions = questions.slice(0, 10)
+        return questions
+    }, [])
+
+    const getKey = React.useCallback(async (context, event) => {
+        const key = await client.getKey()
+        context.key = key
+        return key
+    }, [])
+
+    const submitScore = React.useCallback(async (context, event) => {
+        const token = await getTokenSilently()
+        const score = await client.postScore(token, event.score)
+        const scoreComputed = util.computeDurationsOfScore(score)
+        context.score = scoreComputed
+        return scoreComputed
+    }, [])
+
+    // Use State machine to manage test states
+    const [testState, send, service] = useMachine(testStateMachine, {
+        services: {
+            loadQuestions,
+            getKey,
+            submitScore,
+        }
+    })
     React.useEffect(() => {
+        service.onEvent(event => {
+            console.log(`Event:  `, event.type, event)
+        })
+
         const subscription = service.subscribe((state) => {
-            // simple state logging
-            console.log(`State: `, state.value, state.event, state)
+            console.log(`State: `, state.value, state.context)
         })
 
         return subscription.unsubscribe
@@ -90,10 +176,8 @@ const Component: React.FC<Props> = (props) => {
 
     const { isAuthenticated, loginWithRedirect } = Auth0.useAuth0()
     const [testLevel, setTestLevel] = React.useState(TestLevel.Easy)
-    const [testState, setTestState] = React.useState(TestState.PreLoad)
     const [currentQuestionIndex, setCurrentQuestionIndex] = React.useState(0)
-    const currentQuestion = props.questions[currentQuestionIndex]
-    const [key, setKey] = React.useState<string>()
+    const currentQuestion = testState.context.questions[currentQuestionIndex]
     const [answers, setAnswers] = React.useState<models.AnswerInput[]>([])
 
     // const randomizedAnswers = React.useMemo(() => {
@@ -124,7 +208,7 @@ const Component: React.FC<Props> = (props) => {
     const onClick4 = onClickAnswer(4)
 
     const listener = (event: KeyboardEvent) => {
-        if (testState === TestState.PreLoad) {
+        if (testState.matches('preload') === true) {
             switch (event.key) {
                 case "Enter": {
                     onClickReady()
@@ -132,7 +216,7 @@ const Component: React.FC<Props> = (props) => {
                 }
             }
         }
-        else if (testState === TestState.Ready) {
+        else if (testState.matches('ready') === true) {
             switch (event.key) {
                 case "Enter": {
                     onClickStartTest()
@@ -140,7 +224,7 @@ const Component: React.FC<Props> = (props) => {
                 }
             }
         }
-        else if (testState === TestState.Started) {
+        else if (testState.matches('started') === true) {
             switch (event.key) {
                 case "1": {
                     onClick1()
@@ -160,7 +244,7 @@ const Component: React.FC<Props> = (props) => {
                 }
             }
         }
-        else if (testState === TestState.Ended) {
+        else if (testState.matches('ended.overview') === true) {
             switch (event.key) {
                 case "Enter": {
                     if (event.ctrlKey) {
@@ -173,7 +257,7 @@ const Component: React.FC<Props> = (props) => {
                 }
             }
         }
-        else if (testState === TestState.Details) {
+        else if (testState.matches('ended.details') === true) {
             switch (event.key) {
                 case "ArrowUp":
                 case "ArrowLeft": {
@@ -206,60 +290,40 @@ const Component: React.FC<Props> = (props) => {
 
     React.useEffect(() => {
         // If user answers the last question, stop and submits answers
-        if (currentQuestionIndex >= props.questions.length
-            && props.questions.length !== 0) {
-            setTestState(TestState.Saving)
-            if (!key) {
+        if (testState.context.questions.length !== 0
+            && currentQuestionIndex >= testState.context.questions.length
+        ) {
+            if (!testState.context.key) {
                 throw new Error(`You attempted to submit a test but the key was not set.`)
             }
 
             const score: models.ScoreInput = {
-                key,
+                key: testState.context.key,
                 answers,
             }
-
-            props.onSubmit(score)
+            send({ type: 'SAVE', score })
         }
 
-    }, [props.questions.length, currentQuestionIndex, answers.length])
+    }, [testState.context.questions.length, currentQuestionIndex, answers.length])
 
     const onClickReady = async () => {
-        props.onClickReady()
+        send({ type: 'LOAD' })
     }
 
-    React.useEffect(() => {
-        if (props.score) {
-            setTestState(TestState.Ended)
-            dispatch('END')
-        }
-    }, [props.score])
-
-    React.useEffect(() => {
-        if (props.questions.length > 5) {
-            setTestState(TestState.Ready)
-            dispatch('READY')
-        }
-    }, [props.questions])
-
     const onClickStartTest = async () => {
-        const key = await props.getKeyAsync()
-        setTestState(TestState.Started)
-        dispatch('START')
-        setKey(key)
+        send({ type: 'START' })
     }
 
     const onClickDetails = () => {
-        setTestState(TestState.Details)
-        dispatch('END.DETAILS')
+        send({ type: 'DETAILS' })
     }
 
     const onClickScoreOverview = () => {
-        setTestState(TestState.Ended)
-        dispatch('END.OVERVIEW')
+        send({ type: 'OVERVIEW' })
     }
 
     const onClickRestart = () => {
-        setTestState(TestState.PreLoad)
+        send({ type: 'RESTART' })
 
         // Reset
         setCurrentQuestionIndex(0)
@@ -267,7 +331,7 @@ const Component: React.FC<Props> = (props) => {
     }
 
     const [currentAnswerReviewIndex, setCurrentAnswerIndexReview] = React.useState<number>(0)
-    const currentAnswer = (props.score?.answers ?? [])[currentAnswerReviewIndex]
+    const currentAnswer = (testState.context.score?.answers ?? [])[currentAnswerReviewIndex]
     const onClickPreviousAnswerReview = () => {
         setCurrentAnswerIndexReview(c => Math.max(0, c - 1))
     }
@@ -277,7 +341,7 @@ const Component: React.FC<Props> = (props) => {
     }
 
     const onClickNextAnswerReview = () => {
-        const maxIndex = (props.score?.answers.length ?? 1) - 1
+        const maxIndex = (testState.context.score?.answers.length ?? 1) - 1
         setCurrentAnswerIndexReview(c => Math.min(maxIndex, c + 1))
     }
 
@@ -299,7 +363,7 @@ const Component: React.FC<Props> = (props) => {
         )
     }
 
-    if (testState === TestState.PreLoad) {
+    if (testState.matches('preload') === true) {
         return (
             <div className={styles.test}>
                 <div>
@@ -319,7 +383,17 @@ const Component: React.FC<Props> = (props) => {
         )
     }
 
-    if (testState === TestState.Ready) {
+    if (testState.matches('loading') === true) {
+        return (
+            <div className={styles.test}>
+                <div className={"center"}>
+                    Loading Questions...
+                </div>
+            </div>
+        )
+    }
+
+    if (testState.matches('ready') === true) {
         return (
             <div className={styles.test}>
                 <div className={"center"}>
@@ -329,114 +403,17 @@ const Component: React.FC<Props> = (props) => {
         )
     }
 
-    if (testState === TestState.Saving) {
+    if (testState.matches('starting') === true) {
         return (
             <div className={styles.test}>
-                <div className={styles.testFinished}>
-                    Saving...
+                <div className={"center"}>
+                    Starting...
                 </div>
             </div>
         )
     }
 
-    if (testState === TestState.Ended && props.score) {
-        const correctAnswers = props.score.answers.filter(a => a.answerIndex === 1)
-        const points = props.score.answers.reduce((s, a) => s + a.points, 0)
-        const expectedPoints = props.score.answers.reduce((s, a) => s + a.expectedDuration, 0)
-
-        return (
-            <div className={styles.test}>
-                <div className={styles.testFinished}>
-                    <div className={styles.time}>⏰ Time: {props.score.duration / 1000}s</div>
-                    <div className={styles.state}>
-                        Finished!
-                    </div>
-
-                    <div className={styles.correctOutOfTotal}>
-                        {correctAnswers.length}/{props.score.answers.length}
-                    </div>
-                    <div className={styles.correctList}>
-                        {props.score.answers.map((a, i) => {
-                            const marking = a.answerIndex === 1
-                                ? '✔'
-                                : '❌'
-
-                            return (
-                                <div key={i}>{marking}</div>
-                            )
-                        })}
-                    </div>
-                    <div>
-                        Points: {points.toFixed(2)}
-                    </div>
-                    <div>
-                        Expected Points: {expectedPoints.toFixed(2)}
-                    </div>
-                    <div>
-                        <button type="button" className={styles.details} onClick={onClickDetails}>Details</button>
-                    </div>
-                    <div>
-                        <button type="button" className={styles.restart} onClick={onClickRestart}>Restart</button>
-                    </div>
-                </div>
-            </div>
-        )
-    }
-
-    if (testState === TestState.Details && props.score) {
-        const lastAnswerIndex = props.score.answers.length - 1
-        return (
-            <div className={styles.test}>
-                <div className={styles.testDetails}>
-                    <div className={styles.answerReviewButtons}>
-                        <button
-                            disabled={currentAnswerReviewIndex === 0}
-                            onClick={onClickPreviousAnswerReview}
-                        >
-                            ◀ Prev
-                        </button>
-                        {props.score.answers.map((answer, answerIndex) => {
-                            const marking = answer.answerIndex === 1
-                                ? '✔'
-                                : '❌'
-
-                            const buttonHighlightClass = currentAnswerReviewIndex === answerIndex
-                                ? styles.answerButtonHighlight
-                                : ''
-
-                            return (
-                                <button key={answerIndex}
-                                    onClick={() => onClickAnswerReview(answerIndex)}
-                                    className={buttonHighlightClass}
-                                >
-                                    {marking}<br />
-                                    {answerIndex + 1}
-                                </button>
-                            )
-                        })}
-                        <button
-                            disabled={currentAnswerReviewIndex === lastAnswerIndex}
-                            onClick={onClickNextAnswerReview}
-                        >
-                            Next ▶
-                        </button>
-                    </div>
-                    {
-                        currentAnswer &&
-                        <AnswerDetails answerDetails={currentAnswer} />
-                    }
-                    <div className="center">
-                        <button type="button" className={styles.details} onClick={onClickScoreOverview}>Score Overview</button>
-                    </div>
-                    <div className="center">
-                        <button type="button" className={styles.restart} onClick={onClickRestart}>Restart</button>
-                    </div>
-                </div>
-            </div>
-        )
-    }
-
-    if (currentQuestion) {
+    if (testState.matches('started') === true && currentQuestion) {
         return (
             <div className={styles.test}>
                 <div>Question:</div>
@@ -459,10 +436,119 @@ const Component: React.FC<Props> = (props) => {
         )
     }
 
+    if (testState.matches('saving') === true) {
+        return (
+            <div className={styles.test}>
+                <div className={styles.testFinished}>
+                    Saving...
+                </div>
+            </div>
+        )
+    }
+
+    if (testState.matches('ended') === true && testState.context.score) {
+        if (testState.matches('ended.overview') === true) {
+            const correctAnswers = testState.context.score.answers.filter(a => a.answerIndex === 1)
+            const points = testState.context.score.answers.reduce((s, a) => s + a.points, 0)
+            const expectedPoints = testState.context.score.answers.reduce((s, a) => s + a.expectedDuration, 0)
+
+            return (
+                <div className={styles.test}>
+                    <div className={styles.testFinished}>
+                        <div className={styles.time}>⏰ Time: {testState.context.score.duration / 1000}s</div>
+                        <div className={styles.state}>
+                            Finished!
+                    </div>
+
+                        <div className={styles.correctOutOfTotal}>
+                            {correctAnswers.length}/{testState.context.score.answers.length}
+                        </div>
+                        <div className={styles.correctList}>
+                            {testState.context.score.answers.map((a, i) => {
+                                const marking = a.answerIndex === 1
+                                    ? '✔'
+                                    : '❌'
+
+                                return (
+                                    <div key={i}>{marking}</div>
+                                )
+                            })}
+                        </div>
+                        <div>
+                            Points: {points.toFixed(2)}
+                        </div>
+                        <div>
+                            Expected Points: {expectedPoints.toFixed(2)}
+                        </div>
+                        <div>
+                            <button type="button" className={styles.details} onClick={onClickDetails}>Details</button>
+                        </div>
+                        <div>
+                            <button type="button" className={styles.restart} onClick={onClickRestart}>Restart</button>
+                        </div>
+                    </div>
+                </div>
+            )
+        }
+
+        if (testState.matches('ended.details') === true) {
+            const lastAnswerIndex = testState.context.score.answers.length - 1
+            return (
+                <div className={styles.test}>
+                    <div className={styles.testDetails}>
+                        <div className={styles.answerReviewButtons}>
+                            <button
+                                disabled={currentAnswerReviewIndex === 0}
+                                onClick={onClickPreviousAnswerReview}
+                            >
+                                ◀ Prev
+                        </button>
+                            {testState.context.score.answers.map((answer, answerIndex) => {
+                                const marking = answer.answerIndex === 1
+                                    ? '✔'
+                                    : '❌'
+
+                                const buttonHighlightClass = currentAnswerReviewIndex === answerIndex
+                                    ? styles.answerButtonHighlight
+                                    : ''
+
+                                return (
+                                    <button key={answerIndex}
+                                        onClick={() => onClickAnswerReview(answerIndex)}
+                                        className={buttonHighlightClass}
+                                    >
+                                        {marking}<br />
+                                        {answerIndex + 1}
+                                    </button>
+                                )
+                            })}
+                            <button
+                                disabled={currentAnswerReviewIndex === lastAnswerIndex}
+                                onClick={onClickNextAnswerReview}
+                            >
+                                Next ▶
+                        </button>
+                        </div>
+                        {
+                            currentAnswer &&
+                            <AnswerDetails answerDetails={currentAnswer} />
+                        }
+                        <div className="center">
+                            <button type="button" className={styles.details} onClick={onClickScoreOverview}>Score Overview</button>
+                        </div>
+                        <div className="center">
+                            <button type="button" className={styles.restart} onClick={onClickRestart}>Restart</button>
+                        </div>
+                    </div>
+                </div>
+            )
+        }
+    }
+
     return (
         <div className={styles.test}>
             <div className="center">
-                Loading...
+                🚨 Unknown State {testState.value} 🚨
             </div>
         </div>
     )
