@@ -5,10 +5,11 @@ import * as client from "../services/client"
 
 type Props = {
     poll: models.Poll
+    index?: number
 }
 
-const Poll: React.FC<Props> = ({ poll }) => {
-    
+const Poll: React.FC<Props> = ({ poll, index }) => {
+
     const [details, setDetails] = React.useState<models.PollDetails>()
 
     const onClickLoadDetails = async () => {
@@ -16,10 +17,14 @@ const Poll: React.FC<Props> = ({ poll }) => {
         setDetails(pollWithDetails.details)
     }
 
+    const number = typeof index === 'number'
+        ? `${(index + 1).toString().padStart(3, '0')} `
+        : ''
+
     return (
         <div className={styles.question}>
             <div className={styles.title}>
-                {poll.question}
+                {number}{poll.question}
             </div>
             <div className={styles.answers}>
                 <div>{poll.answer1}</div>
@@ -36,13 +41,6 @@ const Poll: React.FC<Props> = ({ poll }) => {
                     <dt>Author</dt>
                     <dd>{poll.user.name}</dd>
                 </dl>
-            </div>
-            <div>
-                Disagree with the question? Submit a change request: <button>Submit Change</button>
-            </div>
-            <div>
-                <button type="button" onClick={onClickLoadDetails}>Load Details</button>
-                {details && JSON.stringify(details, null, 4)}
             </div>
         </div>
     )

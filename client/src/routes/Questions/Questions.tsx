@@ -6,6 +6,7 @@ import Question from '../../components/Question'
 import Search from '../../components/Search'
 import { useSelector, useDispatch } from 'react-redux'
 import * as QuestionsSlice from './questionsSlice'
+import "../App.css"
 
 type Props = {
     questions: models.Question[]
@@ -77,9 +78,15 @@ const Questions: React.FC<Props> = (props) => {
                 ? <div>
                     <div>No Questions</div>
                 </div>
-                : filteredQuestions.map((q, i) =>
-                    <div key={q.id}>{i.toString().padStart(3, ' ')}: <Question question={q} /></div>
-                )}
+                : <div className="list">
+                    {filteredQuestions.map((q, i) =>
+                        <Question
+                            key={q.id}
+                            question={q}
+                            index={i}
+                        />
+                    )}
+                </div>}
 
             <div>
                 <button onClick={onClickLoadQuestions}>

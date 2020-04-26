@@ -5,10 +5,10 @@ import * as client from "../services/client"
 
 type Props = {
     question: models.Question
+    index?: number
 }
 
-const Question: React.FC<Props> = ({ question }) => {
-
+const Question: React.FC<Props> = ({ question, index }) => {
     const [details, setDetails] = React.useState<models.QuestionDetails>()
 
     const onClickLoadDetails = async () => {
@@ -16,10 +16,14 @@ const Question: React.FC<Props> = ({ question }) => {
         setDetails(questionWithDetails.details)
     }
 
+    const number = typeof index === 'number'
+        ? `${(index + 1).toString().padStart(3, '0')} `
+        : ''
+
     return (
         <div className={styles.question}>
             <div className={styles.title}>
-                {question.question}
+                {number}{question.question}
             </div>
             <div className={styles.answers}>
                 <div>{question.answer1}</div>

@@ -41,9 +41,15 @@ const Polls: React.FC<Props> = (props) => {
                 ? <div>
                     <div>No Polls</div>
                 </div>
-                : filteredPolls.map((poll, i) =>
-                    <div key={poll.id}>{i.toString().padStart(3, ' ')}: <Poll poll={poll} /></div>
-                )}
+                : <div className="list">
+                    {filteredPolls.map((poll, i) =>
+                        <Poll
+                            key={poll.id}
+                            poll={poll}
+                            index={i}
+                        />
+                    )}
+                </div>}
 
             <div>
                 <button onClick={onClickLoadPolls}>
