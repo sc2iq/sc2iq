@@ -123,26 +123,26 @@ const testStateMachine = Machine({
         },
     },
 },
-{
-    services: {
-        loadQuestions: async (context, event) => {
-            const questions = await client.getRandomQuestions()
-            return questions.slice(0, 10)
+    {
+        services: {
+            loadQuestions: async (context, event) => {
+                const questions = await client.getRandomQuestions()
+                return questions.slice(0, 10)
+            },
+            getKey: async (context, event) => {
+                const key = await client.getKey()
+                return key
+            },
         },
-        getKey: async (context, event) => {
-            const key = await client.getKey()
-            return key
-        },
-    },
-    actions: {
-        saveQuestions: (context, event) => {
-            context.questions = event.data
-        },
-        setKey: (context, event) => {
-            context.key = event.data
+        actions: {
+            saveQuestions: (context, event) => {
+                context.questions = event.data
+            },
+            setKey: (context, event) => {
+                context.key = event.data
+            }
         }
-    }
-})
+    })
 
 enum TestState {
     PreLoad = 'PreLoad',
@@ -173,7 +173,7 @@ const Component: React.FC<Props> = (props) => {
             submitScore,
         }
     })
-    
+
     React.useEffect(() => {
         service.onEvent(event => {
             console.log(`Event:  `, event.type, event)
