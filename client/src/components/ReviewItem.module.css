@@ -1,0 +1,26 @@
+.reviewItem {
+    display: grid;
+    grid-gap: 0.5rem;
+}
+
+.approveReject {
+    display: grid;
+    grid-auto-flow: column;
+    grid-gap: 0.5rem;
+}
+
+.approveReject button {
+    padding: 0.5rem;
+}
+
+.approveButton {
+    background: green;
+    color: white;
+    border: none;
+}
+
+.rejectButton {
+    background: red;
+    color: white;
+    border: none;
+}

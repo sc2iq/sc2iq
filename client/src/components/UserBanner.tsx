@@ -44,7 +44,6 @@ const DifficultyBar: React.FC<BarProps> = (props) => {
 
     const percentage = Math.max(0, props.value - props.min) / (props.max - props.min)
     const displayPercentage = (percentage * 100).toFixed(0)
-    console.log({ props, percentage })
 
     const style = {
         flex: `${percentage.toFixed(3)}`,

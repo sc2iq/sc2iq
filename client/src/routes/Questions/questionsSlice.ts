@@ -21,6 +21,11 @@ export const slice = createSlice({
         setQuestions: (state, action: PayloadAction<{ questions: models.Question[] }>) => {
             state.questions = action.payload.questions
         },
+        updateQuestion: (state, action: PayloadAction<{ question: models.Question }>) => {
+            const updatedQuestion = action.payload.question
+            const questionIndex = state.questions.findIndex(q => q.id === updatedQuestion.id)
+            state.questions.splice(questionIndex, 1, updatedQuestion)
+        },
         setSearchFilter: (state, action: PayloadAction<{ search: models.Search | undefined }>) => {
             state.searchFilter = action.payload.search
         },
@@ -30,7 +35,7 @@ export const slice = createSlice({
     },
 })
 
-const { setQuestions, setSearchFilter, addQuestion } = slice.actions
+const { setQuestions, setSearchFilter, addQuestion, updateQuestion } = slice.actions
 export { setSearchFilter }
 
 export const getQuestionsThunk = (state: models.QuestionState): AppThunk => async dispatch => {
@@ -41,6 +46,11 @@ export const getQuestionsThunk = (state: models.QuestionState): AppThunk => asyn
 export const postQuestionThunk = (token: string, questionInput: models.QuestionInput): AppThunk => async dispatch => {
     const question = await client.postQuestion(token, questionInput)
     dispatch(addQuestion({ question }))
+}
+
+export const setQuestionStateThunk = (token: string, questionId: string, state: models.QuestionState.APPROVED | models.QuestionState.REJECTED): AppThunk => async dispatch => {
+    const question = await client.setQuestionState(token, questionId, state)
+    dispatch(updateQuestion({ question }))
 }
 
 export const submitSearchThunk = (search: models.Search): AppThunk => async dispatch => {

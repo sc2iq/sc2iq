@@ -16,7 +16,7 @@ export default function (fastify: fastify.FastifyInstance, pluginOptions: unknow
         },
         async (req) => {
             const pollState = (req.query.state as string)?.toLowerCase() ?? PollState.APPROVED
-            const polls = await connection.manager.find(Poll, { where: { state: pollState }})
+            const polls = await connection.manager.find(Poll, { where: { state: pollState } })
 
             return polls
         })
@@ -46,7 +46,7 @@ export default function (fastify: fastify.FastifyInstance, pluginOptions: unknow
         }
     )
 
-    
+
     fastify.put(
         `/:pollId/approve`,
         async (req, res) => {
@@ -78,7 +78,7 @@ export default function (fastify: fastify.FastifyInstance, pluginOptions: unknow
                 })
             }
 
-            poll.state === PollState.REJECTED
+            poll.state = PollState.REJECTED
 
             return await connection.manager.save(poll)
         })

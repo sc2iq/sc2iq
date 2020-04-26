@@ -76,7 +76,7 @@ export default function (fastify: fastify.FastifyInstance, pluginOptions: unknow
                 })
             }
 
-            question.state === QuestionState.REJECTED
+            question.state = QuestionState.REJECTED
 
             return await connection.manager.save(question)
         })

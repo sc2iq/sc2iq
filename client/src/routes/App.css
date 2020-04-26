@@ -92,7 +92,7 @@ main {
   overflow-y: auto;
 }
 
-input {
+input[type="text"] {
   width: 100%;
 }
 
@@ -115,4 +115,9 @@ dl {
 
 .footer .links a {
   text-underline-offset: 7px;
+}
+
+.list {
+  display: grid;
+  grid-gap: 1rem;
 }

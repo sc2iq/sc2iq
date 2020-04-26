@@ -34,6 +34,30 @@ export const getQuestions = async (state?: models.QuestionState): Promise<models
 export const getRandomQuestions = get<models.Question[]>('/questions/random')
 export const getQuestion = getById<models.QuestionWithDetails>('/questions')
 export const postQuestion = post<models.QuestionInput, models.Question>('/questions')
+
+export const setQuestionState = async (token: string, questionId: string, state: models.QuestionState.APPROVED | models.QuestionState.REJECTED): Promise<models.Question> => {
+    let subPath = state === models.QuestionState.APPROVED
+        ? `approve`
+        : `reject`
+
+    const method = `PUT`
+    const path = `/questions/${questionId}/${subPath}`
+    const response = await fetch(`${basedUrl}${path}`, {
+        method,
+        headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json',
+        },
+    })
+
+    if (response.ok) {
+        const responseData = await response.json()
+        return responseData
+    }
+
+    throw new Error(`Error when attempting to ${method} ${path}.`)
+}
+
 export const postQuestionsSearch = async (search: models.Search): Promise<models.Question[]> => {
     const path = `/questions/search`
     const response = await fetch(`${basedUrl}${path}`, {
@@ -91,6 +115,29 @@ export const postPollsSearch = async (search: models.Search): Promise<models.Pol
     throw new Error(`Error when attempting to POST ${path}.`)
 }
 
+export const setPollState = async (token: string, pollId: string, state: models.PollState.APPROVED | models.PollState.REJECTED): Promise<models.Poll> => {
+    let subPath = state === models.PollState.APPROVED
+        ? `approve`
+        : `reject`
+
+    const method = `PUT`
+    const path = `/polls/${pollId}/${subPath}`
+    const response = await fetch(`${basedUrl}${path}`, {
+        method,
+        headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json',
+        },
+    })
+
+    if (response.ok) {
+        const responseData = await response.json()
+        return responseData
+    }
+
+    throw new Error(`Error when attempting to ${method} ${path}.`)
+}
+
 // Scores
 export const getScores = get<models.Score[]>('/scores')
 export const getScore = getById<models.Score>('/scores')
@@ -129,7 +176,7 @@ function getById<T>(subPath: string) {
             }
         })
 
-        return returnJson(response, path)
+        return returnJson(response)
     }
 }
 
@@ -141,7 +188,7 @@ function get<T>(path: string) {
             }
         })
 
-        return returnJson(response, path)
+        return returnJson(response)
     }
 }
 
@@ -172,23 +219,23 @@ function post<Input, Output>(path: string) {
     }
 }
 
-
 async function fetchPath<T>(path: string, token: string): Promise<T> {
     const response = await fetch(`${basedUrl}${path}`, {
         headers: {
             Accept: 'application/json',
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
         }
     })
 
-    return returnJson(response, path)
+    return returnJson(response)
 }
 
-async function returnJson<T>(response: Response, path: string): Promise<T> {
+async function returnJson<T>(response: Response): Promise<T> {
     if (response.ok) {
         const responseData = await response.json()
         return responseData as T
     }
 
-    throw new Error(`Error when attempting to GET ${path}`)
+    throw new Error(`Error when attempting to: ${response.url}`)
 }
