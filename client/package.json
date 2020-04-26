@@ -31,7 +31,7 @@
     "xstate": "^4.9.1"
   },
   "scripts": {
-    "build:depgraph": "depcruise --max-depth 2 --exclude '^node_modules' --output-type dot src | dot -T svg > dependencygraph.svg",
+    "build:depgraph": "depcruise --max-depth 2 --exclude '^node_modules' --output-type dot src | dot -T svg > public/dependencygraph.svg",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
