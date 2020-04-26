@@ -16,7 +16,7 @@ export default function (fastify: fastify.FastifyInstance, pluginOptions: unknow
         },
         async (req) => {
             const questionState = (req.query.state as string)?.toLowerCase() ?? QuestionState.APPROVED
-            const questions = await connection.manager.find(Question, { where: { state: questionState }})
+            const questions = await connection.manager.find(Question, { where: { state: questionState } })
 
             return questions
         })
@@ -43,8 +43,43 @@ export default function (fastify: fastify.FastifyInstance, pluginOptions: unknow
             const questions = await connection.manager.query(`SELECT TOP 10 * FROM question WHERE (ABS(CAST((BINARY_CHECKSUM(id, NEWID())) as int)) % 100) < 30`)
 
             return questions
-        }
-    )
+        })
+
+    fastify.put(
+        `/:questionId/approve`,
+        async (req, res) => {
+            const questionId = req.params.questionId
+            const question = await connection.manager.findOne(Question, questionId)
+            if (question === undefined) {
+                res.code(404).send({
+                    error: {
+                        code: `Could not find Question by id: ${questionId}`
+                    }
+                })
+            }
+
+            question.state = QuestionState.APPROVED
+
+            return await connection.manager.save(question)
+        })
+
+    fastify.put(
+        `/:questionId/reject`,
+        async (req, res) => {
+            const questionId = req.params.questionId
+            const question = await connection.manager.findOne(Question, questionId)
+            if (question === undefined) {
+                res.code(404).send({
+                    error: {
+                        code: `Could not find Question by id: ${questionId}`
+                    }
+                })
+            }
+
+            question.state === QuestionState.REJECTED
+
+            return await connection.manager.save(question)
+        })
 
     fastify.post<unknown, unknown, unknown, models.Search.Input>(
         '/search',
@@ -67,7 +102,7 @@ export default function (fastify: fastify.FastifyInstance, pluginOptions: unknow
 
             if (searchInput.phrase) {
                 query = query
-                    .andWhere("CONTAINS(question.question, :phrase)", { phrase: searchInput.tags })
+                    .andWhere("CONTAINS(question.question, :phrase)", { phrase: searchInput.phrase })
             }
 
             if (searchInput.tags) {

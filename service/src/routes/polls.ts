@@ -46,6 +46,43 @@ export default function (fastify: fastify.FastifyInstance, pluginOptions: unknow
         }
     )
 
+    
+    fastify.put(
+        `/:pollId/approve`,
+        async (req, res) => {
+            const pollId = req.params.pollId
+            const poll = await connection.manager.findOne(Poll, pollId)
+            if (poll === undefined) {
+                res.code(404).send({
+                    error: {
+                        code: `Could not find Poll by id: ${pollId}`
+                    }
+                })
+            }
+
+            poll.state = PollState.APPROVED
+
+            return await connection.manager.save(poll)
+        })
+
+    fastify.put(
+        `/:pollId/reject`,
+        async (req, res) => {
+            const pollId = req.params.pollId
+            const poll = await connection.manager.findOne(Poll, pollId)
+            if (poll === undefined) {
+                res.code(404).send({
+                    error: {
+                        code: `Could not find Poll by id: ${pollId}`
+                    }
+                })
+            }
+
+            poll.state === PollState.REJECTED
+
+            return await connection.manager.save(poll)
+        })
+
     fastify.post<unknown, unknown, unknown, models.Search.Input>(
         '/search',
         {
@@ -65,7 +102,7 @@ export default function (fastify: fastify.FastifyInstance, pluginOptions: unknow
 
             if (searchInput.phrase) {
                 query = query
-                    .andWhere("CONTAINS(poll.question, :phrase)", { phrase: searchInput.tags })
+                    .andWhere("CONTAINS(poll.question, :phrase)", { phrase: searchInput.phrase })
             }
 
             if (searchInput.tags) {
