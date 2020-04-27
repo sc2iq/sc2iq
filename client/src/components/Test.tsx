@@ -48,9 +48,11 @@ const testStateMachine = Machine({
         key: '',
         questions: [] as models.Question[],
         score: undefined as (models.ScoreComputed | undefined),
+        answers: [] as models.AnswerInput[],
     },
     states: {
         preload: {
+            entry: 'resetContext',
             on: {
                 LOAD: {
                     target: 'loading',
@@ -84,9 +86,19 @@ const testStateMachine = Machine({
         },
         started: {
             on: {
-                SAVE: {
-                    target: 'saving',
-                }
+                ADD_ANSWER: [
+                    {
+                        target: 'started',
+                        cond: (context: any, event: any) => {
+                            return context.answers.length < context.questions.length - 1
+                        },
+                        actions: ['addAnswer']
+                    },
+                    {
+                        target: 'saving',
+                        actions: ['addAnswer']
+                    }
+                ]
             }
         },
         saving: {
@@ -140,28 +152,35 @@ const testStateMachine = Machine({
             },
             setKey: (context, event) => {
                 context.key = event.data
+            },
+            setScore: (context, event) => {
+                context.score = event.data
+            },
+            addAnswer: (context, event) => {
+                context.answers.push(event.answer)
+            },
+            resetContext: (context) => {
+                context.questions = []
+                context.key = ''
+                context.score = undefined
+                context.answers = []
             }
         }
     })
-
-enum TestState {
-    PreLoad = 'PreLoad',
-    Ready = 'Ready',
-    Started = 'Started',
-    Saving = 'Saving',
-    Ended = 'Ended',
-    Details = 'Details',
-}
 
 type Props = {
 }
 
 const Component: React.FC<Props> = (props) => {
     const { getTokenSilently } = Auth0.useAuth0()
-
     const submitScore = React.useCallback(async (context, event) => {
         const token = await getTokenSilently()
-        const score = await client.postScore(token, event.score)
+        const scoreInput: models.ScoreInput = {
+            key: testState.context.key,
+            answers: testState.context.answers,
+        }
+
+        const score = await client.postScore(token, scoreInput)
         const scoreComputed = util.computeDurationsOfScore(score)
         context.score = scoreComputed
         return scoreComputed
@@ -188,9 +207,7 @@ const Component: React.FC<Props> = (props) => {
 
     const { isAuthenticated, loginWithRedirect } = Auth0.useAuth0()
     const [testLevel, setTestLevel] = React.useState(TestLevel.Easy)
-    const [currentQuestionIndex, setCurrentQuestionIndex] = React.useState(0)
-    const currentQuestion = testState.context.questions[currentQuestionIndex]
-    const [answers, setAnswers] = React.useState<models.AnswerInput[]>([])
+    const currentQuestion = testState.context.questions[testState.context.answers.length]
 
     // const randomizedAnswers = React.useMemo(() => {
     //     return currentQuestion
@@ -210,8 +227,7 @@ const Component: React.FC<Props> = (props) => {
             answerIndex,
         }
 
-        setAnswers(answers => [...answers, answer])
-        setCurrentQuestionIndex(i => i + 1)
+        send({ type: 'ADD_ANSWER', answer })
     }
 
     const onClick1 = onClickAnswer(1)
@@ -300,24 +316,6 @@ const Component: React.FC<Props> = (props) => {
 
     useEventListener('keydown', listener, document)
 
-    React.useEffect(() => {
-        // If user answers the last question, stop and submits answers
-        if (testState.context.questions.length !== 0
-            && currentQuestionIndex >= testState.context.questions.length
-        ) {
-            if (!testState.context.key) {
-                throw new Error(`You attempted to submit a test but the key was not set.`)
-            }
-
-            const score: models.ScoreInput = {
-                key: testState.context.key,
-                answers,
-            }
-            send({ type: 'SAVE', score })
-        }
-
-    }, [testState.context.questions.length, currentQuestionIndex, answers.length])
-
     const onClickReady = async () => {
         send({ type: 'LOAD' })
     }
@@ -336,10 +334,6 @@ const Component: React.FC<Props> = (props) => {
 
     const onClickRestart = () => {
         send({ type: 'RESTART' })
-
-        // Reset
-        setCurrentQuestionIndex(0)
-        setAnswers([])
     }
 
     const [currentAnswerReviewIndex, setCurrentAnswerIndexReview] = React.useState<number>(0)
@@ -459,24 +453,25 @@ const Component: React.FC<Props> = (props) => {
     }
 
     if (testState.matches('ended') === true && testState.context.score) {
+        const score = testState.context.score
         if (testState.matches('ended.overview') === true) {
-            const correctAnswers = testState.context.score.answers.filter(a => a.answerIndex === 1)
-            const points = testState.context.score.answers.reduce((s, a) => s + a.points, 0)
-            const expectedPoints = testState.context.score.answers.reduce((s, a) => s + a.expectedDuration, 0)
+            const correctAnswers = score.answers.filter(a => a.answerIndex === 1)
+            const points = score.answers.reduce((s, a) => s + a.points, 0)
+            const expectedPoints = score.answers.reduce((s, a) => s + a.expectedDuration, 0)
 
             return (
                 <div className={styles.test}>
                     <div className={styles.testFinished}>
-                        <div className={styles.time}>⏰ Time: {testState.context.score.duration / 1000}s</div>
+                        <div className={styles.time}>⏰ Time: {score.duration / 1000}s</div>
                         <div className={styles.state}>
                             Finished!
                     </div>
 
                         <div className={styles.correctOutOfTotal}>
-                            {correctAnswers.length}/{testState.context.score.answers.length}
+                            {correctAnswers.length}/{score.answers.length}
                         </div>
                         <div className={styles.correctList}>
-                            {testState.context.score.answers.map((a, i) => {
+                            {score.answers.map((a, i) => {
                                 const marking = a.answerIndex === 1
                                     ? '✔'
                                     : '❌'
@@ -504,7 +499,7 @@ const Component: React.FC<Props> = (props) => {
         }
 
         if (testState.matches('ended.details') === true) {
-            const lastAnswerIndex = testState.context.score.answers.length - 1
+            const lastAnswerIndex = score.answers.length - 1
             return (
                 <div className={styles.test}>
                     <div className={styles.testDetails}>
@@ -515,7 +510,7 @@ const Component: React.FC<Props> = (props) => {
                             >
                                 ◀ Prev
                         </button>
-                            {testState.context.score.answers.map((answer, answerIndex) => {
+                            {score.answers.map((answer, answerIndex) => {
                                 const marking = answer.answerIndex === 1
                                     ? '✔'
                                     : '❌'
