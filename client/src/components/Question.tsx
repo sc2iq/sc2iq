@@ -9,6 +9,12 @@ import { Machine } from 'xstate'
 import { useMachine } from '@xstate/react'
 import { delay } from "../utilities"
 
+const dateTimeFormat = new Intl.DateTimeFormat('en-US', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+})
+
 const questionStateMachine = Machine({
     id: 'questionState',
     strict: true,
@@ -66,12 +72,16 @@ const Question: React.FC<Props> = ({ question, index, loadQuestion }) => {
     const [state, send, service] = useMachine(questionStateMachine, {
         services: {
             loadQuestion: async () => {
-                await delay(1000)
+                loadQuestion()
+                // Artificial delay to let state and components update.
+                // Load questions returns before full question is fetched
+                await delay(200)
             }
         }
     })
 
     const onClickViewDetails = async () => {
+        // Toggle View
         if (state.matches('view.open') === true) {
             send('CLOSE')
         }
@@ -79,9 +89,9 @@ const Question: React.FC<Props> = ({ question, index, loadQuestion }) => {
             send('OPEN')
         }
 
+        // Load details if not loaded
         if (question.details === undefined) {
             send('LOAD')
-            loadQuestion()
         }
     }
 
@@ -89,45 +99,70 @@ const Question: React.FC<Props> = ({ question, index, loadQuestion }) => {
         ? `${(index + 1).toString().padStart(3, '0')} `
         : ''
 
+    const createdAtDate = new Date(question.createdAt)
+    const createdAtFormatted = dateTimeFormat.format(createdAtDate)
+
+    let lastedUpdatedAtFormatted: string | undefined
+    if (question.details) {
+        const lastedUpdatedAtDate = new Date(question.details.updatedAt)
+        lastedUpdatedAtFormatted = dateTimeFormat.format(lastedUpdatedAtDate)
+    }
+
+    const answerStyles = question.details
+        ? [
+            question.details.percentageAnswer1 || 34,
+            question.details.percentageAnswer2 || 12,
+            question.details.percentageAnswer3 || 4,
+            question.details.percentageAnswer4 || 54,
+        ].map(percentage => {
+            return { background: `linear-gradient(90deg, var(--color-bg-start) 0%, var(--color-bg-end) ${percentage}%, transparent ${percentage}%, transparent 100%)` }
+        })
+        : []
+
     return (
         <div className={styles.question}>
             <div onClick={onClickViewDetails}>
                 <div className={styles.title} >
-                    <div>{number}{question.question}</div><div>{question.difficulty}</div>
+                    <div>{number}{question.question}</div><div>{state.matches('load.loading') ? 'Loading' : null} {question.difficulty}</div>
                 </div>
                 <div className={styles.answers}>
-                    <div>{question.answer1}</div><div>12%</div>
-                    <div>{question.answer2}</div><div>12%</div>
-                    <div>{question.answer3}</div><div>12%</div>
-                    <div>{question.answer4}</div><div>12%</div>
+                    <div style={answerStyles[0]}>{question.answer1}</div><div>{question.details ? `✔ ${question.details.percentageAnswer1} %` : null}</div>
+                    <div style={answerStyles[1]}>{question.answer2}</div><div>{question.details ? `❌ ${question.details.percentageAnswer2} %` : null}</div>
+                    <div style={answerStyles[2]}>{question.answer3}</div><div>{question.details ? `❌ ${question.details.percentageAnswer3} %` : null}</div>
+                    <div style={answerStyles[3]}>{question.answer4}</div><div>{question.details ? `❌ ${question.details.percentageAnswer4} %` : null}</div>
                 </div>
             </div>
-            {state.matches('load.loading')
-                && (
-                    <div>Loading</div>
-                )}
             {state.matches('view.open')
                 && (
                     <>
-                        <div>
+                        <div className={styles.metadata}>
                             <dl>
-                                <dt>Tags</dt>
+                                <dt>📚 Tags</dt>
                                 <dd>{question.tags.map(t => <span className={styles.tag} key={t.id}>{t.name}</span>)}</dd>
-                                <dt>Author</dt>
+                                <dt>🧑 Author</dt>
                                 <dd><RRD.NavLink to={`/users/${question.user.id}`}>{question.user.name}</RRD.NavLink></dd>
-                                <dt>Difficulty</dt>
-                                <dd>{question.difficulty}</dd>
-                                <dt>Source:</dt>
+                                <dt>🔗 Source:</dt>
                                 <dd>{question.source}</dd>
-                                <dt>Avg. Correct</dt>
-                                <dd>79%</dd>
+                                <dt>⌚ Average Duration:</dt>
+                                <dd>1.23 s</dd>
+                                <dt>⏲ Created:</dt>
+                                <dd>{createdAtFormatted}</dd>
+                                {lastedUpdatedAtFormatted
+                                    && (
+                                        <>
+                                            <dt>⏲ Updated:</dt>
+                                            <dd>{lastedUpdatedAtFormatted}</dd>
+                                        </>
+                                    )}
                             </dl>
                         </div>
                         <div>
-                            Disagree with the question? Submit a change request: <button>Submit Change</button>
-                        </div>
-                        <div>
-                            <RRD.NavLink to={`/questions/${question.id}`} ><span role="img" aria-label="link">🔗</span> Link</RRD.NavLink>
+                            <div>
+                                🤔 Disagree with the question? Submit a change request: <button>📑 Submit Change</button>
+                            </div>
+                            <div>
+                                <RRD.NavLink to={`/questions/${question.id}`} ><span role="img" aria-label="link">🔗</span> Link</RRD.NavLink>
+                            </div>
                         </div>
                     </>
                 )}

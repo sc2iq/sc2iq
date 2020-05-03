@@ -1,8 +1,6 @@
 .question {
     border: 1px solid brown;
     padding: 1rem;
-
-
 }
 
 .title {
@@ -15,6 +13,14 @@
     display: grid;
     grid-gap: 0 1rem;
     grid-template-columns: 1fr max-content;
+
+    --color-bg-start: rgba(9,120,121,1);
+    --color-bg-end: rgba(0,255,218,1); 
+}
+
+.answers > div {
+    padding: 0 0.5rem;
+    border-radius: 3px;
 }
 
 .metadata {
