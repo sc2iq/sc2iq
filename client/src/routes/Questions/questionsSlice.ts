@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { AppThunk, RootState } from '../../app/store'
+import { AwaitableThunk, AppThunk, RootState } from '../../app/store'
 import * as models from '../../models'
 import * as utilities from '../../utilities'
 import * as client from '../../services/client'
@@ -48,7 +48,7 @@ export const getQuestionsThunk = (questionState: models.QuestionState): AppThunk
     dispatch(setQuestions({ questions }))
 }
 
-export const getQuestionThunk = (id: string): AppThunk => async dispatch => {
+export const getQuestionThunk = (id: string): AwaitableThunk => async dispatch => {
     const question = await client.getQuestion(id)
     dispatch(upsertQuestion({ question }))
 }

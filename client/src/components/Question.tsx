@@ -65,17 +65,14 @@ enum View {
 type Props = {
     question: models.Question
     index?: number
-    loadQuestion: () => Promise<void>
+    loadQuestion: () => Promise<any>
 }
 
 const Question: React.FC<Props> = ({ question, index, loadQuestion }) => {
     const [state, send, service] = useMachine(questionStateMachine, {
         services: {
             loadQuestion: async () => {
-                loadQuestion()
-                // Artificial delay to let state and components update.
-                // Load questions returns before full question is fetched
-                await delay(200)
+                return loadQuestion()
             }
         }
     })
@@ -179,7 +176,7 @@ const QuestionContainer: React.FC<ContainerProps> = (props) => {
     const dispatch = useDispatch()
 
     const loadQuestion = async () => {
-        dispatch(QuestionsSlice.getQuestionThunk(props.question.id))
+        return dispatch(QuestionsSlice.getQuestionThunk(props.question.id))
     }
 
     return (

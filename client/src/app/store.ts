@@ -15,3 +15,4 @@ export const store = configureStore({
 
 export type RootState = ReturnType<typeof store.getState>
 export type AppThunk = ThunkAction<void, RootState, unknown, Action<string>>
+export type AwaitableThunk = ThunkAction<Promise<void>, RootState, unknown, Action<string>>
