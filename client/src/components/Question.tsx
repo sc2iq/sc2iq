@@ -24,12 +24,18 @@ const questionStateMachine = Machine({
             initial: 'preload',
             states: {
                 preload: {
+                    invoke: {
+                        id: 'ifLoadedSetFinal',
+                        src: 'ifLoadedSetFinal',
+                    },
                     on: {
-                        LOAD: 'loading'
+                        LOAD: 'loading',
+                        LOADED: 'loaded',
                     }
                 },
                 loading: {
                     invoke: {
+                        id: 'loadQuestion',
                         src: 'loadQuestion',
                         onDone: 'loaded'
                     }
@@ -73,9 +79,27 @@ const Question: React.FC<Props> = ({ question, index, loadQuestion }) => {
         services: {
             loadQuestion: async () => {
                 return loadQuestion()
+            },
+            ifLoadedSetFinal: (context, event) => (callback, onReceive) => {
+                // If details for question are already loaded, then go directly go loaded state
+                if (typeof question.details === 'object') {
+                    callback('LOADED')
+                }
             }
-        }
+        },
     })
+
+    // React.useEffect(() => {
+    //     service.onEvent(event => {
+    //         console.log(`Event:  `, event.type, event)
+    //     })
+
+    //     const subscription = service.subscribe((state) => {
+    //         console.log(`State: `, state.value, state.context)
+    //     })
+
+    //     return subscription.unsubscribe
+    // }, [service])
 
     const onClickViewDetails = async () => {
         // Toggle View
@@ -107,12 +131,21 @@ const Question: React.FC<Props> = ({ question, index, loadQuestion }) => {
 
     const answerStyles = question.details
         ? [
-            question.details.percentageAnswer1 || 34,
-            question.details.percentageAnswer2 || 12,
-            question.details.percentageAnswer3 || 4,
-            question.details.percentageAnswer4 || 54,
+            question.details.percentageAnswer1 || 0.34,
+            question.details.percentageAnswer2 || 0.12,
+            question.details.percentageAnswer3 || 0.4,
+            question.details.percentageAnswer4 || 0.54,
         ].map(percentage => {
-            return { background: `linear-gradient(90deg, var(--color-bg-start) 0%, var(--color-bg-end) ${percentage}%, transparent ${percentage}%, transparent 100%)` }
+
+            const startColor = state.matches('view.open')
+                ? `--color-bg-start-open`
+                : `--color-bg-start-closed`
+
+            const endColor = state.matches('view.open')
+                ? `--color-bg-end-open`
+                : `--color-bg-end-closed`
+
+            return { background: `linear-gradient(90deg, var(${startColor}) 0%, var(${endColor}) ${percentage * 100}%, transparent ${percentage * 100}%, transparent 100%)` }
         })
         : []
 

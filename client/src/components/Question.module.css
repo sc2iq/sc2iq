@@ -14,8 +14,10 @@
     grid-gap: 0 1rem;
     grid-template-columns: 1fr max-content;
 
-    --color-bg-start: rgba(9,120,121,1);
-    --color-bg-end: rgba(0,255,218,1); 
+    --color-bg-start-open: rgba(9,120,121,1);
+    --color-bg-end-open: rgba(0,255,218,1); 
+    --color-bg-start-closed: rgb(3, 58, 59);
+    --color-bg-end-closed: rgb(40, 143, 127); 
 }
 
 .answers > div {
