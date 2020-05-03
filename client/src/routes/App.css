@@ -11,6 +11,7 @@
 body {
   background: var(--darkBlue);
   color: white;
+  line-height: 1.5;
 }
 
 #root {

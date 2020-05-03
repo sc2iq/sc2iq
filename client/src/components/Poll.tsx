@@ -44,7 +44,7 @@ const Poll: React.FC<Props> = ({ poll, index }) => {
                 </dl>
             </div>
             <div>
-                <RRD.NavLink to={`/polls/${poll.id}`} >🔗 Link</RRD.NavLink>
+                <RRD.NavLink to={`/polls/${poll.id}`} ><span role="img" aria-label="link">🔗</span> Link</RRD.NavLink>
             </div>
         </div>
     )
