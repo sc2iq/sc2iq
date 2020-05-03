@@ -52,8 +52,7 @@ const Question: React.FC<Props> = ({ question, index }) => {
                 Disagree with the question? Submit a change request: <button>Submit Change</button>
             </div>
             <div>
-            
-                <RRD.NavLink to={`/questions/${question.id}`} >Direct Link</RRD.NavLink>
+                <RRD.NavLink to={`/questions/${question.id}`} >🔗 Link</RRD.NavLink>
             </div>
             <div>
                 <button type="button" onClick={onClickLoadDetails}>Load Details</button>

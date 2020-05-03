@@ -19,7 +19,7 @@ export const slice = createSlice({
         setPolls: (state, action: PayloadAction<{ polls: models.Poll[] }>) => {
             state.polls = action.payload.polls
         },
-        updatePoll: (state, action: PayloadAction<{ poll: models.Poll }>) => {
+        upsertPoll: (state, action: PayloadAction<{ poll: models.Poll }>) => {
             const updatedPoll = action.payload.poll
             const pollIndex = state.polls.findIndex(poll => poll.id === updatedPoll.id)
             state.polls.splice(pollIndex, 1, updatedPoll)
@@ -30,12 +30,17 @@ export const slice = createSlice({
     },
 })
 
-const { setPolls, updatePoll, addPoll } = slice.actions
+const { setPolls, upsertPoll, addPoll } = slice.actions
 export { }
 
 export const getPollsThunk = (state: models.PollState): AppThunk => async dispatch => {
     const polls = await client.getPolls(state)
     dispatch(setPolls({ polls }))
+}
+
+export const getPollThunk = (pollId: string): AppThunk => async dispatch => {
+    const poll = await client.getPoll(pollId)
+    dispatch(upsertPoll({ poll }))
 }
 
 export const postPollThunk = (token: string, pollInput: models.PollInput): AppThunk => async dispatch => {
@@ -45,7 +50,7 @@ export const postPollThunk = (token: string, pollInput: models.PollInput): AppTh
 
 export const setPollStateThunk = (token: string, pollId: string, state: models.PollState.APPROVED | models.PollState.REJECTED): AppThunk => async dispatch => {
     const poll = await client.setPollState(token, pollId, state)
-    dispatch(updatePoll({ poll }))
+    dispatch(upsertPoll({ poll }))
 }
 
 export const selectPolls = (state: RootState) =>

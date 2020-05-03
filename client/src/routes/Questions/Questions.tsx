@@ -6,10 +6,10 @@ const Outlet = (RRD as any).Outlet
 type Props = {
 }
 
-const Users: React.FC<Props> = (props) => {
+const Questions: React.FC<Props> = (props) => {
     return (
         <Outlet />
     )
 }
 
-export default Users
+export default Questions

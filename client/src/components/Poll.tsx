@@ -1,4 +1,5 @@
 import React from "react"
+import * as RRD from 'react-router-dom'
 import * as models from "../models"
 import styles from './Question.module.css'
 import * as client from "../services/client"
@@ -41,6 +42,9 @@ const Poll: React.FC<Props> = ({ poll, index }) => {
                     <dt>Author</dt>
                     <dd>{poll.user.name}</dd>
                 </dl>
+            </div>
+            <div>
+                <RRD.NavLink to={`/polls/${poll.id}`} >🔗 Link</RRD.NavLink>
             </div>
         </div>
     )

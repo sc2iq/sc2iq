@@ -29,7 +29,9 @@ const QuestionContainer: React.FC = () => {
     const state = useSelector(QuestionsSlice.selectQuestions)
     const params = RRD.useParams<{ questionId: string }>()
     const questionId = decodeURIComponent(params.questionId)
-    const question = state.questions.find(q => q.id === questionId)
+    const question = questionId
+        ? state.questions.find(q => q.id === questionId)
+        : undefined
     const dispatch = useDispatch()
 
     React.useEffect(() => {

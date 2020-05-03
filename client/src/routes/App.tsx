@@ -7,6 +7,8 @@ import QuestionsIndex from './Questions/QuestionsIndex'
 import Question from './Questions/Question/Question'
 import Scores from './Scores/Scores'
 import Polls from './Polls/Polls'
+import PollsIndex from './Polls/PollsIndex'
+import Poll from './Polls/Poll/Poll'
 import Users from './Users/Users'
 import UsersIndex from './Users/UsersIndex'
 import User from './Users/User/User'
@@ -74,7 +76,10 @@ const App: React.FC<Props> = (props) => {
                         </RRD.Route>
                         <RRD.Route path="test" element={<Test />} />
                         <RRD.Route path="scores" element={<Scores />} />
-                        <RRD.Route path="polls" element={<Polls />} />
+                        <RRD.Route path="polls" element={<Polls />} >
+                            <RRD.Route path="/" element={<PollsIndex />} />
+                            <RRD.Route path=":pollId" element={<Poll />} />
+                        </RRD.Route>
                         <RRD.Route path="users" element={<Users />} >
                             <RRD.Route path="/" element={<UsersIndex />} />
                             <RRD.Route path=":userId" element={<User />} />
