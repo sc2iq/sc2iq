@@ -1,4 +1,5 @@
 import React from "react"
+import * as RRD from 'react-router-dom'
 import * as models from "../models"
 import styles from './Question.module.css'
 import * as client from "../services/client"
@@ -49,6 +50,10 @@ const Question: React.FC<Props> = ({ question, index }) => {
             </div>
             <div>
                 Disagree with the question? Submit a change request: <button>Submit Change</button>
+            </div>
+            <div>
+            
+                <RRD.NavLink to={`/questions/${question.id}`} >Direct Link</RRD.NavLink>
             </div>
             <div>
                 <button type="button" onClick={onClickLoadDetails}>Load Details</button>

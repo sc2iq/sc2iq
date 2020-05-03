@@ -12,9 +12,9 @@ type Props = {
 
 const User: React.FC<Props> = (props) => {
     if (!props.user) {
-        return <div>
+        return <>
             <div>No user</div>
-        </div>
+        </>
     }
 
     return (
@@ -34,7 +34,6 @@ const User: React.FC<Props> = (props) => {
         </>
     )
 }
-
 
 const UserContainer: React.FC = () => {
     const state = useSelector(UsersSlice.selectUsers)

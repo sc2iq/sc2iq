@@ -21,10 +21,15 @@ export const slice = createSlice({
         setQuestions: (state, action: PayloadAction<{ questions: models.Question[] }>) => {
             state.questions = action.payload.questions
         },
-        updateQuestion: (state, action: PayloadAction<{ question: models.Question }>) => {
+        upsertQuestion: (state, action: PayloadAction<{ question: models.Question }>) => {
             const updatedQuestion = action.payload.question
             const questionIndex = state.questions.findIndex(q => q.id === updatedQuestion.id)
-            state.questions.splice(questionIndex, 1, updatedQuestion)
+            if (questionIndex) {
+                state.questions.splice(questionIndex, 1, updatedQuestion)
+            }
+            else {
+                state.questions.push(updatedQuestion)
+            }
         },
         setSearchFilter: (state, action: PayloadAction<{ search: models.Search | undefined }>) => {
             state.searchFilter = action.payload.search
@@ -35,12 +40,17 @@ export const slice = createSlice({
     },
 })
 
-const { setQuestions, setSearchFilter, addQuestion, updateQuestion } = slice.actions
+const { setQuestions, setSearchFilter, addQuestion, upsertQuestion } = slice.actions
 export { setSearchFilter }
 
-export const getQuestionsThunk = (state: models.QuestionState): AppThunk => async dispatch => {
-    const questions = await client.getQuestions(state)
+export const getQuestionsThunk = (questionState: models.QuestionState): AppThunk => async dispatch => {
+    const questions = await client.getQuestions(questionState)
     dispatch(setQuestions({ questions }))
+}
+
+export const getQuestionThunk = (id: string): AppThunk => async dispatch => {
+    const question = await client.getQuestion(id)
+    dispatch(upsertQuestion({ question }))
 }
 
 export const postQuestionThunk = (token: string, questionInput: models.QuestionInput): AppThunk => async dispatch => {
@@ -50,7 +60,7 @@ export const postQuestionThunk = (token: string, questionInput: models.QuestionI
 
 export const setQuestionStateThunk = (token: string, questionId: string, state: models.QuestionState.APPROVED | models.QuestionState.REJECTED): AppThunk => async dispatch => {
     const question = await client.setQuestionState(token, questionId, state)
-    dispatch(updateQuestion({ question }))
+    dispatch(upsertQuestion({ question }))
 }
 
 export const submitSearchThunk = (search: models.Search): AppThunk => async dispatch => {

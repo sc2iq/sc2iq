@@ -3,6 +3,8 @@ import * as RRD from 'react-router-dom'
 import Index from './Index/Index'
 import Debug from './Debug'
 import Questions from './Questions/Questions'
+import QuestionsIndex from './Questions/QuestionsIndex'
+import Question from './Questions/Question/Question'
 import Scores from './Scores/Scores'
 import Polls from './Polls/Polls'
 import Users from './Users/Users'
@@ -66,7 +68,10 @@ const App: React.FC<Props> = (props) => {
                 <div className="container">
                     <Routes>
                         <RRD.Route path="/" element={<Index />} />
-                        <RRD.Route path="questions" element={<Questions />} />
+                        <RRD.Route path="questions" element={<Questions />} >
+                            <RRD.Route path="/" element={<QuestionsIndex />} />
+                            <RRD.Route path=":questionId" element={<Question />} />
+                        </RRD.Route>
                         <RRD.Route path="test" element={<Test />} />
                         <RRD.Route path="scores" element={<Scores />} />
                         <RRD.Route path="polls" element={<Polls />} />
