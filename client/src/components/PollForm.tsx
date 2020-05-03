@@ -9,11 +9,6 @@ type Props = {
     onSubmit(pollInput: models.PollInput): void
 }
 
-const onChangeInput = (setFn: Function) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    const text = event.target.value
-    setFn(text)
-}
-
 const PollForm: React.FC<Props> = (props) => {
     const { isAuthenticated, loginWithRedirect } = Auth0.useAuth0()
 
@@ -89,7 +84,7 @@ const PollForm: React.FC<Props> = (props) => {
             <div>
                 <div className={styles.header}>
                     <h3>Create Poll</h3>
-                    <button type="button" onClick={onToggleOpen}>{isOpen ? 'Close' : 'Open'}</button>
+                    <button type="button" onClick={onToggleOpen}>{isOpen ? '❌ Close' : 'Open'}</button>
                 </div>
                 <div>
                     <input
@@ -98,12 +93,9 @@ const PollForm: React.FC<Props> = (props) => {
                         onChange={onChangeQuestion}
                         onKeyDown={onKeyDownQuestion}
                         onFocus={onFocusQuestion}
-                        placeholder='Enter question'
+                        placeholder='Enter Poll (E.g. Should lurkers burrow too fast?)'
                         autoComplete="off"
                         required={true}
-                        style={{
-                            width: "100%"
-                        }}
                     />
                 </div>
             </div>

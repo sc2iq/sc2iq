@@ -126,6 +126,7 @@ export type Question
         state: QuestionState
         user: User
         tags: Tag[]
+        details?: QuestionDetails
     }
 
 export type QuestionWithDetails

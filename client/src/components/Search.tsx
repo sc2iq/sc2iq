@@ -84,7 +84,7 @@ const Search: React.FC<Props> = (props) => {
             <div>
                 <div className={styles.header}>
                     <h3>Search</h3>
-                    <button type="button" onClick={onToggleOpen}>{isOpen ? 'Close' : 'Open'}</button>
+                    <button type="button" onClick={onToggleOpen}>{isOpen ? '❌ Close' : 'Open'}</button>
                 </div>
                 <div>
                     <input type="text" placeholder="Enter phrase" value={phrase} onChange={onChangePhrase} onFocus={onFocusPhrase} />

@@ -1,17 +1,26 @@
 .question {
     border: 1px solid brown;
     padding: 1rem;
+
+
 }
 
 .title {
     font-size: 2rem;
+    display: grid;
+    grid-gap: 0 1rem;
+    grid-template-columns: 1fr max-content;
 }
 .answers {
-
+    display: grid;
+    grid-gap: 0 1rem;
+    grid-template-columns: 1fr max-content;
 }
+
 .metadata {
 
 }
+
 .contact {
 
 }

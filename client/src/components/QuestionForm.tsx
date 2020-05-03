@@ -96,7 +96,7 @@ const Component: React.FC<Props> = (props) => {
             <div>
                 <div className={styles.header}>
                     <h3>Create Question</h3>
-                    <button type="button" onClick={onToggleOpen}>{isOpen ? 'Close' : 'Open'}</button>
+                    <button type="button" onClick={onToggleOpen}>{isOpen ? '❌ Close' : 'Open'}</button>
                 </div>
                 <div>
                     <input
@@ -105,12 +105,9 @@ const Component: React.FC<Props> = (props) => {
                         onChange={onChangeQuestion}
                         onKeyDown={onKeyDownQuestion}
                         onFocus={onFocusQuestion}
-                        placeholder='Enter question'
+                        placeholder='Enter question. (E.g. How many shots does it take for a marine to kill a zealot?)'
                         autoComplete="off"
                         required={true}
-                        style={{
-                            width: "100%"
-                        }}
                     />
                 </div>
             </div>

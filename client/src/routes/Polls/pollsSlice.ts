@@ -22,7 +22,12 @@ export const slice = createSlice({
         upsertPoll: (state, action: PayloadAction<{ poll: models.Poll }>) => {
             const updatedPoll = action.payload.poll
             const pollIndex = state.polls.findIndex(poll => poll.id === updatedPoll.id)
-            state.polls.splice(pollIndex, 1, updatedPoll)
+            if (typeof pollIndex === 'number') {
+                state.polls.splice(pollIndex, 1, updatedPoll)
+            }
+            else {
+                state.polls.push(updatedPoll)
+            }
         },
         addPoll: (state, action: PayloadAction<{ poll: models.Poll }>) => {
             state.polls.push(action.payload.poll)

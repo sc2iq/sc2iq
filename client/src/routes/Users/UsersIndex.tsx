@@ -47,7 +47,7 @@ const UsersIndexContainer: React.FC = () => {
             dispatch(UsersSlice.getUsersThunk())
         }
 
-        if (state.users.length === 0) {
+        if (state.users.length < 10) {
             loadUsers()
         }
     }, [])

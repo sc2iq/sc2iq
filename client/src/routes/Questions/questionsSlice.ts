@@ -24,7 +24,7 @@ export const slice = createSlice({
         upsertQuestion: (state, action: PayloadAction<{ question: models.Question }>) => {
             const updatedQuestion = action.payload.question
             const questionIndex = state.questions.findIndex(q => q.id === updatedQuestion.id)
-            if (questionIndex) {
+            if (typeof questionIndex === 'number') {
                 state.questions.splice(questionIndex, 1, updatedQuestion)
             }
             else {

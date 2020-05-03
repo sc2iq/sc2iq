@@ -26,13 +26,24 @@ export const slice = createSlice({
         setUsers: (state, action: PayloadAction<{ users: models.User[] }>) => {
             state.users = action.payload.users
         },
-        setUser: (state, action: PayloadAction<{ user: models.User }>) => {
+        upsertUser: (state, action: PayloadAction<{ user: models.User }>) => {
+            const updatedUser = action.payload.user
+            const userIndex = state.users.findIndex(user => user.id === updatedUser.id)
+            // If found, replace, otherwise add
+            if (typeof userIndex === 'number') {
+                state.users.splice(userIndex, 1, updatedUser)
+            }
+            else {
+                state.users.push(updatedUser)
+            }
+        },
+        setCurrentUser: (state, action: PayloadAction<{ user: models.User }>) => {
             state.currentUser = action.payload.user
         }
     },
 })
 
-const { setAccessTokenData, setUsers, setUser } = slice.actions
+const { setAccessTokenData, setUsers, setCurrentUser, upsertUser } = slice.actions
 export { }
 
 export const createUserIfNotExistThunk = (token: string, userInput: models.UserInput): AppThunk => async dispatch => {
@@ -49,7 +60,7 @@ export const createUserIfNotExistThunk = (token: string, userInput: models.UserI
         user = await client.postUser(token, userInput)
     }
 
-    dispatch(setUser({ user }))
+    dispatch(setCurrentUser({ user }))
 
     return user
 }
@@ -62,6 +73,11 @@ export const setAccessTokenDataThunk = (token: string): AppThunk => async dispat
 export const getUsersThunk = (): AppThunk => async dispatch => {
     const users = await client.getUsers()
     dispatch(setUsers({ users }))
+}
+
+export const getUserThunk = (userId: string): AppThunk => async dispatch => {
+    const user = await client.getUser(userId)
+    dispatch(upsertUser({ user }))
 }
 
 export const selectUsers = (state: RootState) =>

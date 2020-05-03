@@ -133,7 +133,7 @@ const ReviewContainer: React.FC = () => {
         if (view === ReviewState.Polls && pollsState.polls.length === 0) {
             loadPolls()
         }
-    }, [view])
+    }, [dispatch, view, questionsState.questions.length, pollsState.polls.length])
 
     const onChangeQuestionState = async (question: models.Question, state: models.QuestionState.APPROVED | models.QuestionState.REJECTED) => {
         const token = await getTokenSilently()

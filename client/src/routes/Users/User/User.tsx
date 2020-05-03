@@ -3,7 +3,7 @@ import * as RRD from "react-router-dom"
 import * as Auth0 from "../../../react-auth0-spa"
 import * as client from "../../../services/client"
 import * as models from '../../../models'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import * as UsersSlice from '../usersSlice'
 
 type Props = {
@@ -40,6 +40,17 @@ const UserContainer: React.FC = () => {
     const params = RRD.useParams<{ userId: string }>()
     const userId = decodeURIComponent(params.userId)
     const user = state.users.find(u => u.id === userId)
+    const dispatch = useDispatch()
+
+    React.useEffect(() => {
+        async function loadUser() {
+            dispatch(UsersSlice.getUserThunk(userId))
+        }
+
+        if (user === undefined) {
+            loadUser()
+        }
+    }, [user])
 
     return (
         <User

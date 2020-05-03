@@ -43,6 +43,7 @@ type TestContext =
 
 const testStateMachine = Machine({
     id: 'testState',
+    strict: true,
     initial: 'preload',
     context: {
         key: '',
@@ -235,7 +236,7 @@ const Component: React.FC<Props> = (props) => {
     const onClick3 = onClickAnswer(3)
     const onClick4 = onClickAnswer(4)
 
-    const listener = (event: KeyboardEvent) => {
+    const keyDownListener = (event: KeyboardEvent) => {
         if (testState.matches('preload') === true) {
             switch (event.key) {
                 case "Enter": {
@@ -314,7 +315,8 @@ const Component: React.FC<Props> = (props) => {
         }
     }
 
-    useEventListener('keydown', listener, document)
+    useEventListener('keydown', keyDownListener, document)
+
 
     const onClickReady = async () => {
         send({ type: 'LOAD' })
