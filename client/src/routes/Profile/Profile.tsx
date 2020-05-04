@@ -21,13 +21,12 @@ const Profile: React.FC<Props> = (props) => {
             <img src={user.picture} alt="Profile" />
 
             <div>
-                <button onClick={() => logout()}>Log out</button>
+                <button onClick={() => logout()}>❌ Log out</button>
             </div>
-
-            <h2>{user.name}</h2>
-            <p>{user.email} {user.email_verified && '✔ Verified'}</p>
-            <p>ID: {user.sub}</p>
-            <p>Permissions: {props.tokenData?.permissions.join(', ')}</p>
+            <h2>🧑 {user.name}</h2>
+            <p>📧 {user.email} {user.email_verified && '✔ Verified'}</p>
+            <p>💳 ID: {user.sub}</p>
+            <p>👮‍♂️ Permissions: {props.tokenData?.permissions.join(', ') ?? 'None'}</p>
         </>
     )
 }

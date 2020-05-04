@@ -36,7 +36,7 @@ const Polls: React.FC<Props> = (props) => {
             <PollForm onSubmit={onSubmitPoll} />
             <Search onSubmit={onSubmitSearch} />
 
-            <h3>Polls</h3>
+            <h1>Polls</h1>
             {filteredPolls.length === 0
                 ? <div>
                     <div>No Polls</div>
@@ -53,7 +53,7 @@ const Polls: React.FC<Props> = (props) => {
 
             <div>
                 <button onClick={onClickLoadPolls}>
-                    Load More Scores
+                    Load More Polls
                 </button>
             </div>
         </div>

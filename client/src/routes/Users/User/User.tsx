@@ -19,11 +19,12 @@ const User: React.FC<Props> = (props) => {
 
     return (
         <>
-            <h2>{props.user.name}</h2>
+            <h2>🧑 {props.user.name}</h2>
             <dl>
-                <dt>Points</dt><dd>{props.user.points}</dd>
-                <dt>Reputation</dt><dd>{props.user.reputation}</dd>
-                <dt>Status</dt><dd>{props.user.status}</dd>
+                <dt>⚖ Difficulty Rating</dt><dd>{props.user.points}</dd>
+                <dt>🎉 Points</dt><dd>{props.user.points}</dd>
+                <dt>❤ Reputation</dt><dd>{props.user.reputation}</dd>
+                <dt>🎫 Status</dt><dd>{props.user.status}</dd>
             </dl>
 
             <h3>Questions:</h3>

@@ -12,4 +12,5 @@
     grid-template-columns: 300px repeat(4, minmax(max-content, 1fr));
     grid-gap: 1rem;
     padding: 1rem;
+    border-bottom: 1px solid grey;
 }

@@ -74,15 +74,15 @@ const DifficultyBar: React.FC<BarProps> = (props) => {
 
 const UserBanner: React.FC<Props> = (props) => {
     // TODO: Base off difficulty rating
-    const league = getLeague(props.user.reputation)
-    const leaguePercentage = 65.7
+    const league = getLeague(props.user.difficultyRating)
+    const leaguePercentage = 1.67
 
     return (
         <div className={styles.userBanner}>
             <div>League: {league}</div>
             <DifficultyBar
                 min={1}
-                value={1.65}
+                value={leaguePercentage}
                 max={2}
             />
             <div>Points: {props.user.points}</div>

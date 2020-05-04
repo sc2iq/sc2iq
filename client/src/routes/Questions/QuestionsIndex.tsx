@@ -64,7 +64,7 @@ const Questions: React.FC<Props> = (props) => {
             <QuestionForm onSubmit={onSubmitQuestion} />
             <Search onSubmit={onSubmitSearch} />
 
-            <h3>Questions</h3>
+            <h1>Questions</h1>
             {props.searchFilter
                 && (
                     <div>
