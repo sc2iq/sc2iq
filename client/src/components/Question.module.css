@@ -33,6 +33,15 @@
 
 }
 
+.changeLink {
+    display: grid;
+    grid-template-columns: 1fr max-content;
+}
+
+.changeLink a {
+    text-decoration: none;
+}
+
 .tag {
     padding: 0.125rem 0.25rem;
     margin-right: 0.25rem;

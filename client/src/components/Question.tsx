@@ -186,7 +186,7 @@ const Question: React.FC<Props> = ({ question, index, loadQuestion }) => {
                                     )}
                             </dl>
                         </div>
-                        <div>
+                        <div className={styles.changeLink}>
                             <div>
                                 🤔 Disagree with the question? Submit a change request: <button>📑 Submit Change</button>
                             </div>
