@@ -1,4 +1,25 @@
-.score {
+.scoreRow {
     display: grid;
     grid-auto-flow: column;
+    grid-template-columns: 300px 1fr 1fr 1fr;
+    padding: 0.5rem 1rem;
+}
+
+.scoreRow:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+.open {
+    background: rgba(255,255,255,0.1);
+}
+
+.answerRows {
+    --border-color: rgba(255,255,255,0.2);
+
+    display: grid;
+    grid-template-columns: repeat(2, 1fr) repeat(4, max-content);
+    grid-gap: 0.5rem 1rem;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem;
 }
