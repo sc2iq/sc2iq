@@ -76,6 +76,7 @@ export type Poll
         state: string
         user: User
         tags: Tag[]
+        details?: PollDetails
     }
 
 export type PollDetails = {

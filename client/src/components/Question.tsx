@@ -7,7 +7,6 @@ import { useSelector, useDispatch } from 'react-redux'
 import * as QuestionsSlice from '../routes/Questions/questionsSlice'
 import { Machine } from 'xstate'
 import { useMachine } from '@xstate/react'
-import { delay } from "../utilities"
 
 const dateTimeFormat = new Intl.DateTimeFormat('en-US', {
     day: 'numeric',
@@ -62,11 +61,6 @@ const questionStateMachine = Machine({
         }
     }
 })
-
-enum View {
-    OPEN = 'open',
-    CLOSED = 'closed',
-}
 
 type Props = {
     question: models.Question
@@ -153,7 +147,7 @@ const Question: React.FC<Props> = ({ question, index, loadQuestion }) => {
         <div className={styles.question}>
             <div onClick={onClickViewDetails}>
                 <div className={styles.title} >
-                    <div>{number}{question.question}</div><div>{state.matches('load.loading') ? 'Loading' : null} {question.difficulty}</div>
+                    <div>{number}{question.question}</div><div>{question.difficulty}</div>
                 </div>
                 <div className={styles.answers}>
                     <div style={answerStyles[0]}>{question.answer1}</div><div>{question.details ? `✔ ${question.details.percentageAnswer1} %` : null}</div>

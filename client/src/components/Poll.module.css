@@ -14,7 +14,7 @@
 
 .answers {
     display: grid;
-    grid-gap: 0.25rem 1rem;
+    grid-gap: 0 1rem;
     grid-template-columns: 1fr max-content;
 
     --color-bg-start-open: rgba(9,120,121,1);
@@ -26,11 +26,6 @@
 .answers > div {
     padding: 0 0.5rem;
     border-radius: 3px;
-}
-
-.changeLink {
-    display: grid;
-    grid-template-columns: 1fr max-content;
     align-items: center;
 }
 
@@ -39,7 +34,7 @@
 }
 
 .tag {
-    padding: 0 0.5rem 0.2rem;
+    padding: 0.125rem 0.5rem;
     margin-right: 0.25rem;
     background-color: rgb(76, 148, 216);
 }
