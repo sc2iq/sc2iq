@@ -26,6 +26,7 @@
 .answers > div {
     padding: 0 0.5rem;
     border-radius: 3px;
+    align-items: center;
 }
 
 .changeLink {

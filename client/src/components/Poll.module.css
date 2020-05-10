@@ -1,4 +1,4 @@
-.question {
+.poll {
     border: 1px solid rgb(100, 140, 179);
     padding: 1rem;
     border-radius: 3px;
@@ -14,7 +14,7 @@
 
 .answers {
     display: grid;
-    grid-gap: 0 1rem;
+    grid-gap: 0.25rem 1rem;
     grid-template-columns: 1fr max-content;
 
     --color-bg-start-open: rgba(9,120,121,1);
@@ -29,12 +29,18 @@
     align-items: center;
 }
 
+.changeLink {
+    display: grid;
+    grid-template-columns: 1fr max-content;
+    align-items: center;
+}
+
 .changeLink a {
     text-decoration: none;
 }
 
 .tag {
-    padding: 0.125rem 0.5rem;
+    padding: 0 0.5rem 0.2rem;
     margin-right: 0.25rem;
     background-color: rgb(76, 148, 216);
 }

@@ -570,10 +570,10 @@ type AnswerProps = {
 const AnswerDetails: React.FC<AnswerProps> = (props) => {
     const question = props.answerDetails.question
     const answers = [
-        [question.answer1, question.details.percentageAnswer1],
-        [question.answer2, question.details.percentageAnswer2],
-        [question.answer3, question.details.percentageAnswer3],
-        [question.answer4, question.details.percentageAnswer4],
+        [question.answer1, question.details.answer1count],
+        [question.answer2, question.details.answer2count],
+        [question.answer3, question.details.answer3count],
+        [question.answer4, question.details.answer4count],
     ]
 
     return (

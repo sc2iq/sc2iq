@@ -2,8 +2,7 @@ import React from "react"
 import * as RRD from 'react-router-dom'
 import * as models from "../models"
 import styles from './Question.module.css'
-import * as client from "../services/client"
-import { useSelector, useDispatch } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import * as QuestionsSlice from '../routes/Questions/questionsSlice'
 import { Machine } from 'xstate'
 import { useMachine } from '@xstate/react'
@@ -123,14 +122,23 @@ const Question: React.FC<Props> = ({ question, index, loadQuestion }) => {
         lastedUpdatedAtFormatted = dateTimeFormat.format(lastedUpdatedAtDate)
     }
 
-    const answerStyles = question.details
+    const answers = question.details
         ? [
-            question.details.percentageAnswer1 || 0.34,
-            question.details.percentageAnswer2 || 0.12,
-            question.details.percentageAnswer3 || 0.4,
-            question.details.percentageAnswer4 || 0.54,
-        ].map(percentage => {
+            question.details.answer1count || 34,
+            question.details.answer2count || 12,
+            question.details.answer3count || 4,
+            question.details.answer4count || 54,
+        ]
+        : []
 
+    const totalAnswers = answers
+        .reduce((sum, a) => sum += a, 0)
+
+    const answersComputed = answers
+        .map(answerCount => {
+            const percentage = answerCount / totalAnswers
+            const percentageString = (percentage * 100).toFixed(0)
+            
             const startColor = state.matches('view.open')
                 ? `--color-bg-start-open`
                 : `--color-bg-start-closed`
@@ -139,9 +147,14 @@ const Question: React.FC<Props> = ({ question, index, loadQuestion }) => {
                 ? `--color-bg-end-open`
                 : `--color-bg-end-closed`
 
-            return { background: `linear-gradient(90deg, var(${startColor}) 0%, var(${endColor}) ${percentage * 100}%, transparent ${percentage * 100}%, transparent 100%)` }
+            return {
+                count: answerCount,
+                percentage,
+                styles: {
+                    background: `linear-gradient(90deg, var(${startColor}) 0%, var(${endColor}) ${percentageString}%, transparent ${percentageString}%, transparent 100%)`
+                }
+            }
         })
-        : []
 
     return (
         <div className={styles.question}>
@@ -150,10 +163,10 @@ const Question: React.FC<Props> = ({ question, index, loadQuestion }) => {
                     <div>{number}{question.question}</div><div>{question.difficulty}</div>
                 </div>
                 <div className={styles.answers}>
-                    <div style={answerStyles[0]}>{question.answer1}</div><div>{question.details ? `✔ ${question.details.percentageAnswer1} %` : null}</div>
-                    <div style={answerStyles[1]}>{question.answer2}</div><div>{question.details ? `❌ ${question.details.percentageAnswer2} %` : null}</div>
-                    <div style={answerStyles[2]}>{question.answer3}</div><div>{question.details ? `❌ ${question.details.percentageAnswer3} %` : null}</div>
-                    <div style={answerStyles[3]}>{question.answer4}</div><div>{question.details ? `❌ ${question.details.percentageAnswer4} %` : null}</div>
+                    <div style={answersComputed[0]?.styles}>{question.answer1}</div><div>{question.details ? `✔ ${answersComputed[0].percentage} % (${answersComputed[0].count})` : null}</div>
+                    <div style={answersComputed[1]?.styles}>{question.answer2}</div><div>{question.details ? `❌ ${answersComputed[1].percentage} % (${answersComputed[1].count})` : null}</div>
+                    <div style={answersComputed[2]?.styles}>{question.answer3}</div><div>{question.details ? `❌ ${answersComputed[2].percentage} % (${answersComputed[2].count})` : null}</div>
+                    <div style={answersComputed[3]?.styles}>{question.answer4}</div><div>{question.details ? `❌ ${answersComputed[3].percentage} % (${answersComputed[3].count})` : null}</div>
                 </div>
             </div>
             {state.matches('view.open')

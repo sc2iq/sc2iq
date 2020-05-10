@@ -13,7 +13,7 @@ const dateTimeFormat = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
 })
 
-const questionStateMachine = Machine({
+const pollStateMachine = Machine({
     id: 'questionState',
     strict: true,
     type: "parallel",
@@ -33,8 +33,8 @@ const questionStateMachine = Machine({
                 },
                 loading: {
                     invoke: {
-                        id: 'loadQuestion',
-                        src: 'loadQuestion',
+                        id: 'loadPoll',
+                        src: 'loadPoll',
                         onDone: 'loaded'
                     }
                 },
@@ -68,7 +68,7 @@ type Props = {
 }
 
 const Poll: React.FC<Props> = ({ poll, index, loadPoll }) => {
-    const [state, send, service] = useMachine(questionStateMachine, {
+    const [state, send, service] = useMachine(pollStateMachine, {
         services: {
             loadPoll: async () => {
                 return loadPoll()
@@ -113,13 +113,30 @@ const Poll: React.FC<Props> = ({ poll, index, loadPoll }) => {
         ? `${(index + 1).toString().padStart(3, '0')} `
         : ''
 
-    const answerStyles = poll.details
+    const createdAtDate = new Date(poll.createdAt)
+    const createdAtFormatted = dateTimeFormat.format(createdAtDate)
+
+    let lastedUpdatedAtFormatted: string | undefined
+    if (poll.details) {
+        const lastedUpdatedAtDate = new Date(poll.details.updatedAt)
+        lastedUpdatedAtFormatted = dateTimeFormat.format(lastedUpdatedAtDate)
+    }
+
+    const answers = poll.details
         ? [
-            poll.details.percentageAnswer1 || 0.34,
-            poll.details.percentageAnswer2 || 0.12,
-            poll.details.percentageAnswer3 || 0.4,
-            poll.details.percentageAnswer4 || 0.54,
-        ].map(percentage => {
+            poll.details.answer1count || 34,
+            poll.details.answer2count || 12,
+            poll.details.answer3count || 4,
+            poll.details.answer4count || 54,
+        ]
+        : []
+
+    const totalAnswers = answers
+        .reduce((sum, a) => sum += a, 0)
+
+    const answersComputed = answers
+        .map(answerCount => {
+            const percentage = ((answerCount / totalAnswers) * 100).toFixed(0)
 
             const startColor = state.matches('view.open')
                 ? `--color-bg-start-open`
@@ -129,36 +146,75 @@ const Poll: React.FC<Props> = ({ poll, index, loadPoll }) => {
                 ? `--color-bg-end-open`
                 : `--color-bg-end-closed`
 
-            return { background: `linear-gradient(90deg, var(${startColor}) 0%, var(${endColor}) ${percentage * 100}%, transparent ${percentage * 100}%, transparent 100%)` }
+            return {
+                count: answerCount,
+                percentage,
+                styles: {
+                    background: `linear-gradient(90deg, var(${startColor}) 0%, var(${endColor}) ${percentage}%, transparent ${percentage}%, transparent 100%)`
+                }
+            }
         })
-        : []
 
     return (
-        <div className={styles.question}>
-            <div className={styles.title}>
-                {number}{poll.question}
+        <div className={styles.poll}>
+            <div onClick={onClickViewDetails}>
+                <div className={styles.title}>
+                    {number}{poll.question}
+                </div>
+                <div className={styles.answers}>
+                    <div style={answersComputed[0]?.styles}>{poll.answer1}</div><div>{poll.details ? `✔ ${answersComputed[0].percentage} % (${answersComputed[0].count})` : null}</div>
+                    <div style={answersComputed[1]?.styles}>{poll.answer2}</div><div>{poll.details ? `❌ ${answersComputed[1].percentage} % (${answersComputed[1].count})` : null}</div>
+                    <div style={answersComputed[2]?.styles}>{poll.answer3}</div><div>{poll.details ? `❌ ${answersComputed[2].percentage} % (${answersComputed[2].count})` : null}</div>
+                    <div style={answersComputed[3]?.styles}>{poll.answer4}</div><div>{poll.details ? `❌ ${answersComputed[3].percentage} % (${answersComputed[3].count})` : null}</div>
+                </div>
             </div>
-            <div className={styles.answers}>
-                <div>{poll.answer1}</div>
-                <div>{poll.answer2}</div>
-                <div>{poll.answer3}</div>
-                <div>{poll.answer4}</div>
-            </div>
-            <div>
-                <dl>
-                    <dt>Tags</dt>
-                    <dd>{poll.tags.map(t => <span className={styles.tag} key={t.id}>{t.name}</span>)}</dd>
-                    <dt>State:</dt>
-                    <dd>{poll.state}</dd>
-                    <dt>Author</dt>
-                    <dd>{poll.user.name}</dd>
-                </dl>
-            </div>
-            <div>
-                <RRD.NavLink to={`/polls/${poll.id}`} ><span role="img" aria-label="link">🔗</span> Link</RRD.NavLink>
-            </div>
+            {state.matches('view.open')
+                && (
+                    <>
+                        <div className={styles.metadata}>
+                            <dl>
+                                <dt>📚 Tags</dt>
+                                <dd>{poll.tags.map(t => <span className={styles.tag} key={t.id}>{t.name}</span>)}</dd>
+                                <dt>🧑 Author</dt>
+                                <dd><RRD.NavLink to={`/users/${poll.user.id}`}>{poll.user.name}</RRD.NavLink></dd>
+                                <dt>⏲ Created:</dt>
+                                <dd>{createdAtFormatted}</dd>
+                                {lastedUpdatedAtFormatted
+                                    && (
+                                        <>
+                                            <dt>⏲ Updated:</dt>
+                                            <dd>{lastedUpdatedAtFormatted}</dd>
+                                        </>
+                                    )}
+                            </dl>
+                        </div>
+                        <div className={styles.changeLink}>
+                            <RRD.NavLink to={`/polls/${poll.id}`} ><span role="img" aria-label="link">🔗</span> Link</RRD.NavLink>
+                        </div>
+                    </>
+                )}
         </div>
     )
 }
 
-export default Poll
+type ContainerProps = {
+    poll: models.Poll
+    index?: number
+}
+
+const PollContainer: React.FC<ContainerProps> = (props) => {
+    const dispatch = useDispatch()
+
+    const loadPoll = async () => {
+        return dispatch(PollsSlice.getPollThunk(props.poll.id))
+    }
+
+    return (
+        <Poll
+            {...props}
+            loadPoll={loadPoll}
+        />
+    )
+}
+
+export default PollContainer

@@ -10,30 +10,30 @@ export class PollDetails {
     @OneToOne(type => Poll, poll => poll.id)
     pollId: string
 
+    // @Column({
+    //     default: 0.0,
+    // })
+    // avgDuration: number
+    
     @Column({
         default: 0.0,
     })
-    totalVotes: number
+    answer1count: number
 
     @Column({
         default: 0.0,
     })
-    votesAnswer1: number
+    answer2count: number
 
     @Column({
         default: 0.0,
     })
-    votesAnswer2: number
+    answer3count: number
 
     @Column({
         default: 0.0,
     })
-    votesAnswer3: number
-
-    @Column({
-        default: 0.0,
-    })
-    votesAnswer4: number
+    answer4count: number
 
     @UpdateDateColumn()
     updatedAt: Date

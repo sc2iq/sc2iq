@@ -18,22 +18,22 @@ export class QuestionDetails {
     @Column({
         default: 0.0,
     })
-    percentageAnswer1: number
+    answer1count: number
 
     @Column({
         default: 0.0,
     })
-    percentageAnswer2: number
+    answer2count: number
 
     @Column({
         default: 0.0,
     })
-    percentageAnswer3: number
+    answer3count: number
 
     @Column({
         default: 0.0,
     })
-    percentageAnswer4: number
+    answer4count: number
 
     @UpdateDateColumn()
     updatedAt: Date

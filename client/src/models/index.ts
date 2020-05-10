@@ -80,12 +80,12 @@ export type Poll
     }
 
 export type PollDetails = {
-    totalVotes: number
-    votesAnswer1: number
-    votesAnswer2: number
-    votesAnswer3: number
-    votesAnswer4: number
+    answer1count: number
+    answer2count: number
+    answer3count: number
+    answer4count: number
     updatedAt: string
+    version: number
 }
 
 export type PollWithDetails
@@ -105,11 +105,12 @@ export type QuestionInput = {
 
 export type QuestionDetails = {
     avgDuration: number
-    percentageAnswer1: number
-    percentageAnswer2: number
-    percentageAnswer3: number
-    percentageAnswer4: number
+    answer1count: number
+    answer2count: number
+    answer3count: number
+    answer4count: number
     updatedAt: string
+    version: number
 }
 
 export enum QuestionState {
