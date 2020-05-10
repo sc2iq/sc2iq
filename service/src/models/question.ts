@@ -1,6 +1,7 @@
 import S from "fluent-schema"
 
 export type Input = {
+    id?: string
     question: string
     answer1: string
     answer2: string
@@ -12,6 +13,7 @@ export type Input = {
 }
 
 export const InputSchema = S.object()
+    .prop('id', S.string())
     .prop('question', S.string().required())
     .prop('answer1', S.string().required())
     .prop('answer2', S.string().required())

@@ -1,4 +1,5 @@
 import fastify from "fastify"
+import { v4 as uuid } from "uuid"
 import * as models from "../models"
 import { QuestionState, Question } from "../entity/Question"
 import { User } from "../entity/User"
@@ -151,8 +152,14 @@ export default function (fastify: fastify.FastifyInstance, pluginOptions: unknow
             const questionDetails = new QuestionDetails()
             await connection.manager.save(questionDetails)
 
+            let questionId: string = questionInput.id
+            if (questionId === undefined) {
+                questionId = uuid().toUpperCase()
+            }
+        
             // Create question
             const questionEntity = new Question()
+            questionEntity.id = questionId
             questionEntity.question = questionInput.question
             questionEntity.answer1 = questionInput.answer1
             questionEntity.answer2 = questionInput.answer2

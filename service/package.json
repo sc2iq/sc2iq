@@ -8,6 +8,7 @@
       "typescript": "^3.8.3"
    },
    "dependencies": {
+      "@types/uuid": "^7.0.3",
       "dotenv": "^8.2.0",
       "fastify": "^2.12.0",
       "fastify-auth0-verify": "^0.2.0",
@@ -16,7 +17,8 @@
       "fluent-schema": "^0.10.0",
       "mssql": "^6.0.1",
       "reflect-metadata": "^0.1.13",
-      "typeorm": "0.2.22"
+      "typeorm": "0.2.22",
+      "uuid": "^8.0.0"
    },
    "scripts": {
       "build": "tsc",

@@ -7,13 +7,14 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
+            "name": "M2M sc2iq",
+            "preLaunchTask": "build",
             "skipFiles": [
                 "<node_internals>/**"
             ],
             "program": "${workspaceFolder}/build/index.js",
             "outFiles": [
-                "${workspaceFolder}/build/**/*"
+                "${workspaceFolder}/**/*"
             ],
             "sourceMaps": true,
         }

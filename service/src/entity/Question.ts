@@ -12,7 +12,7 @@ export enum QuestionState {
 @TORM.Entity()
 export class Question {
 
-    @TORM.PrimaryGeneratedColumn("uuid")
+    @TORM.PrimaryColumn()
     id: string
 
     @TORM.Index({ fulltext: true })
