@@ -4,6 +4,7 @@ import * as models from "../models"
 import { QuestionState, Question } from "../entity/Question"
 import { User } from "../entity/User"
 import { Tag, QuestionDetails } from "../entity"
+import { systemUser } from "../constants"
 
 export default function (fastify: fastify.FastifyInstance, pluginOptions: unknown, done) {
     const connection = fastify.connection
@@ -170,6 +171,11 @@ export default function (fastify: fastify.FastifyInstance, pluginOptions: unknow
             questionEntity.tags = tagEntities
             questionEntity.user = user
             questionEntity.details = questionDetails
+
+            // Auto-approve questions from the System User
+            if (user.id === systemUser.id) {
+                questionEntity.state = QuestionState.APPROVED
+            }
 
             const savedQuestion = await connection.manager.save(questionEntity)
 
