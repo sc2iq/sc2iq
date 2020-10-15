@@ -14,7 +14,7 @@ describe('ELO rating system', () => {
             const playerBRating = 1000
 
             // Act
-            const expectedPlayerARating = rating.expectedPlayerAOutcome(playerARating, playerBRating)
+            const expectedPlayerARating = rating.expectedPlayerAProbability(playerARating, playerBRating)
 
             // Assert
             expect(expectedPlayerARating).toBe(0.5)
@@ -26,7 +26,7 @@ describe('ELO rating system', () => {
             const playerBRating = 1000
 
             // Act
-            const expectedPlayerARating = rating.expectedPlayerAOutcome(playerARating, playerBRating)
+            const expectedPlayerARating = rating.expectedPlayerAProbability(playerARating, playerBRating)
 
             // Assert
             expect(expectedPlayerARating).toBeGreaterThan(0.5)
@@ -38,7 +38,7 @@ describe('ELO rating system', () => {
             const playerBRating = 1200
 
             // Act
-            const expectedPlayerARating = rating.expectedPlayerAOutcome(playerARating, playerBRating)
+            const expectedPlayerARating = rating.expectedPlayerAProbability(playerARating, playerBRating)
 
             // Assert
             expect(expectedPlayerARating).toBeLessThan(0.5)
@@ -46,7 +46,7 @@ describe('ELO rating system', () => {
     })
 
     describe('nextRating', () => {
-        it('given actual outcome EQUAL expected outcome, next rating should be EQUAL', () => {
+        it('given actual Probability EQUAL expected Probability, next rating should be EQUAL', () => {
             // Arrange
             const actualOutcome = 0.5
             const expectedOutcome = 0.5

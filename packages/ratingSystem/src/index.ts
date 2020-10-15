@@ -1,4 +1,4 @@
-function expectedPlayerOutcome(exponentBase: number, exponentDenominator: number) {
+function createExpectedPlayerProbabilityFn(exponentBase: number, exponentDenominator: number) {
     return (ratingDifference: number): number => {
         const exponent = ratingDifference / exponentDenominator
 
@@ -6,41 +6,41 @@ function expectedPlayerOutcome(exponentBase: number, exponentDenominator: number
     }
 }
 
-function expectedPlayerRatings(exponentBase: number, exponentDenominator: number) {
-    const expectedPlayerRatingNormal = expectedPlayerOutcome(exponentBase, exponentDenominator)
+function expectedPlayerProbabilities(exponentBase: number, exponentDenominator: number) {
+    const expectedPlayerProbabilityFn = createExpectedPlayerProbabilityFn(exponentBase, exponentDenominator)
 
-    const expectedPlayerAOutcome = (playerARating: number, playerBRating: number): number => {
+    const expectedPlayerAProbability = (playerARating: number, playerBRating: number): number => {
         const ratingDifference = playerBRating - playerARating
 
-        return expectedPlayerRatingNormal(ratingDifference)
+        return expectedPlayerProbabilityFn(ratingDifference)
     }
 
-    const expectedPlayerBOutcome = (playerARating: number, playerBRating: number): number => {
+    const expectedPlayerBProbability = (playerARating: number, playerBRating: number): number => {
         const ratingDifference = playerARating - playerBRating
 
-        return expectedPlayerRatingNormal(ratingDifference)
+        return expectedPlayerProbabilityFn(ratingDifference)
     }
 
     return {
-        expectedPlayerAOutcome,
-        expectedPlayerBOutcome,
+        expectedPlayerAProbability,
+        expectedPlayerBProbability,
     }
 }
 
-function nextRating(kFactor: number) {
+function createNextRatingFn(kFactor: number) {
     return (rating: number, actualPoints: number, expectedPoints: number): number => {
         return rating + kFactor * (actualPoints - expectedPoints)
     }
 }
 
 export function createRatingSystem(exponentBase: number, exponentDenominator: number, kFactor: number) {
-    const { expectedPlayerAOutcome, expectedPlayerBOutcome } = expectedPlayerRatings(exponentBase, exponentDenominator)
-    const nextRatingFn = nextRating(kFactor)
+    const { expectedPlayerAProbability, expectedPlayerBProbability } = expectedPlayerProbabilities(exponentBase, exponentDenominator)
+    const nextRating = createNextRatingFn(kFactor)
 
     return {
-        expectedPlayerAOutcome,
-        expectedPlayerBOutcome,
-        nextRating: nextRatingFn
+        expectedPlayerAProbability,
+        expectedPlayerBProbability,
+        nextRating
     }
 }
 

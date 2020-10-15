@@ -6,7 +6,6 @@ const kFactor = 32
 
 const rating = createRatingSystem(exponentBase, exponentDenominator, kFactor)
 
-// [playerARating, playerBRating, actualOutcome]
 const data = [
     [1000, 1200, 1],
     [1000, 1400, 1],
@@ -18,33 +17,33 @@ const data = [
 
 const results = []
 
-for (const [playerARating, playerBRating, actualOutcome] of data) {
+for (const [playerARating, playerBRating, actualProbability] of data) {
 
-    const expectedPlayerAOutcome = rating.expectedPlayerAOutcome(playerARating, playerBRating)
-    const expectedPlayerBOutcome = rating.expectedPlayerBOutcome(playerARating, playerBRating)
-    const aOutcome = actualOutcome
-    const bOutcome = Math.abs(1 - actualOutcome)
+    const expectedPlayerAProbability = rating.expectedPlayerAProbability(playerARating, playerBRating)
+    const expectedPlayerBProbability = rating.expectedPlayerBProbability(playerARating, playerBRating)
+    const aProbability = actualProbability
+    const bProbability = 1 - actualProbability
 
-    const nextPlayerARating = rating.nextRating(playerARating, aOutcome, expectedPlayerAOutcome)
+    const nextPlayerARating = rating.nextRating(playerARating, aProbability, expectedPlayerAProbability)
     const playerADiff = nextPlayerARating - playerARating
-    const nextPlayerBRating = rating.nextRating(playerBRating, bOutcome, expectedPlayerBOutcome)
+    const nextPlayerBRating = rating.nextRating(playerBRating, bProbability, expectedPlayerBProbability)
     const playerBDiff = nextPlayerBRating - playerBRating
 
-    const win = actualOutcome === 1
+    const winText = actualProbability === 1
         ? 'A wins'
         : 'B wins'
-    const textOutcome = `A ${playerARating} vs B ${playerBRating}: ${win} ${playerADiff.toFixed(0)} | ${playerBDiff.toFixed(0)}`.padEnd(40)
+    const textProbability = `A ${playerARating} vs B ${playerBRating}: ${winText} ${playerADiff.toFixed(0)} | ${playerBDiff.toFixed(0)}`.padEnd(40)
 
     const record = {
         playerARating,
         playerBRating,
-        expectedPlayerAOutcome: expectedPlayerAOutcome.toFixed(3),
-        expectedPlayerBOutcome: expectedPlayerBOutcome.toFixed(3),
+        expectedPlayerAProbability: expectedPlayerAProbability.toFixed(3),
+        expectedPlayerBProbability: expectedPlayerBProbability.toFixed(3),
         nextPlayerARating: Math.round(nextPlayerARating),
         playerADiff: Math.round(playerADiff),
         nextPlayerBRating: Math.round(nextPlayerBRating),
         playerBDiff: Math.round(playerBDiff),
-        textOutcome,
+        textProbability,
     }
 
     results.push(record)
