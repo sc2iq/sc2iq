@@ -19,16 +19,12 @@ const results = []
 
 for (const [playerARating, playerBRating, actualProbability] of data) {
 
-    const expectedPlayerAProbability = rating.expectedPlayerAProbability(playerARating, playerBRating)
-    const expectedPlayerBProbability = rating.expectedPlayerBProbability(playerARating, playerBRating)
+    const [expectedPlayerAProbability, expectedPlayerBProbability] = rating.getExpectedPlayerProbabilities(playerARating, playerBRating)
     const aProbability = actualProbability
     const bProbability = 1 - actualProbability
 
-    const nextPlayerARating = rating.nextRating(playerARating, aProbability, expectedPlayerAProbability)
-    const playerADiff = nextPlayerARating - playerARating
-    const nextPlayerBRating = rating.nextRating(playerBRating, bProbability, expectedPlayerBProbability)
-    const playerBDiff = nextPlayerBRating - playerBRating
-
+    const [nextPlayerARating, playerADiff] = rating.getNextRating(playerARating, aProbability, expectedPlayerAProbability)
+    const [nextPlayerBRating, playerBDiff] = rating.getNextRating(playerBRating, bProbability, expectedPlayerBProbability)
     const winText = actualProbability === 1
         ? 'A wins'
         : 'B wins'

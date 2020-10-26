@@ -14,10 +14,11 @@ describe('ELO rating system', () => {
             const playerBRating = 1000
 
             // Act
-            const expectedPlayerARating = rating.expectedPlayerAProbability(playerARating, playerBRating)
+            const [a, b] = rating.getExpectedPlayerProbabilities(playerARating, playerBRating)
 
             // Assert
-            expect(expectedPlayerARating).toBe(0.5)
+            expect(a).toBe(0.5)
+            expect(b).toBe(0.5)
         })
 
         it('given player A has HIGHER rating than player B, expected rating should be > 0.5', () => {
@@ -26,10 +27,11 @@ describe('ELO rating system', () => {
             const playerBRating = 1000
 
             // Act
-            const expectedPlayerARating = rating.expectedPlayerAProbability(playerARating, playerBRating)
+            const [a, b] = rating.getExpectedPlayerProbabilities(playerARating, playerBRating)
 
             // Assert
-            expect(expectedPlayerARating).toBeGreaterThan(0.5)
+            expect(a).toBeGreaterThan(0.5)
+            expect(b).toBeLessThan(0.5)
         })
 
         it('given player A has LOWER rating than player B, expected rating should be < 0.5', () => {
@@ -38,10 +40,11 @@ describe('ELO rating system', () => {
             const playerBRating = 1200
 
             // Act
-            const expectedPlayerARating = rating.expectedPlayerAProbability(playerARating, playerBRating)
+            const [a, b] = rating.getExpectedPlayerProbabilities(playerARating, playerBRating)
 
             // Assert
-            expect(expectedPlayerARating).toBeLessThan(0.5)
+            expect(a).toBeLessThan(0.5)
+            expect(b).toBeGreaterThan(0.5)
         })
     })
 
@@ -53,10 +56,11 @@ describe('ELO rating system', () => {
             const playerRating = 1000
 
             // Act
-            const nextRating = rating.nextRating(playerRating, actualOutcome, expectedOutcome)
+            const [nextRating, change] = rating.getNextRating(playerRating, actualOutcome, expectedOutcome)
             
             // Assert
             expect(nextRating).toBe(playerRating)
+            expect(change).toBe(0)
         })
 
         it('given actual outcome GREATER than expected outcome, next rating GREATER than original rating', () => {
@@ -66,10 +70,11 @@ describe('ELO rating system', () => {
             const playerRating = 1000
 
             // Act
-            const nextRating = rating.nextRating(playerRating, actualOutcome, expectedOutcome)
+            const [nextRating, change] = rating.getNextRating(playerRating, actualOutcome, expectedOutcome)
             
             // Assert
             expect(nextRating).toBeGreaterThan(playerRating)
+            expect(change).toBeGreaterThan(0)
         })
 
         it('given actual outcome LESS than expected outcome, next rating LESS than original rating', () => {
@@ -79,10 +84,11 @@ describe('ELO rating system', () => {
             const playerRating = 1000
 
             // Act
-            const nextRating = rating.nextRating(playerRating, actualOutcome, expectedOutcome)
+            const [nextRating, change] = rating.getNextRating(playerRating, actualOutcome, expectedOutcome)
             
             // Assert
             expect(nextRating).toBeLessThan(playerRating)
+            expect(change).toBeLessThan(0)
         })
     })
 })
