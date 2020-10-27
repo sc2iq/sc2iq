@@ -49,7 +49,11 @@ for (let i = 0; i < numIterations; i++) {
 
     for (const question of randomQuestions) {
         const [playerProbability, questionProbability] = ratingSystem.getExpectedPlayerProbabilities(player.rating, question.rating)
-        const playerOutcome = Math.round(Math.random())
+
+        // Bias random based on probability so better player / more knowledgeable user is more likely to score / answer correct
+        const playerOutcome = Math.random() < playerProbability
+            ? 1
+            : 0
         const questionOutcome = 1 - playerOutcome
         const [updatedPlayerRating, playerDiff] = ratingSystem.getNextRating(player.rating, playerOutcome, playerProbability)
         const [updatedQuestionRating, questionDiff] = ratingSystem.getNextRating(question.rating, questionOutcome, questionProbability)
@@ -60,7 +64,7 @@ for (let i = 0; i < numIterations; i++) {
             playerRating: player.rating.toString().padStart(4, ' '),
             questionId: question.id,
             questionRating: question.rating.toString().padStart(4, ' '),
-            playerProbability: playerProbability.toFixed(3).padEnd(4, '0'), 
+            playerProbability: playerProbability.toFixed(3).padEnd(4, '0'),
             questionProbability: questionProbability.toFixed(3).padEnd(4, '0'),
             outcome: playerOutcome,
             updatedPlayerRating: `${Math.round(updatedPlayerRating)} (${playerDiff.toString().padStart(3, '+')})`,
