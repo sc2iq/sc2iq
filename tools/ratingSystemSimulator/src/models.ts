@@ -18,5 +18,5 @@ export type Result = {
     questionRating: string,
     questionProbability: string,
     updatedQuestionRating: string,
-    outcome: number,
+    outcome: string,
 }

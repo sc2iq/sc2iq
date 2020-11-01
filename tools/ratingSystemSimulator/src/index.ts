@@ -1,6 +1,6 @@
 import createRatingSystem from '@sc2/rating'
 import { Player, Question, Result } from './models'
-import { randomInRange, trunc } from './utilities'
+import { getRandomPlayer, getRandomQuestionInRange, randomInRange, trunc } from './utilities'
 
 const exponentDenominator = 400
 const exponentBase = 10
@@ -22,38 +22,50 @@ const players = Array.from({ length: numPlayers }, (_, i) => i)
     })
 
 // - Create questions
-const numQuestions = 100
+const numQuestions = 1000
+const tiers = 20
+const questionRatingRange = 6000 - initialRating
+
+const questionSegmentSize = Math.floor(numQuestions / tiers)
+const incrementAmount = Math.floor(questionRatingRange / tiers)
+
+const questionGeneration = {
+    total: numQuestions,
+    tiers,
+    questionRatingRange,
+    questionSegmentSize,
+    incrementAmount
+}
+
+console.log('Question Generation:')
+console.table(questionGeneration)
+
 const questions = Array.from({ length: numQuestions }, (_, i) => i)
     .map<Question>(v => {
+        const rating = initialRating + Math.floor(v / questionSegmentSize) * incrementAmount
         return {
             id: `question${v}`,
-            rating: initialRating
+            rating
         }
     })
 
 // Execute
 const numQuestionSequence = 10
-const numIterations = 10 * 1000
-
+const numIterations = 100 * 1000
+const ratingRange = 500
 const results: Result[] = []
 
 for (let i = 0; i < numIterations; i++) {
-    const randomPlayerIndex = randomInRange(0, players.length - 1)
-
-    const player = players[randomPlayerIndex]
-    const randomQuestions = Array.from({ length: numQuestionSequence }, (_, i) => {
-        const randomQuestionIndex = randomInRange(0, questions.length - 1)
-        const question = questions[randomQuestionIndex]
-        return question
-    })
+    const player = getRandomPlayer(players)
+    const randomQuestions = Array.from({ length: numQuestionSequence }, (_, i) =>
+        getRandomQuestionInRange(questions, player.rating - ratingRange, player.rating + ratingRange))
 
     for (const question of randomQuestions) {
         const [playerProbability, questionProbability] = ratingSystem.getExpectedPlayerProbabilities(player.rating, question.rating)
 
         // Bias random based on probability so better player / more knowledgeable user is more likely to score / answer correct
-        const playerOutcome = Math.random() < playerProbability
-            ? 1
-            : 0
+        const expectedOutcome = playerProbability > 0.5 ? 1 : 0
+        const playerOutcome = Math.random() < playerProbability ? 1 : 0
         const questionOutcome = 1 - playerOutcome
         const [updatedPlayerRating, playerDiff] = ratingSystem.getNextRating(player.rating, playerOutcome, playerProbability)
         const [updatedQuestionRating, questionDiff] = ratingSystem.getNextRating(question.rating, questionOutcome, questionProbability)
@@ -66,9 +78,9 @@ for (let i = 0; i < numIterations; i++) {
             questionRating: question.rating.toString().padStart(4, ' '),
             playerProbability: playerProbability.toFixed(3).padEnd(4, '0'),
             questionProbability: questionProbability.toFixed(3).padEnd(4, '0'),
-            outcome: playerOutcome,
-            updatedPlayerRating: `${Math.round(updatedPlayerRating)} (${playerDiff.toString().padStart(3, '+')})`,
-            updatedQuestionRating: `${Math.round(updatedQuestionRating)} (${questionDiff.toString().padStart(3, '+')})`
+            outcome: `${playerOutcome} (${expectedOutcome})`,
+            updatedPlayerRating: `${Math.round(updatedPlayerRating)} (${playerDiff > 0 ? `+${playerDiff}` : playerDiff.toString()})`,
+            updatedQuestionRating: `${Math.round(updatedQuestionRating)} (${questionDiff > 0 ? `+${questionDiff}` : questionDiff.toString()})`
         }
 
         player.rating = Math.round(updatedPlayerRating)
@@ -93,7 +105,12 @@ const playerRatingsOverTime = players.map(player => {
 })
 
 const numPlayerResultsToDisplay = 10
-const topNPlayerResults = playerRatingsOverTime.filter((_, i) => i < numPlayerResultsToDisplay)
+const lastNresult = 10
+
+const topNPlayerResults = playerRatingsOverTime
+    .filter((_, i) => i < numPlayerResultsToDisplay)
+    .map(results => results.slice(-lastNresult))
+
 console.log(topNPlayerResults)
 
 
