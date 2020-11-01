@@ -11,7 +11,7 @@ const ratingSystem = createRatingSystem(exponentBase, exponentDenominator, kFact
 // Initialize
 
 // - Create players
-const numPlayers = 100
+const numPlayers = 1000
 const initialRating = 1000
 const players = Array.from({ length: numPlayers }, (_, i) => i)
     .map<Player>(v => {
@@ -94,6 +94,6 @@ const playerRatingsOverTime = players.map(player => {
 
 const numPlayerResultsToDisplay = 10
 const topNPlayerResults = playerRatingsOverTime.filter((_, i) => i < numPlayerResultsToDisplay)
-// console.log(topNPlayerResults)
+console.log(topNPlayerResults)
 
 
