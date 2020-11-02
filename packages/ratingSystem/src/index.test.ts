@@ -1,10 +1,7 @@
 import createRatingSystem from './index'
 
-const exponentDenominator = 400
-const exponentBase = 10
-const kFactor = 32
 
-const rating = createRatingSystem(exponentBase, exponentDenominator, kFactor)
+const rating = createRatingSystem()
 
 describe('ELO rating system', () => {
     describe('expectedPlayerARating', () => {
@@ -57,7 +54,7 @@ describe('ELO rating system', () => {
 
             // Act
             const [nextRating, change] = rating.getNextRating(playerRating, actualOutcome, expectedOutcome)
-            
+
             // Assert
             expect(nextRating).toBe(playerRating)
             expect(change).toBe(0)
@@ -71,7 +68,7 @@ describe('ELO rating system', () => {
 
             // Act
             const [nextRating, change] = rating.getNextRating(playerRating, actualOutcome, expectedOutcome)
-            
+
             // Assert
             expect(nextRating).toBeGreaterThan(playerRating)
             expect(change).toBeGreaterThan(0)
@@ -85,10 +82,38 @@ describe('ELO rating system', () => {
 
             // Act
             const [nextRating, change] = rating.getNextRating(playerRating, actualOutcome, expectedOutcome)
-            
+
             // Assert
             expect(nextRating).toBeLessThan(playerRating)
             expect(change).toBeLessThan(0)
+        })
+    })
+
+
+    describe('getNextRatings', () => {
+        it('given current ratings and score compute expected probabilities and ratings', () => {
+            // Arrange
+            const playerARating = 1000
+            const playerBRating = 1200
+            const playerAScore = 1
+
+            // Act
+            const {
+                expectedPlayerAProbability,
+                expectedPlayerBProbability,
+                nextPlayerARating,
+                playerADiff,
+                nextPlayerBRating,
+                playerBDiff
+            } = rating.getNextRatings(playerARating, playerBRating, playerAScore)
+
+            // Assert
+            expect(expectedPlayerAProbability).toBeLessThan(0.5)
+            expect(expectedPlayerBProbability).toBeGreaterThan(0.5)
+            expect(nextPlayerARating).toBeGreaterThan(playerARating)
+            expect(playerADiff).toBeGreaterThan(0)
+            expect(nextPlayerBRating).toBeLessThan(playerBRating)
+            expect(playerBDiff).toBeLessThan(0)
         })
     })
 })

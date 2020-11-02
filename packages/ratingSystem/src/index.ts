@@ -6,10 +6,12 @@ function createBaseExpectedPlayerProbabilityFn(exponentBase: number, exponentDen
     }
 }
 
-function createExpectedPlayerProbabilitiesFn(exponentBase: number, exponentDenominator: number) {
+type ExpectedProbabilitiesFn = (playerARating: number, playerBRating: number) => [number, number, number, number]
+
+function createExpectedPlayerProbabilitiesFn(exponentBase: number, exponentDenominator: number): ExpectedProbabilitiesFn {
     const expectedPlayerProbabilityFn = createBaseExpectedPlayerProbabilityFn(exponentBase, exponentDenominator)
 
-    const expectedPlayerProbability = (playerARating: number, playerBRating: number): [number, number, number, number] => {
+    const expectedPlayerProbability: ExpectedProbabilitiesFn = (playerARating, playerBRating) => {
         const ratingADifference = playerBRating - playerARating
         const ratingBDifference = playerARating - playerBRating
 
@@ -42,16 +44,47 @@ function createNextRatingFn(kFactor: number | KFactorFunction) {
     }
 }
 
-export function createRatingSystem(exponentBase: number, exponentDenominator: number, kFactor: number) {
-    const expectedPlayerProbabilitiesFn = createExpectedPlayerProbabilitiesFn(exponentBase, exponentDenominator)
-    const nextRatingFn = createNextRatingFn(kFactor)
+type NextRatingFn = (rating: number, actualPoints: number, expectedPoints: number) => [number, number]
 
-    return {
-        getExpectedPlayerProbabilities: expectedPlayerProbabilitiesFn,
-        getNextRating: nextRatingFn
+function createNextRatingsFn(getExpectedPlayerProbabilities: ExpectedProbabilitiesFn, getNextRating: NextRatingFn) {
+    const nextRatingsFn = (playerARating: number, playerBRating: number, playerAScore: number) => {
+        const [expectedPlayerAProbability, expectedPlayerBProbability] = getExpectedPlayerProbabilities(playerARating, playerBRating)
+        const aProbability = playerAScore
+        const bProbability = 1 - playerAScore
+        
+        const [nextPlayerARating, playerADiff] = getNextRating(playerARating, aProbability, expectedPlayerAProbability)
+        const [nextPlayerBRating, playerBDiff] = getNextRating(playerBRating, bProbability, expectedPlayerBProbability)
+
+        return {
+            expectedPlayerAProbability,
+            expectedPlayerBProbability,
+            nextPlayerARating,
+            playerADiff,
+            nextPlayerBRating,
+            playerBDiff,
+        }
     }
+
+    return nextRatingsFn
 }
 
+/**
+ * Create Rating System
+ * 
+ * @param kFactor K-Factor (Defaults to 32) Adjust the sensitivity of rating adjustments
+ * @param exponentDenominator Exponent (Rating Difference) Denominator (Higher requires greater difference in skills, smaller means even slight skill difference is significant)
+ * @param exponentBase Exponent Base (Usually 10)
+ */
+export function createRatingSystem(kFactor: number = 32, exponentDenominator: number = 400, exponentBase: number = 10) {
+    const getExpectedPlayerProbabilities = createExpectedPlayerProbabilitiesFn(exponentBase, exponentDenominator)
+    const getNextRating = createNextRatingFn(kFactor)
+    const getNextRatings = createNextRatingsFn(getExpectedPlayerProbabilities, getNextRating)
 
+    return {
+        getExpectedPlayerProbabilities,
+        getNextRating,
+        getNextRatings
+    }
+}
 
 export default createRatingSystem

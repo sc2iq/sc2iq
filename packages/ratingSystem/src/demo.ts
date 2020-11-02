@@ -6,7 +6,7 @@ const kFactor = 32
 
 const rating = createRatingSystem(exponentBase, exponentDenominator, kFactor)
 
-const data = [
+const data: [number, number, number][] = [
     [1000, 1200, 1],
     [1000, 1400, 1],
     [1000, 2000, 1],
@@ -17,15 +17,27 @@ const data = [
 
 const results = []
 
-for (const [playerARating, playerBRating, actualProbability] of data) {
+for (const [playerARating, playerBRating, actualScore] of data) {
 
-    const [expectedPlayerAProbability, expectedPlayerBProbability] = rating.getExpectedPlayerProbabilities(playerARating, playerBRating)
-    const aProbability = actualProbability
-    const bProbability = 1 - actualProbability
+    // Manual Computation
+    // const [expectedPlayerAProbability, expectedPlayerBProbability] = rating.getExpectedPlayerProbabilities(playerARating, playerBRating)
+    // const aProbability = actualScore
+    // const bProbability = 1 - actualScore
 
-    const [nextPlayerARating, playerADiff] = rating.getNextRating(playerARating, aProbability, expectedPlayerAProbability)
-    const [nextPlayerBRating, playerBDiff] = rating.getNextRating(playerBRating, bProbability, expectedPlayerBProbability)
-    const winText = actualProbability === 1
+    // const [nextPlayerARating, playerADiff] = rating.getNextRating(playerARating, aProbability, expectedPlayerAProbability)
+    // const [nextPlayerBRating, playerBDiff] = rating.getNextRating(playerBRating, bProbability, expectedPlayerBProbability)
+
+    // Internal Computation
+    const {
+        expectedPlayerAProbability,
+        expectedPlayerBProbability,
+        nextPlayerARating,
+        playerADiff,
+        nextPlayerBRating,
+        playerBDiff
+    } = rating.getNextRatings(playerARating, playerBRating, actualScore)
+
+    const winText = actualScore === 1
         ? 'A wins'
         : 'B wins'
     const textProbability = `A ${playerARating} vs B ${playerBRating}: ${winText} ${playerADiff.toFixed(0)} | ${playerBDiff.toFixed(0)}`.padEnd(40)
