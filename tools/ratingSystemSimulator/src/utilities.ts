@@ -21,16 +21,25 @@ export function getRandomPlayer(players: Player[]): Player {
     return player
 }
 
+const maxIterations = 1000 * 1000
 export function getRandomQuestionInRange(questions: Question[], minRating: number, maxRating: number): Question {
     let question: Question | undefined = undefined
 
+    let iteration = 0
+    const start = Date.now()
     while (question == undefined) {
         const randomQuestionIndex = randomInRange(0, questions.length - 1)
         const randomQuestion = questions[randomQuestionIndex]
 
-        const isRatingWithinRange = randomQuestion.rating >= minRating
-            && randomQuestion.rating <= maxRating
+        const isRatingWithinRange = minRating <= randomQuestion.rating  && randomQuestion.rating <= maxRating
+        iteration++
 
+        if (iteration > maxIterations) {
+            const now = Date.now()
+            const timeDiff = ((now - start) / 1000).toFixed(3)
+            console.log(`Max iterations reached when finding question. ${timeDiff} s`)
+            question = randomQuestion
+        }
         if (isRatingWithinRange) {
             question = randomQuestion
         }

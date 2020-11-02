@@ -1,5 +1,5 @@
 import createRatingSystem from '@sc2/rating'
-import { Player, Question, Result } from './models'
+import { convertResultToDisplayResult, Player, Question, Result } from './models'
 import { getRandomPlayer, getRandomQuestionInRange, randomInRange, trunc } from './utilities'
 
 const exponentDenominator = 400
@@ -10,31 +10,47 @@ const ratingSystem = createRatingSystem(exponentBase, exponentDenominator, kFact
 
 // Initialize
 
-// - Create players
-const numPlayers = 1000
+// Create players
 const initialRating = 1000
+const numPlayers = 10
+const playerTiers = 4
+const playerRatingRange = 6000 - initialRating
+const playerSegmentSize = Math.floor(numPlayers / playerTiers)
+const playerIncrementAmount = Math.floor(playerRatingRange / playerTiers)
+
+const playerGeneration = {
+    total: numPlayers,
+    tiers: playerTiers,
+    playerRatingRange,
+    playerSegmentSize,
+    incrementAmount: playerIncrementAmount
+}
+
 const players = Array.from({ length: numPlayers }, (_, i) => i)
     .map<Player>(v => {
+        const rating = initialRating + Math.floor(v / playerSegmentSize) * playerIncrementAmount
         return {
             id: `player${v}`,
-            rating: initialRating
+            rating
         }
     })
 
-// - Create questions
-const numQuestions = 1000
-const tiers = 20
-const questionRatingRange = 6000 - initialRating
+console.log('Players Generation:')
+console.table(playerGeneration)
 
-const questionSegmentSize = Math.floor(numQuestions / tiers)
-const incrementAmount = Math.floor(questionRatingRange / tiers)
+// Create questions
+const numQuestions = 1 * 1000
+const questionTiers = 200
+const questionRatingRange = 6000 - initialRating
+const questionSegmentSize = Math.floor(numQuestions / questionTiers)
+const questionIncrementAmount = Math.floor(questionRatingRange / questionTiers)
 
 const questionGeneration = {
     total: numQuestions,
-    tiers,
+    tiers: questionTiers,
     questionRatingRange,
     questionSegmentSize,
-    incrementAmount
+    incrementAmount: questionIncrementAmount
 }
 
 console.log('Question Generation:')
@@ -42,60 +58,84 @@ console.table(questionGeneration)
 
 const questions = Array.from({ length: numQuestions }, (_, i) => i)
     .map<Question>(v => {
-        const rating = initialRating + Math.floor(v / questionSegmentSize) * incrementAmount
+        const rating = initialRating + Math.floor(v / questionSegmentSize) * questionIncrementAmount
         return {
             id: `question${v}`,
             rating
         }
     })
 
-// Execute
-const numQuestionSequence = 10
-const numIterations = 100 * 1000
-const ratingRange = 500
+// Execute simulation
+const numQuestionSequence = 1
+const numQuestionsPerPlayer = 100
+// The maximum difference that a question's rating will be from the player's rating
+// Simulates a queuing system the pairs likely candidates
+const ratingRange = 250
+
 const results: Result[] = []
+const execute = {
+    players: players.length,
+    questions: questions.length,
+    numQuestionsPerPlayer,
+    ratingRange,
+}
 
-for (let i = 0; i < numIterations; i++) {
-    const player = getRandomPlayer(players)
-    const randomQuestions = Array.from({ length: numQuestionSequence }, (_, i) =>
-        getRandomQuestionInRange(questions, player.rating - ratingRange, player.rating + ratingRange))
+const totalLoops = players.length * numQuestionsPerPlayer * numQuestionSequence
+console.log(`Simulate game... (Total computations: ${totalLoops})`)
+console.table(execute)
 
-    for (const question of randomQuestions) {
-        const [playerProbability, questionProbability] = ratingSystem.getExpectedPlayerProbabilities(player.rating, question.rating)
+for (const player of players) {
+    for (let i = 0; i < numQuestionsPerPlayer; i++) {
+        const randomQuestions = Array.from({ length: numQuestionSequence }, (_, i) =>
+            getRandomQuestionInRange(questions, player.rating - ratingRange, player.rating + ratingRange))
 
-        // Bias random based on probability so better player / more knowledgeable user is more likely to score / answer correct
-        const expectedOutcome = playerProbability > 0.5 ? 1 : 0
-        const playerOutcome = Math.random() < playerProbability ? 1 : 0
-        const questionOutcome = 1 - playerOutcome
-        const [updatedPlayerRating, playerDiff] = ratingSystem.getNextRating(player.rating, playerOutcome, playerProbability)
-        const [updatedQuestionRating, questionDiff] = ratingSystem.getNextRating(question.rating, questionOutcome, questionProbability)
+        for (const question of randomQuestions) {
+            const [playerProbability, questionProbability] = ratingSystem.getExpectedPlayerProbabilities(player.rating, question.rating)
 
-        const result: Result = {
-            iteration: i,
-            playerId: player.id,
-            playerRating: player.rating.toString().padStart(4, ' '),
-            questionId: question.id,
-            questionRating: question.rating.toString().padStart(4, ' '),
-            playerProbability: playerProbability.toFixed(3).padEnd(4, '0'),
-            questionProbability: questionProbability.toFixed(3).padEnd(4, '0'),
-            outcome: `${playerOutcome} (${expectedOutcome})`,
-            updatedPlayerRating: `${Math.round(updatedPlayerRating)} (${playerDiff > 0 ? `+${playerDiff}` : playerDiff.toString()})`,
-            updatedQuestionRating: `${Math.round(updatedQuestionRating)} (${questionDiff > 0 ? `+${questionDiff}` : questionDiff.toString()})`
+            // Bias random based on probability so better player / more knowledgeable user is more likely to score / answer correct
+            const expectedOutcome = playerProbability > 0.5 ? 1 : 0
+            const playerOutcome = Math.random() < playerProbability ? 1 : 0
+            const questionOutcome = 1 - playerOutcome
+            const [updatedPlayerRating, playerDiff] = ratingSystem.getNextRating(player.rating, playerOutcome, playerProbability)
+            const [updatedQuestionRating, questionDiff] = ratingSystem.getNextRating(question.rating, questionOutcome, questionProbability)
+
+            const result: Result = {
+                iteration: i,
+                playerId: player.id,
+                questionId: question.id,
+                playerRating: player.rating,
+                questionRating: question.rating,
+                playerProbability: playerProbability,
+                questionProbability: questionProbability,
+                playerOutcome,
+                expectedOutcome,
+                updatedPlayerRating,
+                updatedPlayerDiff: playerDiff,
+                updatedQuestionRating,
+                updatedQuestionDiff: questionDiff
+            }
+
+            player.rating = Math.round(updatedPlayerRating)
+            question.rating = Math.round(updatedQuestionRating)
+
+            console.log(`add result: ${player.id} i:${i}`)
+            results.push(result)
         }
-
-        player.rating = Math.round(updatedPlayerRating)
-        question.rating = Math.round(updatedQuestionRating)
-
-        results.push(result)
     }
 }
+
 
 console.log(`${results.length} results computed!`)
 
 const numResultsToDisplay = 10
-const topNresults = results.filter((_, i) => i < numResultsToDisplay)
+const topNresults = results
+    .filter((_, i) => i < numResultsToDisplay)
+    .map(result => convertResultToDisplayResult(result))
+
 console.table(topNresults)
 
+const playersByRating = [...players].sort((a, b) => a.rating - b.rating)
+const questionsByRating = [...questions].sort((a, b) => a.rating - b.rating)
 const playerRatingsOverTime = players.map(player => {
     const playerResults = results.filter(result => result.playerId === player.id)
     const ratings = playerResults
@@ -104,13 +144,56 @@ const playerRatingsOverTime = players.map(player => {
     return ratings
 })
 
-const numPlayerResultsToDisplay = 10
-const lastNresult = 10
+const sortedPlayerRatings = playerRatingsOverTime.sort((a, b) => {
+    const aLastRating = a[a.length - 1]
+    const bLastRating = b[b.length - 1]
 
-const topNPlayerResults = playerRatingsOverTime
-    .filter((_, i) => i < numPlayerResultsToDisplay)
-    .map(results => results.slice(-lastNresult))
+    return aLastRating - bLastRating
+})
 
-console.log(topNPlayerResults)
+const lastNResults = 1
 
+const topNPlayersWithLowestRating = playersByRating
+    .slice(0, numResultsToDisplay)
+    .map(player => player.rating)
+
+const topNQuestionsWithLowestRating = questionsByRating
+    .slice(0, numResultsToDisplay)
+    .map(player => player.rating)
+
+const topNPlayersWithHighestRatings = playersByRating
+    .slice(-numResultsToDisplay)
+    .map(player => player.rating)
+
+const topNQuestionsWithHighestRatings = questionsByRating
+    .slice(-numResultsToDisplay)
+    .map(player => player.rating)
+
+const topNPlayerResultsWithLowestRatings = sortedPlayerRatings
+    .slice(0, numResultsToDisplay)
+    .map(results => results.slice(-lastNResults))
+
+const topNPlayerResultsWithHighestRatings = sortedPlayerRatings
+    .slice(-numResultsToDisplay)
+    .map(results => results.slice(0, lastNResults))
+
+console.log(`Players with lowest ratings`)
+console.log(topNPlayersWithLowestRating)
+console.log(`Player results with the lowest rating`)
+console.log(topNPlayerResultsWithLowestRatings)
+
+console.log(`Players with highest ratings`)
+console.log(topNPlayersWithHighestRatings)
+console.log(`Player results with the lowest rating`)
+console.log(topNPlayerResultsWithHighestRatings)
+
+console.log(`Questions with lowest ratings`)
+console.log(topNQuestionsWithLowestRating)
+console.log(`Questions with highest ratings`)
+console.log(topNQuestionsWithHighestRatings)
+
+// TODO:
+// - Why is sorted player results different then sorted players
+// - Get top and bottom question ratings
+// - Look at asymmetric rating updates (questions lower K than players)
 
