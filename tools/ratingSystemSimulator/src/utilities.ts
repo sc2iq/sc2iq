@@ -1,4 +1,4 @@
-import { Player, Question } from './models'
+import { Player, Question, Result } from './models'
 
 export function randomInRange(min: number, max: number) {
     if (max < min) {
@@ -46,4 +46,24 @@ export function getRandomQuestionInRange(questions: Question[], minRating: numbe
     }
 
     return question
+}
+
+export function createCsvFromPlayerResult(results: Result[]): string {
+    if (results.length == 0) {
+        throw new Error(`Cannon create CSV of results. Given list is empty`)
+    }
+
+    const firstResult = results[0]
+    const areAllResultsOfSamePlayer = results.every(result => result.playerId === firstResult.playerId)
+
+    const keys = Object.keys(firstResult)
+
+    const headers = keys.join(',')
+    const rows = results.map(result => Object.values(result).join(','))
+
+    const csv = `${headers}
+${rows.join('\n')}
+`
+
+    return csv
 }

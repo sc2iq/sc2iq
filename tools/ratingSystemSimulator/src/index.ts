@@ -1,6 +1,7 @@
 import createRatingSystem from '@sc2/rating'
 import { convertResultToDisplayResult, Player, Question, Result } from './models'
-import { getRandomPlayer, getRandomQuestionInRange, randomInRange, trunc } from './utilities'
+import { createCsvFromPlayerResult, getRandomPlayer, getRandomQuestionInRange, randomInRange, trunc } from './utilities'
+import fs from 'fs/promises'
 
 const exponentDenominator = 400
 const exponentBase = 10
@@ -13,7 +14,7 @@ const ratingSystem = createRatingSystem(exponentBase, exponentDenominator, kFact
 // Create players
 const initialRating = 1000
 const numPlayers = 10
-const playerTiers = 4
+const playerTiers = 5
 const playerRatingRange = 6000 - initialRating
 const playerSegmentSize = Math.floor(numPlayers / playerTiers)
 const playerIncrementAmount = Math.floor(playerRatingRange / playerTiers)
@@ -38,8 +39,11 @@ const players = Array.from({ length: numPlayers }, (_, i) => i)
 console.log('Players Generation:')
 console.table(playerGeneration)
 
+console.log(`Initial Player Ratings`)
+console.log(players.map(p => p.rating))
+
 // Create questions
-const numQuestions = 1 * 1000
+const numQuestions = 10 * 1000
 const questionTiers = 200
 const questionRatingRange = 6000 - initialRating
 const questionSegmentSize = Math.floor(numQuestions / questionTiers)
@@ -118,7 +122,7 @@ for (const player of players) {
             player.rating = Math.round(updatedPlayerRating)
             question.rating = Math.round(updatedQuestionRating)
 
-            console.log(`add result: ${player.id} i:${i}`)
+            // console.log(`add result: ${player.id} i:${i}`)
             results.push(result)
         }
     }
@@ -191,6 +195,17 @@ console.log(`Questions with lowest ratings`)
 console.log(topNQuestionsWithLowestRating)
 console.log(`Questions with highest ratings`)
 console.log(topNQuestionsWithHighestRatings)
+
+const playerWithLowestRating = results[0]
+const singlePlayerRatings = results.filter(r => r.playerId == playerWithLowestRating.playerId)
+const csvString = createCsvFromPlayerResult(singlePlayerRatings)
+
+async function fn() {
+    await fs.writeFile(`${playerWithLowestRating.playerId}-results.csv`, csvString, 'utf8')
+}
+
+fn()
+
 
 // TODO:
 // - Why is sorted player results different then sorted players
