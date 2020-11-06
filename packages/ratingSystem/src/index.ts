@@ -6,9 +6,9 @@ function createBaseExpectedPlayerProbabilityFn(exponentBase: number, exponentDen
     }
 }
 
-type ExpectedProbabilitiesFn = (playerARating: number, playerBRating: number) => [number, number, number, number]
+type ExpectedProbabilitiesFn = (playerARating: number, playerBRating: number) => [playerAProbability: number, playerBProbability: number, ratingADifference: number, ratingBDifference: number]
 
-function createExpectedPlayerProbabilitiesFn(exponentBase: number, exponentDenominator: number): ExpectedProbabilitiesFn {
+function createPlayerProbabilitiesFn(exponentBase: number, exponentDenominator: number): ExpectedProbabilitiesFn {
     const expectedPlayerProbabilityFn = createBaseExpectedPlayerProbabilityFn(exponentBase, exponentDenominator)
 
     const expectedPlayerProbability: ExpectedProbabilitiesFn = (playerARating, playerBRating) => {
@@ -29,9 +29,10 @@ function createExpectedPlayerProbabilitiesFn(exponentBase: number, exponentDenom
     return expectedPlayerProbability
 }
 
+type NextRatingFn = (rating: number, actualPoints: number, expectedPoints: number) => [nextRating: number, ratingChange: number]
 type KFactorFunction = (rating: number) => number
 
-function createNextRatingFn(kFactor: number | KFactorFunction) {
+function createNextRatingFn(kFactor: number | KFactorFunction): NextRatingFn {
     const kFactorFn: KFactorFunction = typeof kFactor === 'number'
         ? () => kFactor
         : kFactor
@@ -44,28 +45,45 @@ function createNextRatingFn(kFactor: number | KFactorFunction) {
     }
 }
 
-type NextRatingFn = (rating: number, actualPoints: number, expectedPoints: number) => [number, number]
+type NextRatingsFn = (playerARating: number, playerBRating: number, playerAScore: number) => {
+        playerAProbability: number, 
+        playerBProbability: number,
+        nextPlayerARating: number,
+        playerARatingDiff: number,
+        nextPlayerBRating: number,
+        playerBRatingDiff: number,
+}
 
-function createNextRatingsFn(getExpectedPlayerProbabilities: ExpectedProbabilitiesFn, getNextRating: NextRatingFn) {
+function createNextRatingsFn(
+    getExpectedPlayerProbabilities: ExpectedProbabilitiesFn,
+    getNextARating: NextRatingFn,
+    getNextBRating: NextRatingFn
+): NextRatingsFn {
     const nextRatingsFn = (playerARating: number, playerBRating: number, playerAScore: number) => {
         const [expectedPlayerAProbability, expectedPlayerBProbability] = getExpectedPlayerProbabilities(playerARating, playerBRating)
         const aProbability = playerAScore
         const bProbability = 1 - playerAScore
         
-        const [nextPlayerARating, playerADiff] = getNextRating(playerARating, aProbability, expectedPlayerAProbability)
-        const [nextPlayerBRating, playerBDiff] = getNextRating(playerBRating, bProbability, expectedPlayerBProbability)
+        const [nextPlayerARating, playerARatingDiff] = getNextARating(playerARating, aProbability, expectedPlayerAProbability)
+        const [nextPlayerBRating, playerBRatingDiff] = getNextBRating(playerBRating, bProbability, expectedPlayerBProbability)
 
         return {
-            expectedPlayerAProbability,
-            expectedPlayerBProbability,
+            playerAProbability: expectedPlayerAProbability,
+            playerBProbability: expectedPlayerBProbability,
             nextPlayerARating,
-            playerADiff,
+            playerARatingDiff,
             nextPlayerBRating,
-            playerBDiff,
+            playerBRatingDiff,
         }
     }
 
     return nextRatingsFn
+}
+
+type RatingSystem = {
+    getPlayerProbabilities: ExpectedProbabilitiesFn
+    getNextRating: NextRatingFn,
+    getNextRatings: NextRatingsFn
 }
 
 /**
@@ -75,13 +93,40 @@ function createNextRatingsFn(getExpectedPlayerProbabilities: ExpectedProbabiliti
  * @param exponentDenominator Exponent (Rating Difference) Denominator (Higher requires greater difference in skills, smaller means even slight skill difference is significant)
  * @param exponentBase Exponent Base (Usually 10)
  */
-export function createRatingSystem(kFactor: number = 32, exponentDenominator: number = 400, exponentBase: number = 10) {
-    const getExpectedPlayerProbabilities = createExpectedPlayerProbabilitiesFn(exponentBase, exponentDenominator)
-    const getNextRating = createNextRatingFn(kFactor)
-    const getNextRatings = createNextRatingsFn(getExpectedPlayerProbabilities, getNextRating)
+type KFactorFunctionWithPlayers = (rating: number, playerIndex: number | undefined) => number
+
+type KFactorOption = 
+    | KFactorFunctionWithPlayers
+    | KFactorFunction
+    | number
+
+export function createRatingSystem(kFactor: KFactorOption = 32, exponentDenominator: number = 400, exponentBase: number = 10): RatingSystem {
+    
+    let resolvedKFactor: KFactorFunctionWithPlayers
+
+    if (typeof kFactor === 'number') {
+        resolvedKFactor = () => kFactor
+    }
+    else {
+        resolvedKFactor = kFactor
+    }
+
+    // Standard Elo implementation with symmetric kfactor functions for each player
+    // This would be a true zero-sum game where A(-x) = B(+x)
+    const symmetricKFactorFn = (rating: number) => resolvedKFactor(rating, undefined)
+    const getPlayerProbabilities = createPlayerProbabilitiesFn(exponentBase, exponentDenominator)
+    const getNextRating = createNextRatingFn(symmetricKFactorFn)
+
+    // Modified Elo implementation with *asymmetric* kfactor functions (e.g. One play kfactor is higher than the others)
+    // This means one player may gain or lose more than the other player would in similar
+    const aKFactor = (rating: number) => resolvedKFactor(rating, 0)
+    const getNextARating = createNextRatingFn(aKFactor)
+    const bKFactor = (rating: number) => resolvedKFactor(rating, 1)
+    const getNextBRating = createNextRatingFn(bKFactor)
+    const getNextRatings = createNextRatingsFn(getPlayerProbabilities, getNextARating, getNextBRating)
 
     return {
-        getExpectedPlayerProbabilities,
+        getPlayerProbabilities,
         getNextRating,
         getNextRatings
     }

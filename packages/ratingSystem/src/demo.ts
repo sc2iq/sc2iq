@@ -29,28 +29,28 @@ for (const [playerARating, playerBRating, actualScore] of data) {
 
     // Internal Computation
     const {
-        expectedPlayerAProbability,
-        expectedPlayerBProbability,
+        playerAProbability,
+        playerBProbability,
         nextPlayerARating,
-        playerADiff,
+        playerARatingDiff,
         nextPlayerBRating,
-        playerBDiff
+        playerBRatingDiff
     } = rating.getNextRatings(playerARating, playerBRating, actualScore)
 
     const winText = actualScore === 1
         ? 'A wins'
         : 'B wins'
-    const textProbability = `A ${playerARating} vs B ${playerBRating}: ${winText} ${playerADiff.toFixed(0)} | ${playerBDiff.toFixed(0)}`.padEnd(40)
+    const textProbability = `A ${playerARating} vs B ${playerBRating}: ${winText} ${playerARatingDiff.toFixed(0)} | ${playerBRatingDiff.toFixed(0)}`.padEnd(40)
 
     const record = {
         playerARating,
         playerBRating,
-        expectedPlayerAProbability: expectedPlayerAProbability.toFixed(3),
-        expectedPlayerBProbability: expectedPlayerBProbability.toFixed(3),
+        expectedPlayerAProbability: playerAProbability.toFixed(3),
+        expectedPlayerBProbability: playerBProbability.toFixed(3),
         nextPlayerARating: Math.round(nextPlayerARating),
-        playerADiff: Math.round(playerADiff),
+        playerADiff: Math.round(playerARatingDiff),
         nextPlayerBRating: Math.round(nextPlayerBRating),
-        playerBDiff: Math.round(playerBDiff),
+        playerBDiff: Math.round(playerBRatingDiff),
         textProbability,
     }
 
