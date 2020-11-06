@@ -160,15 +160,15 @@ console.table(topNresults)
 
 const playersByRating = [...players].sort((a, b) => a.rating - b.rating)
 const questionsByRating = [...questions].sort((a, b) => a.rating - b.rating)
-const playerRatingsOverTime = players.map(player => {
+
+const resultsGroupedByPlayer: Map<Player, Result[]> = players.reduce((resultsMap, player) => {
     const playerResults = results.filter(result => result.playerId === player.id)
-    const ratings = playerResults
-        .map(r => r.playerRating)
+    resultsMap.set(player, playerResults)
+    return resultsMap
+}, new Map<Player, Result[]>())
 
-    return ratings
-})
-
-const sortedPlayerRatings = playerRatingsOverTime.sort((a, b) => {
+const playerRatingsOverTime = [...resultsGroupedByPlayer].map(([player, playerResults]) => playerResults.map(r => r.playerRating))
+const playerRatingsSortedByFinalRating = playerRatingsOverTime.sort((a, b) => {
     const aLastRating = a[a.length - 1]
     const bLastRating = b[b.length - 1]
 
@@ -193,11 +193,11 @@ const topNQuestionsWithHighestRatings = questionsByRating
     .slice(-numResultsToDisplay)
     .map(player => player.rating)
 
-const topNPlayerResultsWithLowestRatings = sortedPlayerRatings
+const topNPlayerResultsWithLowestRatings = playerRatingsSortedByFinalRating
     .slice(0, numResultsToDisplay)
     .map(results => results.slice(-lastNResults))
 
-const topNPlayerResultsWithHighestRatings = sortedPlayerRatings
+const topNPlayerResultsWithHighestRatings = playerRatingsSortedByFinalRating
     .slice(-numResultsToDisplay)
     .map(results => results.slice(0, lastNResults))
 
@@ -216,12 +216,23 @@ console.log(topNQuestionsWithLowestRating)
 console.log(`Questions with highest ratings`)
 console.log(topNQuestionsWithHighestRatings)
 
-const playerWithLowestRating = results[0]
-const singlePlayerRatings = results.filter(r => r.playerId == playerWithLowestRating.playerId)
+const playerCsvs = [...resultsGroupedByPlayer].map(([player, playerRatings]) => {
+    const fileName = `${player.id}-results.csv`
+    const csv = createCsvFromObjects(playerRatings)
+
+    return [fileName, csv]
+})
+
+const playerWithLowestRating = playersByRating[0]
+const singlePlayerRatings = results.filter(r => r.playerId == playerWithLowestRating.id)
 const csvString = createCsvFromObjects(singlePlayerRatings)
 
 async function fn() {
-    await fs.writeFile(`${playerWithLowestRating.playerId}-results.csv`, csvString, 'utf8')
+    await fs.writeFile(`lowest-${playerWithLowestRating.id}-results.csv`, csvString, 'utf8')
+
+    for(const [fileName, csvString] of playerCsvs) {
+        await fs.writeFile(fileName, csvString, 'utf8')
+    }
 }
 
 fn()
