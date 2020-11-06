@@ -1,13 +1,26 @@
-import createRatingSystem from '@sc2/rating'
+import createRatingSystem, { KFactorFunctionWithPlayers } from '@sc2/rating'
 import { convertResultToDisplayResult, Player, Question, Result } from './models'
-import { createCsvFromPlayerResult, getRandomPlayer, getRandomQuestionInRange, randomInRange, trunc } from './utilities'
+import { createCsvFromObjects, getRandom, getRandomWhichMeetsConstraints, randomInRange, trunc } from './utilities'
 import fs from 'fs/promises'
 
-const exponentDenominator = 400
-const exponentBase = 10
-const kFactor = 32
+const symmetricRatingSystem = createRatingSystem()
 
-const ratingSystem = createRatingSystem(exponentBase, exponentDenominator, kFactor)
+const asymmetricKFactorFn: KFactorFunctionWithPlayers = (rating, playerIndex) => {
+    let kFactor = playerIndex === 0
+        ? 32
+        : 5
+
+    if (rating > 4000) {
+        kFactor = Math.ceil(kFactor / 1.5)
+    }
+    else if (rating > 6000) {
+        kFactor = Math.ceil(kFactor / 2)
+    }
+
+    return kFactor
+}
+
+const asymmetricRatingSystem = createRatingSystem(asymmetricKFactorFn)
 
 // Initialize
 
@@ -88,20 +101,27 @@ const totalLoops = players.length * numQuestionsPerPlayer * numQuestionSequence
 console.log(`Simulate game... (Total computations: ${totalLoops})`)
 console.table(execute)
 
+// For each player simulate the player answering series of questions and observe rating changes
 for (const player of players) {
     for (let i = 0; i < numQuestionsPerPlayer; i++) {
+        const minRating = player.rating - ratingRange
+        const maxRating = player.rating + ratingRange
+        const isRatingWithinRange = (question: Question) => minRating <= question.rating  && question.rating <= maxRating
+
         const randomQuestions = Array.from({ length: numQuestionSequence }, (_, i) =>
-            getRandomQuestionInRange(questions, player.rating - ratingRange, player.rating + ratingRange))
+            getRandomWhichMeetsConstraints(questions, isRatingWithinRange))
 
         for (const question of randomQuestions) {
-            const [playerProbability, questionProbability] = ratingSystem.getExpectedPlayerProbabilities(player.rating, question.rating)
-
-            // Bias random based on probability so better player / more knowledgeable user is more likely to score / answer correct
+            // Need to expose the probabilities in order to compute the outcome
+            // For the simulation we want the score biased based on the skill difference
+            // Intention is the better / more knowledgeable user is more likely to score / answer correct
+            const [playerProbability, questionProbability] = symmetricRatingSystem.getPlayerProbabilities(player.rating, question.rating)
             const expectedOutcome = playerProbability > 0.5 ? 1 : 0
             const playerOutcome = Math.random() < playerProbability ? 1 : 0
-            const questionOutcome = 1 - playerOutcome
-            const [updatedPlayerRating, playerDiff] = ratingSystem.getNextRating(player.rating, playerOutcome, playerProbability)
-            const [updatedQuestionRating, questionDiff] = ratingSystem.getNextRating(question.rating, questionOutcome, questionProbability)
+            // const questionOutcome = 1 - playerOutcome
+
+            const symmetricUpdate = symmetricRatingSystem.getNextRatings(player.rating, question.rating, playerOutcome)
+            const asymmetricUpdate = asymmetricRatingSystem.getNextRatings(player.rating, question.rating, playerOutcome)
 
             const result: Result = {
                 iteration: i,
@@ -113,14 +133,14 @@ for (const player of players) {
                 questionProbability: questionProbability,
                 playerOutcome,
                 expectedOutcome,
-                updatedPlayerRating,
-                updatedPlayerDiff: playerDiff,
-                updatedQuestionRating,
-                updatedQuestionDiff: questionDiff
+                updatedPlayerRating: symmetricUpdate.nextPlayerARating,
+                updatedPlayerDiff: symmetricUpdate.playerARatingDiff,
+                updatedQuestionRating: symmetricUpdate.nextPlayerBRating,
+                updatedQuestionDiff: symmetricUpdate.playerBRatingDiff
             }
 
-            player.rating = Math.round(updatedPlayerRating)
-            question.rating = Math.round(updatedQuestionRating)
+            player.rating = Math.round(symmetricUpdate.nextPlayerARating)
+            question.rating = Math.round(symmetricUpdate.nextPlayerBRating)
 
             // console.log(`add result: ${player.id} i:${i}`)
             results.push(result)
@@ -198,7 +218,7 @@ console.log(topNQuestionsWithHighestRatings)
 
 const playerWithLowestRating = results[0]
 const singlePlayerRatings = results.filter(r => r.playerId == playerWithLowestRating.playerId)
-const csvString = createCsvFromPlayerResult(singlePlayerRatings)
+const csvString = createCsvFromObjects(singlePlayerRatings)
 
 async function fn() {
     await fs.writeFile(`${playerWithLowestRating.playerId}-results.csv`, csvString, 'utf8')

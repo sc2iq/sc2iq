@@ -93,9 +93,9 @@ type RatingSystem = {
  * @param exponentDenominator Exponent (Rating Difference) Denominator (Higher requires greater difference in skills, smaller means even slight skill difference is significant)
  * @param exponentBase Exponent Base (Usually 10)
  */
-type KFactorFunctionWithPlayers = (rating: number, playerIndex: number | undefined) => number
+export type KFactorFunctionWithPlayers = (rating: number, playerIndex: number | undefined) => number
 
-type KFactorOption = 
+export type KFactorOption = 
     | KFactorFunctionWithPlayers
     | KFactorFunction
     | number

@@ -1,4 +1,4 @@
-import { Player, Question, Result } from './models'
+import { Question } from './models'
 
 export function randomInRange(min: number, max: number) {
     if (max < min) {
@@ -14,52 +14,49 @@ export function trunc(n: number, digits: number): number {
     return Math.trunc(n * Math.pow(10, digits)) / Math.pow(10, digits)
 }
 
-export function getRandomPlayer(players: Player[]): Player {
-    const randomPlayerIndex = randomInRange(0, players.length - 1)
-    const player = players[randomPlayerIndex]
+export function getRandom<T>(xs: T[]): T {
+    const randomIndex = randomInRange(0, xs.length - 1)
+    const x = xs[randomIndex]
 
-    return player
+    return x
 }
 
 const maxIterations = 1000 * 1000
-export function getRandomQuestionInRange(questions: Question[], minRating: number, maxRating: number): Question {
-    let question: Question | undefined = undefined
+export function getRandomWhichMeetsConstraints<T>(xs: T[], isValid: (x: T) => boolean): T {
+    let x: T | undefined = undefined
 
     let iteration = 0
     const start = Date.now()
-    while (question == undefined) {
-        const randomQuestionIndex = randomInRange(0, questions.length - 1)
-        const randomQuestion = questions[randomQuestionIndex]
-
-        const isRatingWithinRange = minRating <= randomQuestion.rating  && randomQuestion.rating <= maxRating
-        iteration++
-
+    while (x == undefined) {
+        const randomX = getRandom(xs)
+        const isXValid = isValid(randomX)
+        
         if (iteration > maxIterations) {
             const now = Date.now()
             const timeDiff = ((now - start) / 1000).toFixed(3)
             console.log(`Max iterations reached when finding question. ${timeDiff} s`)
-            question = randomQuestion
+            x = randomX
         }
-        if (isRatingWithinRange) {
-            question = randomQuestion
+        else if (isXValid) {
+            x = randomX
         }
+
+        iteration++
     }
 
-    return question
+    return x
 }
 
-export function createCsvFromPlayerResult(results: Result[]): string {
-    if (results.length == 0) {
-        throw new Error(`Cannon create CSV of results. Given list is empty`)
+export function createCsvFromObjects<T extends object>(os: T[]): string {
+    if (os.length == 0) {
+        throw new Error(`Cannon create CSV from empty list. Given list must not be empty.`)
     }
 
-    const firstResult = results[0]
-    const areAllResultsOfSamePlayer = results.every(result => result.playerId === firstResult.playerId)
-
+    const firstResult = os[0]
     const keys = Object.keys(firstResult)
 
     const headers = keys.join(',')
-    const rows = results.map(result => Object.values(result).join(','))
+    const rows = os.map(result => Object.values(result).join(','))
 
     const csv = `${headers}
 ${rows.join('\n')}
