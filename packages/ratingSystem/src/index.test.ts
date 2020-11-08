@@ -1,6 +1,23 @@
-import createRatingSystem from './index'
+import createRatingSystem, { KFactorFunctionWithPlayers } from './index'
 
-const rating = createRatingSystem()
+const symmetricKFactor = 32
+const ratingSystem = createRatingSystem(symmetricKFactor)
+
+const playerAKFactor = 20
+const playerBKFactor = 10
+
+const kFactorFn: KFactorFunctionWithPlayers = (rating, playerIndex) => {
+    let factor = playerIndex === 0
+        ? playerAKFactor
+        : playerBKFactor
+
+    if (rating > 4000) {
+        factor = Math.round(factor / 2)
+    }
+
+    return factor
+}
+const asymmetricRatingSystem = createRatingSystem(kFactorFn)
 
 describe('ELO rating system', () => {
     describe('expectedPlayerARating', () => {
@@ -10,7 +27,7 @@ describe('ELO rating system', () => {
             const playerBRating = 1000
 
             // Act
-            const [a, b] = rating.getPlayerProbabilities(playerARating, playerBRating)
+            const [a, b] = ratingSystem.getPlayerProbabilities(playerARating, playerBRating)
 
             // Assert
             expect(a).toBe(0.5)
@@ -23,7 +40,7 @@ describe('ELO rating system', () => {
             const playerBRating = 1000
 
             // Act
-            const [a, b] = rating.getPlayerProbabilities(playerARating, playerBRating)
+            const [a, b] = ratingSystem.getPlayerProbabilities(playerARating, playerBRating)
 
             // Assert
             expect(a).toBeGreaterThan(0.5)
@@ -36,7 +53,7 @@ describe('ELO rating system', () => {
             const playerBRating = 1200
 
             // Act
-            const [a, b] = rating.getPlayerProbabilities(playerARating, playerBRating)
+            const [a, b] = ratingSystem.getPlayerProbabilities(playerARating, playerBRating)
 
             // Assert
             expect(a).toBeLessThan(0.5)
@@ -52,7 +69,7 @@ describe('ELO rating system', () => {
             const playerRating = 1000
 
             // Act
-            const [nextRating, change] = rating.getNextRating(playerRating, actualOutcome, expectedOutcome)
+            const [nextRating, change] = ratingSystem.getNextRating(playerRating, actualOutcome, expectedOutcome)
 
             // Assert
             expect(nextRating).toBe(playerRating)
@@ -66,7 +83,7 @@ describe('ELO rating system', () => {
             const playerRating = 1000
 
             // Act
-            const [nextRating, change] = rating.getNextRating(playerRating, actualOutcome, expectedOutcome)
+            const [nextRating, change] = ratingSystem.getNextRating(playerRating, actualOutcome, expectedOutcome)
 
             // Assert
             expect(nextRating).toBeGreaterThan(playerRating)
@@ -80,7 +97,7 @@ describe('ELO rating system', () => {
             const playerRating = 1000
 
             // Act
-            const [nextRating, change] = rating.getNextRating(playerRating, actualOutcome, expectedOutcome)
+            const [nextRating, change] = ratingSystem.getNextRating(playerRating, actualOutcome, expectedOutcome)
 
             // Assert
             expect(nextRating).toBeLessThan(playerRating)
@@ -88,31 +105,76 @@ describe('ELO rating system', () => {
         })
     })
 
-
     describe('getNextRatings', () => {
-        it('given current ratings and score compute expected probabilities and ratings', () => {
-            // Arrange
-            const playerARating = 1000
-            const playerBRating = 1200
-            const playerAScore = 1
+        describe('symmetric system', () => {
+            it('given current ratings and score compute expected probabilities and ratings', () => {
+                // Arrange
+                const playerARating = 1000
+                const playerBRating = 1200
+                const playerAScore = 1
 
-            // Act
-            const {
-                playerAProbability,
-                playerBProbability,
-                nextPlayerARating,
-                playerARatingDiff,
-                nextPlayerBRating,
-                playerBRatingDiff
-            } = rating.getNextRatings(playerARating, playerBRating, playerAScore)
+                // Act
+                const {
+                    playerAProbability,
+                    playerBProbability,
+                    nextPlayerARating,
+                    playerARatingDiff,
+                    nextPlayerBRating,
+                    playerBRatingDiff
+                } = ratingSystem.getNextRatings(playerARating, playerBRating, playerAScore)
 
-            // Assert
-            expect(playerAProbability).toBeLessThan(0.5)
-            expect(playerBProbability).toBeGreaterThan(0.5)
-            expect(nextPlayerARating).toBeGreaterThan(playerARating)
-            expect(playerARatingDiff).toBeGreaterThan(0)
-            expect(nextPlayerBRating).toBeLessThan(playerBRating)
-            expect(playerBRatingDiff).toBeLessThan(0)
+                // Assert
+                expect(playerAProbability).toBeLessThan(0.5)
+                expect(playerBProbability).toBeGreaterThan(0.5)
+                expect(nextPlayerARating).toBeGreaterThan(playerARating)
+                expect(playerARatingDiff).toBeGreaterThan(0)
+                expect(nextPlayerBRating).toBeLessThan(playerBRating)
+                expect(playerBRatingDiff).toBeLessThan(0)
+            })
+        })
+
+        describe('asymmetric system', () => {
+            describe('given player ratings and score, asymmetric system allows larger changes in certain player', () => {
+                it('playerB heavily favored and loses should maximize K and match the asymmetric values', () => {
+                    // Arrange
+                    const playerARating = 1000
+                    const playerBRating = 2000
+                    const playerAScore = 1
+
+                    // Act
+                    const symmetricNextRatingInfo = ratingSystem.getNextRatings(playerARating, playerBRating, playerAScore)
+                    const asymmetricNextRatingInfo = asymmetricRatingSystem.getNextRatings(playerARating, playerBRating, playerAScore)
+
+                    // Assert
+                    expect(symmetricNextRatingInfo.playerBProbability).toBeGreaterThan(0.99)
+                    expect(symmetricNextRatingInfo.playerARatingDiff).toBe(symmetricKFactor)
+                    expect(symmetricNextRatingInfo.playerBRatingDiff).toBe(-symmetricKFactor)
+
+                    expect(asymmetricNextRatingInfo.playerARatingDiff).toBe(playerAKFactor)
+                    expect(asymmetricNextRatingInfo.playerBRatingDiff).toBe(-playerBKFactor)
+                })
+            })
+
+            describe('rating is used in computing KFator', () => {
+                it('players with rating over 4000 experience lower KFactor', () => {
+                    // Arrange
+                    const playerARating = 1000
+                    const playerBRating = 2000
+                    const playerA2Rating = 5000
+                    const playerB2Rating = 6000
+                    const playerAScore = 1
+
+                    // Act
+                    const asymmetricNextRatingInfo = asymmetricRatingSystem.getNextRatings(playerARating, playerBRating, playerAScore)
+                    const asymmetricNextRatingInfoHigh = asymmetricRatingSystem.getNextRatings(playerA2Rating, playerB2Rating, playerAScore)
+
+                    // Assert
+                    expect(asymmetricNextRatingInfo.playerARatingDiff).toBe(playerAKFactor)
+                    expect(asymmetricNextRatingInfo.playerBRatingDiff).toBe(-playerBKFactor)
+                    expect(asymmetricNextRatingInfoHigh.playerARatingDiff).toBe(playerAKFactor / 2)
+                    expect(asymmetricNextRatingInfoHigh.playerBRatingDiff).toBe(-playerBKFactor / 2)
+                })
+            })
         })
     })
 })
