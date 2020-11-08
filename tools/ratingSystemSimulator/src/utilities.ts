@@ -47,7 +47,7 @@ export function getRandomWhichMeetsConstraints<T>(xs: T[], isValid: (x: T) => bo
     return x
 }
 
-export function createCsvFromObjects<T extends object>(os: T[]): string {
+export function createCsvFromObjects<T extends Record<string, unknown>>(os: T[]): string {
     if (os.length == 0) {
         throw new Error(`Cannon create CSV from empty list. Given list must not be empty.`)
     }
@@ -105,7 +105,7 @@ export function processResults(
     questions: Question[],
     results: Result[],
     numResultsToDisplay: number,
-    lastNResults: number = 1
+    lastNResults = 1
 ) {
     const topNresults = results
         .filter((_, i) => i < numResultsToDisplay)

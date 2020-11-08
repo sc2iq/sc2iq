@@ -19,7 +19,7 @@ export default function simulateGames(
             const maxRating = player.rating + ratingRange
             const isRatingWithinRange = (question: Question) => minRating <= question.rating  && question.rating <= maxRating
     
-            const randomQuestions = Array.from({ length: numQuestionSequence }, (_, i) =>
+            const randomQuestions = Array.from({ length: numQuestionSequence }, () =>
                 getRandomWhichMeetsConstraints(qs, isRatingWithinRange))
     
             for (const question of randomQuestions) {

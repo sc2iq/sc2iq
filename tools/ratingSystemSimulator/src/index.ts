@@ -1,6 +1,5 @@
-import createRatingSystem, { KFactorFunctionWithPlayers, RatingSystem } from '@sc2/rating'
-import { convertResultToDisplayResult, Player, Question, Result } from './models'
-import { createCsvFromObjects, createPlayers, displayResults, getRandomWhichMeetsConstraints, processResults, zip } from './utilities'
+import createRatingSystem, { KFactorFunctionWithPlayers } from '@sc2/rating'
+import { createCsvFromObjects, createPlayers, displayResults, processResults } from './utilities'
 import fs from 'fs/promises'
 import simulateGames from './simulate'
 
@@ -43,17 +42,17 @@ const playerGeneration = {
     incrementAmount: playerIncrementAmount
 }
 
-const createPlayersFn = () => createPlayers(
-    'player',
+const createPlayersFn = (prefix: string) => createPlayers(
+    prefix,
     playerGeneration.total,
     initialRating,
     playerGeneration.segmentSize,
     playerGeneration.incrementAmount
 )
 
-const players = createPlayersFn()
+const players = createPlayersFn('player')
 // Create second set of player for asymmetric simulation
-const players2 = createPlayersFn()
+const players2 = createPlayersFn('player2')
 
 console.log('Players Generation:')
 console.table(playerGeneration)
@@ -151,7 +150,7 @@ const csvString = createCsvFromObjects(singlePlayerRatings)
 async function fn() {
     await fs.writeFile(`lowest-${playerWithLowestRating.id}-results.csv`, csvString, 'utf8')
 
-    for (const [fileName, csvString] of playerCsvs) {
+    for (const [fileName, csvString] of [...playerCsvs, ...player2Csvs]) {
         await fs.writeFile(fileName, csvString, 'utf8')
     }
 }
