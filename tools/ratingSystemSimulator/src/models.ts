@@ -3,10 +3,7 @@ export type Player = {
     rating: number
 }
 
-export type Question = {
-    id: string
-    rating: number
-}
+export type Question = Player
 
 export type Result = {
     iteration: number

@@ -1,14 +1,17 @@
-import createRatingSystem, { KFactorFunctionWithPlayers } from '@sc2/rating'
+import createRatingSystem, { KFactorFunctionWithPlayers, RatingSystem } from '@sc2/rating'
 import { convertResultToDisplayResult, Player, Question, Result } from './models'
-import { createCsvFromObjects, getRandom, getRandomWhichMeetsConstraints, randomInRange, trunc } from './utilities'
+import { createCsvFromObjects, createPlayers, displayResults, getRandomWhichMeetsConstraints, processResults, zip } from './utilities'
 import fs from 'fs/promises'
+import simulateGames from './simulate'
 
 const symmetricRatingSystem = createRatingSystem()
 
+const playerKFactor = 32
+const questionKFactor = 4
 const asymmetricKFactorFn: KFactorFunctionWithPlayers = (rating, playerIndex) => {
     let kFactor = playerIndex === 0
-        ? 32
-        : 5
+        ? playerKFactor
+        : questionKFactor
 
     if (rating > 4000) {
         kFactor = Math.ceil(kFactor / 1.5)
@@ -35,19 +38,22 @@ const playerIncrementAmount = Math.floor(playerRatingRange / playerTiers)
 const playerGeneration = {
     total: numPlayers,
     tiers: playerTiers,
-    playerRatingRange,
-    playerSegmentSize,
+    ratingRange: playerRatingRange,
+    segmentSize: playerSegmentSize,
     incrementAmount: playerIncrementAmount
 }
 
-const players = Array.from({ length: numPlayers }, (_, i) => i)
-    .map<Player>(v => {
-        const rating = initialRating + Math.floor(v / playerSegmentSize) * playerIncrementAmount
-        return {
-            id: `player${v}`,
-            rating
-        }
-    })
+const createPlayersFn = () => createPlayers(
+    'player',
+    playerGeneration.total,
+    initialRating,
+    playerGeneration.segmentSize,
+    playerGeneration.incrementAmount
+)
+
+const players = createPlayersFn()
+// Create second set of player for asymmetric simulation
+const players2 = createPlayersFn()
 
 console.log('Players Generation:')
 console.table(playerGeneration)
@@ -65,22 +71,25 @@ const questionIncrementAmount = Math.floor(questionRatingRange / questionTiers)
 const questionGeneration = {
     total: numQuestions,
     tiers: questionTiers,
-    questionRatingRange,
-    questionSegmentSize,
+    ratingRange: questionRatingRange,
+    segmentSize: questionSegmentSize,
     incrementAmount: questionIncrementAmount
 }
 
 console.log('Question Generation:')
 console.table(questionGeneration)
 
-const questions = Array.from({ length: numQuestions }, (_, i) => i)
-    .map<Question>(v => {
-        const rating = initialRating + Math.floor(v / questionSegmentSize) * questionIncrementAmount
-        return {
-            id: `question${v}`,
-            rating
-        }
-    })
+const createQuestionsFn = () => createPlayers(
+    'question',
+    questionGeneration.total,
+    initialRating,
+    questionGeneration.segmentSize,
+    questionGeneration.incrementAmount
+)
+
+const questions = createQuestionsFn()
+// Create second set of questions for asymmetric simulation
+const questions2 = createQuestionsFn()
 
 // Execute simulation
 const numQuestionSequence = 1
@@ -89,7 +98,6 @@ const numQuestionsPerPlayer = 100
 // Simulates a queuing system the pairs likely candidates
 const ratingRange = 250
 
-const results: Result[] = []
 const execute = {
     players: players.length,
     questions: questions.length,
@@ -101,136 +109,49 @@ const totalLoops = players.length * numQuestionsPerPlayer * numQuestionSequence
 console.log(`Simulate game... (Total computations: ${totalLoops})`)
 console.table(execute)
 
-// For each player simulate the player answering series of questions and observe rating changes
-for (const player of players) {
-    for (let i = 0; i < numQuestionsPerPlayer; i++) {
-        const minRating = player.rating - ratingRange
-        const maxRating = player.rating + ratingRange
-        const isRatingWithinRange = (question: Question) => minRating <= question.rating  && question.rating <= maxRating
+const symmetricResults = simulateGames(symmetricRatingSystem, players, questions, numQuestionSequence, numQuestionsPerPlayer, ratingRange)
+const asymmetricResults = simulateGames(asymmetricRatingSystem, players2, questions2, numQuestionSequence, numQuestionsPerPlayer, ratingRange)
 
-        const randomQuestions = Array.from({ length: numQuestionSequence }, (_, i) =>
-            getRandomWhichMeetsConstraints(questions, isRatingWithinRange))
-
-        for (const question of randomQuestions) {
-            // Need to expose the probabilities in order to compute the outcome
-            // For the simulation we want the score biased based on the skill difference
-            // Intention is the better / more knowledgeable user is more likely to score / answer correct
-            const [playerProbability, questionProbability] = symmetricRatingSystem.getPlayerProbabilities(player.rating, question.rating)
-            const expectedOutcome = playerProbability > 0.5 ? 1 : 0
-            const playerOutcome = Math.random() < playerProbability ? 1 : 0
-            // const questionOutcome = 1 - playerOutcome
-
-            const symmetricUpdate = symmetricRatingSystem.getNextRatings(player.rating, question.rating, playerOutcome)
-            const asymmetricUpdate = asymmetricRatingSystem.getNextRatings(player.rating, question.rating, playerOutcome)
-
-            const result: Result = {
-                iteration: i,
-                playerId: player.id,
-                questionId: question.id,
-                playerRating: player.rating,
-                questionRating: question.rating,
-                playerProbability: playerProbability,
-                questionProbability: questionProbability,
-                playerOutcome,
-                expectedOutcome,
-                updatedPlayerRating: symmetricUpdate.nextPlayerARating,
-                updatedPlayerDiff: symmetricUpdate.playerARatingDiff,
-                updatedQuestionRating: symmetricUpdate.nextPlayerBRating,
-                updatedQuestionDiff: symmetricUpdate.playerBRatingDiff
-            }
-
-            player.rating = Math.round(symmetricUpdate.nextPlayerARating)
-            question.rating = Math.round(symmetricUpdate.nextPlayerBRating)
-
-            // console.log(`add result: ${player.id} i:${i}`)
-            results.push(result)
-        }
-    }
-}
-
-
-console.log(`${results.length} results computed!`)
+console.log(`${symmetricResults.length} results computed!`)
 
 const numResultsToDisplay = 10
-const topNresults = results
-    .filter((_, i) => i < numResultsToDisplay)
-    .map(result => convertResultToDisplayResult(result))
+const processedSymmetricResults = processResults(players, questions, symmetricResults, numResultsToDisplay)
+const processedAsymmetricResults = processResults(players2, questions2, asymmetricResults, numResultsToDisplay)
 
-console.table(topNresults)
+console.group('Symmetric Results')
+displayResults(processedSymmetricResults)
+console.groupEnd()
 
-const playersByRating = [...players].sort((a, b) => a.rating - b.rating)
-const questionsByRating = [...questions].sort((a, b) => a.rating - b.rating)
+console.group('Asymmetric Results')
+displayResults(processedAsymmetricResults)
+console.groupEnd()
 
-const resultsGroupedByPlayer: Map<Player, Result[]> = players.reduce((resultsMap, player) => {
-    const playerResults = results.filter(result => result.playerId === player.id)
-    resultsMap.set(player, playerResults)
-    return resultsMap
-}, new Map<Player, Result[]>())
+// Create CSV from Processed Results
+// =========================================
+const playerCsvs = [...processedSymmetricResults.resultsGroupedByPlayer]
+    .map(([player, playerRatings]) => {
+        const fileName = `${player.id}-results.csv`
+        const csv = createCsvFromObjects(playerRatings)
 
-const playerRatingsOverTime = [...resultsGroupedByPlayer].map(([player, playerResults]) => playerResults.map(r => r.playerRating))
-const playerRatingsSortedByFinalRating = playerRatingsOverTime.sort((a, b) => {
-    const aLastRating = a[a.length - 1]
-    const bLastRating = b[b.length - 1]
+        return [fileName, csv]
+    })
 
-    return aLastRating - bLastRating
-})
+const player2Csvs = [...processedAsymmetricResults.resultsGroupedByPlayer]
+    .map(([player, playerRatings]) => {
+        const fileName = `${player.id}-results.csv`
+        const csv = createCsvFromObjects(playerRatings)
 
-const lastNResults = 1
+        return [fileName, csv]
+    })
 
-const topNPlayersWithLowestRating = playersByRating
-    .slice(0, numResultsToDisplay)
-    .map(player => player.rating)
-
-const topNQuestionsWithLowestRating = questionsByRating
-    .slice(0, numResultsToDisplay)
-    .map(player => player.rating)
-
-const topNPlayersWithHighestRatings = playersByRating
-    .slice(-numResultsToDisplay)
-    .map(player => player.rating)
-
-const topNQuestionsWithHighestRatings = questionsByRating
-    .slice(-numResultsToDisplay)
-    .map(player => player.rating)
-
-const topNPlayerResultsWithLowestRatings = playerRatingsSortedByFinalRating
-    .slice(0, numResultsToDisplay)
-    .map(results => results.slice(-lastNResults))
-
-const topNPlayerResultsWithHighestRatings = playerRatingsSortedByFinalRating
-    .slice(-numResultsToDisplay)
-    .map(results => results.slice(0, lastNResults))
-
-console.log(`Players with lowest ratings`)
-console.log(topNPlayersWithLowestRating)
-console.log(`Player results with the lowest rating`)
-console.log(topNPlayerResultsWithLowestRatings)
-
-console.log(`Players with highest ratings`)
-console.log(topNPlayersWithHighestRatings)
-console.log(`Player results with the lowest rating`)
-console.log(topNPlayerResultsWithHighestRatings)
-
-console.log(`Questions with lowest ratings`)
-console.log(topNQuestionsWithLowestRating)
-console.log(`Questions with highest ratings`)
-console.log(topNQuestionsWithHighestRatings)
-
-const playerCsvs = [...resultsGroupedByPlayer].map(([player, playerRatings]) => {
-    const fileName = `${player.id}-results.csv`
-    const csv = createCsvFromObjects(playerRatings)
-
-    return [fileName, csv]
-})
-
-const playerWithLowestRating = playersByRating[0]
-const singlePlayerRatings = results.filter(r => r.playerId == playerWithLowestRating.id)
+const playerWithLowestRating = processedSymmetricResults.playersByRating[0]
+const singlePlayerRatings = symmetricResults.filter(r => r.playerId == playerWithLowestRating.id)
 const csvString = createCsvFromObjects(singlePlayerRatings)
 
 async function fn() {
     await fs.writeFile(`lowest-${playerWithLowestRating.id}-results.csv`, csvString, 'utf8')
 
-    for(const [fileName, csvString] of playerCsvs) {
+    for (const [fileName, csvString] of playerCsvs) {
         await fs.writeFile(fileName, csvString, 'utf8')
     }
 }

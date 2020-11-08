@@ -80,7 +80,7 @@ function createNextRatingsFn(
     return nextRatingsFn
 }
 
-type RatingSystem = {
+export type RatingSystem = {
     getPlayerProbabilities: ExpectedProbabilitiesFn
     getNextRating: NextRatingFn,
     getNextRatings: NextRatingsFn
