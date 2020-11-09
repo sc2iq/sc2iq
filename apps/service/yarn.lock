@@ -89,6 +89,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/uuid@^7.0.3":
+  version "7.0.4"
+  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-7.0.4.tgz#00a5749810b4ad80bff73a61f9cc9d0d521feb3c"
+  integrity sha512-WGZCqBZZ0mXN2RxvLHL6/7RCu+OWs28jgQMP04LWfpyJlQUMTR6YU9CNJAKDgbw+EV/u687INXuLUc7FuML/4g==
+
 abstract-logging@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/abstract-logging/-/abstract-logging-2.0.0.tgz#08a85814946c98ef06f4256ad470aba1886d4490"
@@ -213,10 +218,10 @@ atomic-sleep@^1.0.0:
   resolved "https://registry.yarnpkg.com/atomic-sleep/-/atomic-sleep-1.0.0.tgz#eb85b77a601fc932cfe432c5acd364a9e2c9075b"
   integrity sha512-kNOjDqAh7px0XWNI+4QbzoiR/nTkHAWNud2uvnJquD1/x5a7EQZMJT0AczqK0Qn67oY/TTQ1LbUKajZpp3I9tQ==
 
-avvio@^6.3.1:
-  version "6.3.1"
-  resolved "https://registry.yarnpkg.com/avvio/-/avvio-6.3.1.tgz#201ec26505551657272cda90c23ef1cb0c7e390a"
-  integrity sha512-jfcOyzK+TVBRae/FrIhlgVIDcGzRzIyDvOq+5e1IkxY141QSVZoe9kKhOwLdYkDBCkOQT6JU/53NkJY0qNrpqw==
+avvio@^6.4.1:
+  version "6.5.0"
+  resolved "https://registry.yarnpkg.com/avvio/-/avvio-6.5.0.tgz#d2cf119967fe90d2156afc29de350ced800cdaab"
+  integrity sha512-BmzcZ7gFpyFJsW8G+tfQw8vJNUboA9SDkkHLZ9RAALhvw/rplfWwni8Ee1rA11zj/J7/E5EvZmweusVvTHjWCA==
   dependencies:
     archy "^1.0.0"
     debug "^4.0.0"
@@ -647,18 +652,18 @@ fastify-plugin@^1.2.0, fastify-plugin@^1.6.0, fastify-plugin@^1.6.1:
   dependencies:
     semver "^6.3.0"
 
-fastify@^2.10.0, fastify@^2.12.0:
-  version "2.13.0"
-  resolved "https://registry.yarnpkg.com/fastify/-/fastify-2.13.0.tgz#236906311122e38c45c6610cbd09b8818471d9cf"
-  integrity sha512-iAFPs1qsYRaVdoAVFqC2Q6BmPsfaUZBnW6Icupjt/eVKD4SolSkg4aAlWJlZl3Nh3MLpCc6O+y3Apg/LVQ5PoA==
+fastify@^2.10.0, fastify@^2.15.1:
+  version "2.15.1"
+  resolved "https://registry.yarnpkg.com/fastify/-/fastify-2.15.1.tgz#195a068bca87c7b57a83fe81f0aa66e86c6a3992"
+  integrity sha512-pEE1pa5j/vtZeZTbPpFgsJgzLbThcYgiLDw2yZIG8qNZ5LkF1Ew2vbv9k3nTXNxGEPYFBbyNTCKRSj3JbX+FhA==
   dependencies:
     abstract-logging "^2.0.0"
     ajv "^6.12.0"
-    avvio "^6.3.1"
+    avvio "^6.4.1"
     fast-json-stringify "^1.18.0"
     find-my-way "^2.2.2"
     flatstr "^1.0.12"
-    light-my-request "^3.7.2"
+    light-my-request "^3.7.3"
     middie "^4.1.0"
     pino "^5.17.0"
     proxy-addr "^2.0.6"
@@ -1039,10 +1044,10 @@ leven@2.1.0:
   resolved "https://registry.yarnpkg.com/leven/-/leven-2.1.0.tgz#c2e7a9f772094dee9d34202ae8acce4687875580"
   integrity sha1-wuep93IJTe6dNCAq6KzORoeHVYA=
 
-light-my-request@^3.7.2:
-  version "3.7.2"
-  resolved "https://registry.yarnpkg.com/light-my-request/-/light-my-request-3.7.2.tgz#8f153c299beeae31bbcb98111474952900c461cd"
-  integrity sha512-K8vjEMo+LhAUV/R5KB3EdI1EaBmif5zOR5kg1+7wX32SoHIsUsFdcSAf/dNMurvZSoRQmLKyBsXlKr0ukNTreQ==
+light-my-request@^3.7.3:
+  version "3.8.0"
+  resolved "https://registry.yarnpkg.com/light-my-request/-/light-my-request-3.8.0.tgz#7da96786e4d479371b25cfd524ee05d5d583dae8"
+  integrity sha512-cIOWmNsgoStysmkzcv2EwvLwMb2hEm6oqKMerG/b5ey9F0we2Qony8cAZgBktmGPYUvPyKsDCzMcYU6fXbpWew==
   dependencies:
     ajv "^6.10.2"
     cookie "^0.4.0"
@@ -1762,6 +1767,11 @@ uuid@^3.1.0, uuid@^3.2.1, uuid@^3.3.2:
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.4.0.tgz#b23e4358afa8a202fe7a100af1f5f883f02007ee"
   integrity sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==
+
+uuid@^8.0.0:
+  version "8.3.1"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.1.tgz#2ba2e6ca000da60fce5a196954ab241131e05a31"
+  integrity sha512-FOmRr+FmWEIG8uhZv6C2bTgEVXsHk08kE7mPlrBbEe+c3r9pjceVPgupIfNIhc4yx55H69OXANrUaSuu9eInKg==
 
 vary@^1.1.2:
   version "1.1.2"
