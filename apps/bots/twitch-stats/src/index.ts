@@ -1,67 +1,78 @@
+import dotenv from 'dotenv'
 import tmi from 'tmi.js'
-import * as dotenv from 'dotenv'
-import * as models from './models'
+import { debugInfo, debugVerbose } from './debug'
+import { MessageUserPairs } from './models'
 import * as TAI from '@azure/ai-text-analytics'
 import fs from 'fs'
+import { zip } from './utilities'
 
-dotenv.config()
+const config = dotenv.config()
 
-const DEBUG = process.env.DEBUG === 'true'
-const opts = {
+const DEBUG = !!process.env.DEBUG_TMI
+const channelsString = process.env.CHANNEL_NAMES ?? ''
+const channels = channelsString.split(',').map(s => s.trim().toLowerCase())
+debugInfo(`Channels: ${channels.join(', ')}`)
+
+const tmiOptions = {
     identity: {
         username: process.env.BOT_USERNAME!,
         password: process.env.OAUTH_TOKEN!
     },
-    channels: [
-        process.env.CHANNEL_NAME!,
-    ],
+    channels,
     debug: DEBUG
 }
-const MESSAGE_BATCH_SIZE = 10
+
+const messageBatchSize = Number(process.env.MESSAGE_BATCH_SIZE)
+debugInfo(`Message Batch Size: ${messageBatchSize}`)
 
 const testAnalyticsKey = process.env.TEXT_ANALYTICS_KEY!
 const textAnalyticsEndpoint = 'https://twitch-stats.cognitiveservices.azure.com/'
 const textAnalyticsClient = new TAI.TextAnalyticsClient(textAnalyticsEndpoint, new TAI.AzureKeyCredential(testAnalyticsKey))
 
-type MessageUserPairs = {
-    message: string
-    user: models.Context
-}
-
 const sentimentBatches: { a: MessageUserPairs, b: TAI.AnalyzeSentimentSuccessResult }[] = []
 let messageUserPairs: MessageUserPairs[] = []
 
-const client = new (tmi.client as any)(opts)
-client.on('message', onMessageHandler)
-client.on('action', onMessageHandler)
-client.on('cheer', onMessageHandler)
-client.on('connecting', onConnectedHandler)
-client.on('connected', onConnectedHandler)
-client.on('hosted', onHosted)
-client.on('hosting', onHosting)
-client.on('join', onJoin)
-client.on('notice', onNotice)
-client.connect()
+    const client: tmi.Client = new (tmi.client as any)(tmiOptions)
+
+    debugInfo(`Twitch Stats Bot is running...`)
+    debugInfo(`TMI DEBUG option is ${DEBUG ? 'enabled' : 'disabled'}`)
+
+    client.on('message', onMessage)
+    client.on('action', onMessage)
+    // client.on('cheer', onMessage)
+    client.on('connecting', onConnected)
+    client.on('connected', onConnected)
+    client.on('hosted', onHosted)
+    client.on('hosting', onHosting)
+    client.on('join', onJoin)
+    client.on('notice', onNotice)
+
+    client.connect()
+
 
 function onHosted(channel: string, username: string, viewers: number, autohost: boolean) {
-    console.log(`onHosted`, { channel, username, viewers, autohost })
+    debugVerbose(`onHosted`, { channel, username, viewers, autohost })
 }
 
 function onHosting(channel: string, target: string, viewers: number) {
-    console.log(`onHosting`, { channel, target, viewers, })
+    debugVerbose(`onHosting`, { channel, target, viewers, })
 }
 
 function onJoin(channel: string, username: string, self: boolean) {
-    console.log(`onJoin`, { channel, username, self, })
+    debugInfo(`onJoin`, { channel, username, self, })
 }
 
 function onNotice(channel: string, messageId: string, message: string) {
-    console.log(`onNotice`, { channel, messageId, message, })
+    debugVerbose(`onNotice`, { channel, messageId, message, })
 }
 
-function onMessageHandler(channel: string, user: models.Context, message: string, self: boolean) {
-    // console.log(`onMessageHandler`, { channel, user, message, self })
-    // console.log({ options: client.getOptions() })
+// Called every time the bot connects to Twitch chat
+function onConnected(addr: string, port: number) {
+    debugVerbose(`* Connected to ${addr}:${port}`)
+}
+
+function onMessage(channel: string, user: tmi.ChatUserstate, message: string, self: boolean) {
+    // debugVerbose(`onMessageHandler`, { channel, user, message, self })
 
     // Do not count message that came from own bot account.
     if (self) {
@@ -70,12 +81,15 @@ function onMessageHandler(channel: string, user: models.Context, message: string
 
     if (isMessageAcceptable(message)) {
         messageUserPairs.push({ message, user })
-        console.log(`[+${messageUserPairs.length} -${MESSAGE_BATCH_SIZE - messageUserPairs.length}] ${user.mod ? 'MOD: ' : ''} ${user.username}: ${message}`)
+        debugInfo(`[+${messageUserPairs.length} -${messageBatchSize - messageUserPairs.length}] ${user.mod ? 'MOD: ' : ''} ${user.username}: ${message}`)
 
-        if (messageUserPairs.length >= MESSAGE_BATCH_SIZE) {
+        if (messageUserPairs.length >= messageBatchSize) {
             getSentimentOfMessages([...messageUserPairs])
             messageUserPairs = []
         }
+    }
+    else {
+        debugVerbose(`Discard message ${user.username}: '${message}'`)
     }
 }
 
@@ -100,36 +114,17 @@ async function getSentimentOfMessages(muPairs: MessageUserPairs[]) {
     const sentimentResult = await textAnalyticsClient.analyzeSentiment(messages)
     const errorResults = sentimentResult.filter(sr => sr.error)
     if (errorResults.length > 0) {
-        console.log(errorResults)
+        debugInfo(errorResults)
         return
     }
 
     const sentimentSuccessResults: TAI.AnalyzeSentimentSuccessResult[] = sentimentResult as any
     const sentimentResultWithMessageUserPair = zip(muPairs, sentimentSuccessResults)
     const sortedSentimentResult = sentimentResultWithMessageUserPair.sort((a, b) => b.b.confidenceScores.positive - a.b.confidenceScores.positive)
-    const messagesWithSentiment: string[] = sortedSentimentResult.map(sr => `[${sr.b.confidenceScores.positive.toFixed(2)}] ${sr.a.user.username.padEnd(20)}: ${sr.a.message}`)
-    console.log(`Sentiment Result: `, JSON.stringify(messagesWithSentiment, null, 4))
+    const messagesWithSentiment: string[] = sortedSentimentResult.map(sr => `[${sr.b.confidenceScores.positive.toFixed(2)}] ${sr.a.user.username?.padEnd(20) ?? 'unknown'}: ${sr.a.message}`)
+    debugInfo(`Sentiment Result: `, JSON.stringify(messagesWithSentiment, null, 4))
 
     const sentimentResultJson = JSON.stringify(sortedSentimentResult, null, 4)
     fs.promises.writeFile(`sentimentBatchResult-${Date.now()}.json`, sentimentResultJson)
 }
 
-// Called every time the bot connects to Twitch chat
-function onConnectedHandler(addr: string, port: number) {
-    console.log(`* Connected to ${addr}:${port}`)
-}
-
-
-function zip<T1, T2>(xs: T1[], ys: T2[]): { a: T1, b: T2 }[] {
-    if (xs.length !== ys.length) {
-        throw new Error(`Arrays are not the same length. xs is ${xs.length} and ys is ${ys.length}`)
-    }
-
-    const zipped = xs.map((x, i) => {
-        const y = ys[i]
-
-        return { a: x, b: y }
-    })
-
-    return zipped
-}
