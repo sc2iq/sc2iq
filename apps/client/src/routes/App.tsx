@@ -54,7 +54,7 @@ const App: React.FC<Props> = (props) => {
                         <RRD.NavLink to="/polls">Polls</RRD.NavLink>
                         <RRD.NavLink to="/users">Users</RRD.NavLink>
                         <b></b>
-                        <RRD.NavLink to="/profile">{props.currentUser ? props.currentUser.name : 'Profile'}</RRD.NavLink>
+                        <RRD.NavLink to="/profile">{props.currentUser?.name ?? 'Profile'}</RRD.NavLink>
                     </nav>
                 </div>
                 {props.currentUser
