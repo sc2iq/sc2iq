@@ -116,10 +116,10 @@ asynckit@^0.4.0:
   resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
   integrity sha1-x57Zf380y48robyXkLzDZkdLS3k=
 
-auth0@^2.24.0:
-  version "2.25.1"
-  resolved "https://registry.yarnpkg.com/auth0/-/auth0-2.25.1.tgz#476940b897a1bd46dea75d40a6b0e1b3ca11b8e7"
-  integrity sha512-iihkFtX+a1jbjgJhZ1B2lBklDcgcS1qwzoGOwfVYdNyaMZi+JPcuzKhR6vw921HRyKjLD8RzG+PzrsnH+9JuHA==
+auth0@^2.27.1:
+  version "2.27.1"
+  resolved "https://registry.yarnpkg.com/auth0/-/auth0-2.27.1.tgz#a9bcc766a4c89e12893092611c66d25f9313f6c9"
+  integrity sha512-RpjH7jCSR3YydqK18aXwXUJG5nZfg0Z31Uwp6g9TKtFZG5v79ogwrt+yNYPzV6IgDZH2c7ADSjkeOO75MSCvqg==
   dependencies:
     axios "^0.19.2"
     bluebird "^3.5.5"
