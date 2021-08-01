@@ -32,6 +32,7 @@ const textAnalyticsClient = new TAI.TextAnalyticsClient(textAnalyticsEndpoint, n
 const sentimentBatches: { a: MessageUserPairs, b: TAI.AnalyzeSentimentSuccessResult }[] = []
 let messageUserPairs: MessageUserPairs[] = []
 
+async function main() {
     const client: tmi.Client = new (tmi.client as any)(tmiOptions)
 
     debugInfo(`Twitch Stats Bot is running...`)
@@ -48,7 +49,9 @@ let messageUserPairs: MessageUserPairs[] = []
     client.on('notice', onNotice)
 
     client.connect()
+}
 
+main()
 
 function onHosted(channel: string, username: string, viewers: number, autohost: boolean) {
     debugVerbose(`onHosted`, { channel, username, viewers, autohost })

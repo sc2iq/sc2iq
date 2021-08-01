@@ -6,6 +6,8 @@ This bot is intended to be used by companies running events on twitch. The bot w
 2. It could be used to pick specific phrases from the fans which can be used to promote the event
 
 ## Resources
+- [TMI.js](https://tmijs.com/)
+  - [github](https://github.com/tmijs/tmi.js)
 
 - [Twitch Developer Console](https://dev.twitch.tv/console)
   - Go here to register the app and view client id and client secret
