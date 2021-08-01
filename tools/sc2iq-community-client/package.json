@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@types/node": "^13.9.5",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "dotenv": "^8.2.0",
     "typescript": "^3.8.3"
   }
