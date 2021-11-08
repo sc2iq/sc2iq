@@ -26,7 +26,7 @@
     "src"
   ],
   "dependencies": {
-    "apollo-server": "^2.8.1",
+    "apollo-server": "^2.25.3",
     "dotenv": "^8.1.0",
     "graphql": "^14.4.2",
     "mongodb": "^3.3.0",
