@@ -21,7 +21,7 @@ docker exec -it sql1 "bash"
 ```
 
 ```
-CREATE DATABASE schultztables
+CREATE DATABASE sc2iq
 GO
 ```
 
