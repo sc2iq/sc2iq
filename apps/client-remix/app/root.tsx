@@ -1,8 +1,9 @@
-import type { LinksFunction } from "@remix-run/node" // or cloudflare/deno
+import type { LinksFunction } from "@remix-run/node"; // or cloudflare/deno
 import {
   Links,
   LiveReload,
   Meta,
+  NavLink,
   Outlet,
   Scripts,
   ScrollRestoration,
@@ -54,8 +55,18 @@ const AppComponent: React.FC<React.PropsWithChildren> = ({ children }) => {
       <body className="h-screen flex flex-col bg-slate-50 font-sans subpixel-antialiased">
         <header className="bg-slate-600 border-b border-b-slate-700 text-white">
           <div className="container mx-auto flex gap-x-4 justify-between items-center py-8">
-            <h1 className="text-3xl ">SC2IQ</h1>
+            <NavLink to="/"><h1 className="text-3xl ">SC2IQ</h1></NavLink>
           </div>
+          <nav>
+            <NavLink className="link" to="/">
+              <div className="icon"><span className="material-symbols-outlined">home</span></div>
+              <div className="label">Home</div>
+            </NavLink>
+                <NavLink className="link" to="profile">
+                  <div className="icon"><span className="material-symbols-outlined">account_circle</span></div>
+                  <div className="label">Profile</div>
+                </NavLink>
+          </nav>
         </header>
         <main className="container mx-auto flex-1 py-6">
           {children}
