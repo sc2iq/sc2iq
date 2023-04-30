@@ -1,4 +1,4 @@
-import { BeakerIcon } from '@heroicons/react/24/solid'
+import { MagnifyingGlassIcon } from "@heroicons/react/24/solid"
 import { ActionArgs, LoaderArgs, V2_MetaFunction, json, redirect } from "@remix-run/node"
 import { Form, Link, useLoaderData } from "@remix-run/react"
 import z from "zod"
@@ -68,7 +68,7 @@ export default function Index() {
 
   return (
     <div>
-      <h1><BeakerIcon className="h-10 w-10 mr-3" /> Welcome to SC2IQ</h1>
+      <h1>Welcome to SC2IQ</h1>
       {hasProfile
         ? <>
           <h3>Current User: <Link to={`/users/${profile.id}`}>{profile?.displayName}</Link></h3>
@@ -83,6 +83,7 @@ export default function Index() {
           <div>You must sign in before you play the game!</div>
         </>}
       <Form method="post">
+        <h1>Create</h1>
         <div>
           <label htmlFor='question'>Question: </label>
           <input type="text" placeholder='How much health does a Marine have?' id="question" name="question" required />
@@ -107,8 +108,12 @@ export default function Index() {
           <input type="hidden" name="formName" value={formNames.create} />
           <button type="submit">Create</button>
         </div>
-
       </Form>
+
+      <h2>Search</h2>
+      <MagnifyingGlassIcon className="h-10 w-10 mr-3" />
+      <div>Search</div>
+      <h1>Questions:</h1>
       <div>
         {questions.map(question => {
           return <div key={question.id}>
