@@ -1,8 +1,9 @@
-import type { V2_MetaFunction } from "@remix-run/node";
+import type { V2_MetaFunction } from "@remix-run/node"
 
-export const meta: V2_MetaFunction = () => {
-  return [{ title: "New Remix App" }];
-};
+export const meta: V2_MetaFunction = ({ matches }) => {
+  const rootTitle = (matches as any[]).find(m => m.id === 'root').meta.find((m: any) => m.title).title
+  return [{ title: `${rootTitle} - Home` }]
+}
 
 export default function Index() {
   return (
@@ -34,5 +35,5 @@ export default function Index() {
         </li>
       </ul>
     </div>
-  );
+  )
 }
