@@ -1,3 +1,4 @@
+import { HomeIcon, UserGroupIcon, UserIcon } from '@heroicons/react/24/solid'
 import type { LinksFunction } from "@remix-run/node"; // or cloudflare/deno
 import {
   Links,
@@ -13,6 +14,7 @@ import {
 } from "@remix-run/react"
 import { V2_ErrorBoundaryComponent } from "@remix-run/react/dist/routeModules"
 import styles from "./styles/tailwind.css"
+
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
@@ -73,11 +75,15 @@ const AppComponent: React.FC<React.PropsWithChildren> = ({ children }) => {
             </div>
             <nav className="flex gap-4 items-center">
               <NavLink className="link" to="/">
-                <div className="icon"><span className="material-symbols-outlined">home</span></div>
+                <div className="icon"><HomeIcon className="h-10 w-10 mr-3" /></div>
                 <div className="label">Home</div>
               </NavLink>
+              <NavLink className="link" to="users">
+                <div className="icon"><UserGroupIcon className="h-10 w-10 mr-3" /></div>
+                <div className="label">Users</div>
+              </NavLink>
               <NavLink className="link" to="profile">
-                <div className="icon"><span className="material-symbols-outlined">account_circle</span></div>
+                <div className="icon"><UserIcon className="h-10 w-10 mr-3" /></div>
                 <div className="label">Profile</div>
               </NavLink>
             </nav>
