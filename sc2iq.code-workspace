@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "apps/client-remix"
+		},
+		{
+			"path": "../../shared-resources"
+		}
+	],
+	"settings": {
+		"powershell.cwd": "c:\\repos\\sc2iq\\apps",
+		"dotenv.enableAutocloaking": false
+	}
+}
