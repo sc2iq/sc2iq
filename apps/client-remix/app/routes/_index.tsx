@@ -1,3 +1,4 @@
+import { BeakerIcon } from '@heroicons/react/24/solid'
 import { LoaderArgs, V2_MetaFunction, json } from "@remix-run/node"
 import { Form, Link, useLoaderData } from "@remix-run/react"
 import { auth, getSession } from "~/services/auth.server"
@@ -26,7 +27,7 @@ export default function Index() {
 
   return (
     <div>
-      <h1>Welcome to SC2IQ</h1>
+      <h1><BeakerIcon className="h-10 w-10 mr-3" /> Welcome to SC2IQ</h1>
       {hasProfile
         ? <>
           <h3>Current User: <Link to={`/users/${profile.id}`}>{profile?.displayName}</Link></h3>
