@@ -1,0 +1,26 @@
+version: '3.4'
+
+services:
+  client:
+    build:
+      context: apps/client-remix
+      dockerfile: Dockerfile
+    environment:
+      - PORT=${CLIENT_PORT}
+      - COOKIE_SECRET=${COOKIE_SECRET}
+      - AUTH0_RETURN_TO_URL=${AUTH0_RETURN_TO_URL}
+      - AUTH0_CALLBACK_URL=${AUTH0_CALLBACK_URL}
+      - AUTH0_CLIENT_ID=${AUTH0_CLIENT_ID}
+      - AUTH0_CLIENT_SECRET=${AUTH0_CLIENT_SECRET}
+      - AUTH0_DOMAIN=${AUTH0_DOMAIN}
+      - AUTH0_LOGOUT_URL=${AUTH0_LOGOUT_URL}
+      - AUTH0_MANAGEMENT_APP_CLIENT_ID=${AUTH0_MANAGEMENT_APP_CLIENT_ID}
+      - AUTH0_MANAGEMENT_APP_CLIENT_SECRET=${AUTH0_MANAGEMENT_APP_CLIENT_SECRET}
+      - DATABASE_URL=${DATABASE_URL}
+    ports:
+      - "${CLIENT_PORT}:${CLIENT_PORT}"
+    networks:
+      - sc2iqnetwork
+
+networks:
+  sc2iqnetwork:
