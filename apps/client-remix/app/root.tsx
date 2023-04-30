@@ -8,6 +8,7 @@ import {
   Scripts,
   ScrollRestoration,
   V2_MetaFunction,
+  isRouteErrorResponse,
   useRouteError,
 } from "@remix-run/react"
 import { V2_ErrorBoundaryComponent } from "@remix-run/react/dist/routeModules"
@@ -24,6 +25,18 @@ export const meta: V2_MetaFunction = () => {
 export const ErrorBoundary: V2_ErrorBoundaryComponent = () => {
   const error = useRouteError()
   console.error(error)
+  if (isRouteErrorResponse(error)) {
+    return (
+      <AppComponent>
+        <h1 className="text-xl font-bold">Route Error!</h1>
+        {error instanceof Error
+          ? <p>{error.message}</p>
+          : <p>{JSON.stringify(error)}</p>
+        }
+      </AppComponent>
+    )
+  }
+
   return (
     <AppComponent>
       <h1 className="text-xl font-bold">Error!</h1>
@@ -54,19 +67,21 @@ const AppComponent: React.FC<React.PropsWithChildren> = ({ children }) => {
       </head>
       <body className="h-screen flex flex-col bg-slate-50 font-sans subpixel-antialiased">
         <header className="bg-slate-600 border-b border-b-slate-700 text-white">
-          <div className="container mx-auto flex gap-x-4 justify-between items-center py-8">
-            <NavLink to="/"><h1 className="text-3xl ">SC2IQ</h1></NavLink>
+          <div className="container mx-auto py-4">
+            <div className="center">
+              <NavLink to="/"><h1 className="text-3xl ">SC2IQ</h1></NavLink>
+            </div>
+            <nav className="flex gap-4 items-center">
+              <NavLink className="link" to="/">
+                <div className="icon"><span className="material-symbols-outlined">home</span></div>
+                <div className="label">Home</div>
+              </NavLink>
+              <NavLink className="link" to="profile">
+                <div className="icon"><span className="material-symbols-outlined">account_circle</span></div>
+                <div className="label">Profile</div>
+              </NavLink>
+            </nav>
           </div>
-          <nav>
-            <NavLink className="link" to="/">
-              <div className="icon"><span className="material-symbols-outlined">home</span></div>
-              <div className="label">Home</div>
-            </NavLink>
-                <NavLink className="link" to="profile">
-                  <div className="icon"><span className="material-symbols-outlined">account_circle</span></div>
-                  <div className="label">Profile</div>
-                </NavLink>
-          </nav>
         </header>
         <main className="container mx-auto flex-1 py-6">
           {children}
