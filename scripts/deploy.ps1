@@ -93,11 +93,39 @@ else {
 Write-Step "Provision $sc2iqResourceGroupName Resources (What-If: $($WhatIf))"
 
 Write-Step "Build and Push $clientImageName Image"
-az acr build -r $registryUrl -t $clientImageName "$repoRoot/client-remix"
+docker build -t $clientImageName "$repoRoot/apps/client-remix"
 
-Write-Step "Deploy $clientImageName Container App"
+if ($WhatIf -eq $False) {
+  docker push $clientImageName
+}
+
+Write-Step "Deploy $clientImageName Container App (What-If: $($WhatIf))"
 $clientBicepContainerDeploymentFilePath = "$repoRoot/bicep/modules/clientContainerApp.bicep"
-$clientFqdn = $(az deployment group create `
+
+if ($WhatIf -eq $True) {
+  az deployment group create `
+    -g $sc2iqResourceGroupName `
+    -f $clientBicepContainerDeploymentFilePath `
+    -p managedEnvironmentResourceId=$containerAppsEnvResourceId `
+    registryUrl=$registryUrl `
+    registryUsername=$registryUsername `
+    registryPassword=$registryPassword `
+    imageName=$clientImageName `
+    containerName=$clientContainerName `
+    auth0ReturnToUrl=$auth0ReturnToUrl `
+    auth0CallbackUrl=$auth0CallbackUrl `
+    auth0ClientId=$auth0ClientId `
+    auth0ClientSecret=$auth0ClientSecret `
+    auth0Domain=$auth0Domain `
+    auth0LogoutUrl=$auth0LogoutUrl `
+    auth0managementClientId=$auth0managementClientId `
+    auth0managementClientSecret=$auth0managementClientSecret `
+    databaseUrl=$databaseUrlSecret `
+    cookieSecret=$cookieSecret
+    --what-if
+}
+else {
+  $clientFqdn = $(az deployment group create `
     -g $sc2iqResourceGroupName `
     -f $clientBicepContainerDeploymentFilePath `
     -p managedEnvironmentResourceId=$containerAppsEnvResourceId `
@@ -119,5 +147,6 @@ $clientFqdn = $(az deployment group create `
     --query "properties.outputs.fqdn.value" `
     -o tsv)
 
-$clientUrl = "https://$clientFqdn"
-Write-Output $clientUrl
+  $clientUrl = "https://$clientFqdn"
+  Write-Output $clientUrl
+}
