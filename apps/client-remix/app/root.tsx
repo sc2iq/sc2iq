@@ -68,7 +68,7 @@ const AppComponent: React.FC<React.PropsWithChildren> = ({ children }) => {
         <Links />
       </head>
       <body className="h-screen flex flex-col bg-slate-50 font-sans subpixel-antialiased">
-        <header className="bg-slate-600 border-b border-b-slate-700 text-white">
+        <header className="sticky top-0 bg-slate-600 border-b border-b-slate-700 text-white">
           <div className="container mx-auto py-4">
             <div className="center">
               <NavLink to="/"><h1 className="text-3xl ">SC2IQ</h1></NavLink>
