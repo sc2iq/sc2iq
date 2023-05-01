@@ -1,7 +1,8 @@
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid"
 import { ActionArgs, LoaderArgs, V2_MetaFunction, json, redirect } from "@remix-run/node"
 import { Form, Link, useLoaderData } from "@remix-run/react"
-import z from "zod"
+import * as QuestionForm from "~/components/QuestionForm"
+import { SearchForm, formName as searchFormName } from "~/components/SearchForm"
 import { auth, getSession } from "~/services/auth.server"
 import { db } from "~/services/db.server"
 
@@ -25,38 +26,22 @@ export const meta: V2_MetaFunction = ({ matches }) => {
   return [{ title: `${rootTitle} - Home` }]
 }
 
-const formNames = {
-  create: 'formNameQuestionCreate',
-}
-const formQuestionCreateSchema = z.object({
-  question: z.string(),
-  answer1: z.string(),
-  answer2: z.string(),
-  answer4: z.string(),
-  answer3: z.string(),
-})
 
 export const action = async ({ request }: ActionArgs) => {
   const rawForm = await request.formData()
-  const formData = Object.fromEntries(rawForm)
-  const formName = formData.formName as string
+  const formDataEntries = Object.fromEntries(rawForm)
+  const formName = formDataEntries.formName as string
 
-  if (formNames.create == formName) {
-    const questionInput = formQuestionCreateSchema.parse({
-      question: formData.question as string,
-      answer1: formData.answer1 as string,
-      answer2: formData.answer2 as string,
-      answer3: formData.answer3 as string,
-      answer4: formData.answer4 as string,
-    })
+  if (QuestionForm.formName === formName) {
+    const questionInput = QuestionForm.getQuestionInput(formDataEntries)
     const question = await db.question.create({
-      data: {
-        ...questionInput,
-        answerIndex: 0,
-      }
+      data: questionInput
     })
 
     return redirect(`/?questionId=${question.id}`)
+  }
+  else if (searchFormName === formName) {
+
   }
 
   return null
@@ -82,35 +67,9 @@ export default function Index() {
           </div>
           <div>You must sign in before you play the game!</div>
         </>}
-      <Form method="post">
-        <h1>Create</h1>
-        <div>
-          <label htmlFor='question'>Question: </label>
-          <input type="text" placeholder='How much health does a Marine have?' id="question" name="question" required />
-        </div>
-        <div>
-          <label htmlFor='answer1'>Answer 1: </label>
-          <input type="text" id="answer1" name="answer1" required />
-        </div>
-        <div>
-          <label htmlFor='answer2'>Answer 2: </label>
-          <input type="text" id="answer2" name="answer2" required />
-        </div>
-        <div>
-          <label htmlFor='answer3'>Answer 3: </label>
-          <input type="text" id="answer3" name="answer3" required />
-        </div>
-        <div>
-          <label htmlFor='answer4'>Answer 4: </label>
-          <input type="text" id="answer4" name="answer4" required />
-        </div>
-        <div>
-          <input type="hidden" name="formName" value={formNames.create} />
-          <button type="submit">Create</button>
-        </div>
-      </Form>
 
-      <h2>Search</h2>
+      <QuestionForm.Component />
+      <SearchForm />
       <MagnifyingGlassIcon className="h-10 w-10 mr-3" />
       <div>Search</div>
       <h1>Questions:</h1>
