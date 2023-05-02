@@ -26,33 +26,30 @@ export const Component = () => {
   const formRef = React.createRef<HTMLFormElement>()
 
   React.useEffect(() => {
-    if (isSubmitting)  {
+    if (isSubmitting) {
       formRef.current?.reset()
     }
   }, [isSubmitting])
 
   return (
-    <Form method="post" ref={formRef}>
+    <Form method="post" ref={formRef} className="border p-2 rounded-md flex flex-col gap-2">
       <h1>Create</h1>
-      <div>
-        <label htmlFor='question'>Question: </label>
-        <input type="text" placeholder='How much health does a Marine have?' id="question" name="question" required />
-      </div>
-      <div>
+      <input type="text" placeholder='How much health does a Marine have?' id="question" name="question" required />
+      <div className="flex gap-4">
         <label htmlFor='answer1'>Answer 1: </label>
-        <input type="text" id="answer1" name="answer1" required />
+        <input className="flex-grow" type="text" id="answer1" name="answer1" required />
       </div>
-      <div>
+      <div className="flex gap-4">
         <label htmlFor='answer2'>Answer 2: </label>
-        <input type="text" id="answer2" name="answer2" required />
+        <input className="flex-grow" type="text" id="answer2" name="answer2" required />
       </div>
-      <div>
+      <div className="flex gap-4">
         <label htmlFor='answer3'>Answer 3: </label>
-        <input type="text" id="answer3" name="answer3" required />
+        <input className="flex-grow" type="text" id="answer3" name="answer3" required />
       </div>
-      <div>
+      <div className="flex gap-4">
         <label htmlFor='answer4'>Answer 4: </label>
-        <input type="text" id="answer4" name="answer4" required />
+        <input className="flex-grow" type="text" id="answer4" name="answer4" required />
       </div>
       <div>
         <input type="hidden" name="answerIndex" value={0} />

@@ -1,6 +1,6 @@
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid"
 import { ActionArgs, LoaderArgs, V2_MetaFunction, json, redirect } from "@remix-run/node"
-import { Form, Link, useLoaderData } from "@remix-run/react"
+import { Form, useLoaderData } from "@remix-run/react"
 import * as QuestionForm from "~/components/QuestionForm"
 import { SearchForm, formName as searchFormName } from "~/components/SearchForm"
 import { auth, getSession } from "~/services/auth.server"
@@ -54,11 +54,8 @@ export default function Index() {
   return (
     <div>
       <h1>Welcome to SC2IQ</h1>
-      {hasProfile
-        ? <>
-          <h3>Current User: <Link to={`/users/${profile.id}`}>{profile?.displayName}</Link></h3>
-        </>
-        : <>
+      {!hasProfile
+        && (<>
           {error ? <div>{error.message}</div> : null}
           <div className="center">
             <Form method="post" action="/auth">
@@ -66,7 +63,7 @@ export default function Index() {
             </Form>
           </div>
           <div>You must sign in before you play the game!</div>
-        </>}
+        </>)}
 
       <QuestionForm.Component />
       <SearchForm />

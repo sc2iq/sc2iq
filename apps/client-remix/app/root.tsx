@@ -1,5 +1,5 @@
 import { HomeIcon, UserGroupIcon, UserIcon } from '@heroicons/react/24/solid'
-import type { LinksFunction } from "@remix-run/node"; // or cloudflare/deno
+import { LinksFunction, LoaderArgs, json } from "@remix-run/node"; // or cloudflare/deno
 import {
   Links,
   LiveReload,
@@ -10,9 +10,12 @@ import {
   ScrollRestoration,
   V2_MetaFunction,
   isRouteErrorResponse,
+  useLoaderData,
   useRouteError,
 } from "@remix-run/react"
 import { V2_ErrorBoundaryComponent } from "@remix-run/react/dist/routeModules"
+import { Auth0Profile } from 'remix-auth-auth0'
+import { auth } from './services/auth.server'
 import styles from "./styles/tailwind.css"
 
 
@@ -50,15 +53,32 @@ export const ErrorBoundary: V2_ErrorBoundaryComponent = () => {
   )
 }
 
+export const loader = async ({ request }: LoaderArgs) => {
+  const profile = await auth.isAuthenticated(request)
+
+  return json({
+    profile,
+  })
+}
+
 export default function App() {
+  const loaderData = useLoaderData<typeof loader>()
+
   return (
-    <AppComponent>
+    <AppComponent data={loaderData}>
       <Outlet />
     </AppComponent>
   )
 }
 
-const AppComponent: React.FC<React.PropsWithChildren> = ({ children }) => {
+// TODO: Find way to use typeof loader
+type Props = {
+  data?: {
+    profile: Auth0Profile | null
+  }
+}
+
+const AppComponent: React.FC<React.PropsWithChildren<Props>> = ({ data, children }) => {
   return (
     <html lang="en" className="min-h-full">
       <head>
@@ -86,6 +106,7 @@ const AppComponent: React.FC<React.PropsWithChildren> = ({ children }) => {
                 <div className="icon"><UserIcon className="h-10 w-10 mr-3" /></div>
                 <div className="label">Profile</div>
               </NavLink>
+              {data?.profile?.displayName}
             </nav>
           </div>
         </header>
