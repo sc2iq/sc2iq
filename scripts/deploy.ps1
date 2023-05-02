@@ -106,10 +106,10 @@ if ($WhatIf -eq $True) {
   az deployment group create `
     -g $sc2iqResourceGroupName `
     -f $clientBicepContainerDeploymentFilePath `
-    -p managedEnvironmentResourceId=$containerAppsEnvResourceId `
-    registryUrl=$registryUrl `
-    registryUsername=$registryUsername `
-    registryPassword=$registryPassword `
+    -p managedEnvironmentResourceId=$($sharedResourceVars.containerAppsEnvResourceId) `
+    registryUrl=$($sharedResourceVars.registryUrl) `
+    registryUsername=$($sharedResourceVars.registryUsername) `
+    registryPassword=$($sharedResourceVars.registryUsername) `
     imageName=$clientImageName `
     containerName=$clientContainerName `
     auth0ReturnToUrl=$auth0ReturnToUrl `
@@ -121,17 +121,17 @@ if ($WhatIf -eq $True) {
     auth0managementClientId=$auth0managementClientId `
     auth0managementClientSecret=$auth0managementClientSecret `
     databaseUrl=$databaseUrlSecret `
-    cookieSecret=$cookieSecret
+    cookieSecret=$cookieSecret `
     --what-if
 }
 else {
   $clientFqdn = $(az deployment group create `
     -g $sc2iqResourceGroupName `
     -f $clientBicepContainerDeploymentFilePath `
-    -p managedEnvironmentResourceId=$containerAppsEnvResourceId `
-    registryUrl=$registryUrl `
-    registryUsername=$registryUsername `
-    registryPassword=$registryPassword `
+    -p managedEnvironmentResourceId=$($sharedResourceVars.containerAppsEnvResourceId) `
+    registryUrl=$($sharedResourceVars.registryUrl) `
+    registryUsername=$($sharedResourceVars.registryUsername) `
+    registryPassword=$($sharedResourceVars.registryUsername) `
     imageName=$clientImageName `
     containerName=$clientContainerName `
     auth0ReturnToUrl=$auth0ReturnToUrl `
