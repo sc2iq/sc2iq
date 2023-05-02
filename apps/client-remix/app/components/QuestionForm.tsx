@@ -1,5 +1,6 @@
 import { Question } from "@prisma/client"
-import { Form } from "@remix-run/react"
+import { Form, useNavigation } from "@remix-run/react"
+import React from "react"
 import z from "zod"
 import { FormDataEntries } from "~/types"
 
@@ -18,8 +19,20 @@ export function getQuestionInput(formDataEntries: FormDataEntries): Omit<Questio
 }
 
 export const Component = () => {
+  const navigation = useNavigation()
+
+  const isSubmitting = navigation.state === 'submitting'
+    && navigation.formData.get('formName') === formName
+  const formRef = React.createRef<HTMLFormElement>()
+
+  React.useEffect(() => {
+    if (isSubmitting)  {
+      formRef.current?.reset()
+    }
+  }, [isSubmitting])
+
   return (
-    <Form method="post">
+    <Form method="post" ref={formRef}>
       <h1>Create</h1>
       <div>
         <label htmlFor='question'>Question: </label>
