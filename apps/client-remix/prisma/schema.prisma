@@ -10,13 +10,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// https://www.prisma.io/docs/concepts/database-connectors/sql-server
 model Question {
-  id          String   @id @default(uuid())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  question    String
-  answer1     String
-  answer2     String
-  answer3     String
-  answer4     String
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  question  String
+  answer1   String
+  answer2   String
+  answer3   String
+  answer4   String
+  state     String   @default("pending")
+  tags      Tag[]    @relation()
+}
+
+model Tag {
+  id         String    @id @default(cuid())
+  createdAt  DateTime  @default(now())
+  text       String
+  Question   Question? @relation(fields: [questionId], references: [id])
+  questionId String?
 }
