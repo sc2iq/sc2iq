@@ -10,24 +10,84 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model UserMetadata {
+  userId           String @unique
+  reputation       Float
+  points           Int
+  status           String
+  difficultyRating Float
+}
+
 // https://www.prisma.io/docs/concepts/database-connectors/sql-server
+// https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#model-field-scalar-types
 model Question {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  question  String
-  answer1   String
-  answer2   String
-  answer3   String
-  answer4   String
-  state     String   @default("pending")
-  tags      Tag[]    @relation()
+  id             String           @id @default(cuid())
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  question       String
+  answer1        String
+  answer2        String
+  answer3        String
+  answer4        String
+  difficulty     Float
+  state          String           @default("pending")
+  tagsOnEntities TagsOnEntities[]
+  answerInput    AnswerInput[]
+}
+
+model QuestionDetails {
+  id           String @id @default(cuid())
+  avgDuration  Float
+  answer1count Int
+  answer2count Int
+  answer3count Int
+  answer4count Int
+  version      Int
 }
 
 model Tag {
-  id         String    @id @default(cuid())
-  createdAt  DateTime  @default(now())
-  text       String
-  Question   Question? @relation(fields: [questionId], references: [id])
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  text      String
+}
+
+model Poll {
+  id             String           @id @default(uuid())
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  question       String
+  answer1        String
+  answer2        String
+  answer3        String
+  answer4        String
+  state          String           @default("pending")
+  tagsOnEntities TagsOnEntities[]
+}
+
+model TagsOnEntities {
+  id         String    @id @default(uuid())
+  poll       Poll?     @relation(fields: [pollId], references: [id])
+  pollId     String?
+  question   Question? @relation(fields: [questionId], references: [id])
   questionId String?
+  assignedAt DateTime  @default(now())
+  assignedBy String
+}
+
+model AnswerInput {
+  id           String      @id @default(uuid())
+  submittedAt  DateTime    @default(now())
+  questionId   String
+  answerIndex  Int
+  userId       String
+  question     Question    @relation(fields: [questionId], references: [id])
+  scoreInput   ScoreInput? @relation(fields: [scoreInputId], references: [id])
+  scoreInputId String?
+}
+
+model ScoreInput {
+  id        String        @id @default(uuid())
+  answers   AnswerInput[]
+  startedAt String
+  userId    String
 }

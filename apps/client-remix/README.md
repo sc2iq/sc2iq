@@ -1,5 +1,9 @@
 # SC2IQ
 
+## Search HeroIcons
+
+https://heroicons.com/
+
 ## Setup Local Prisma Database Server
 
 - https://remix.run/docs/en/1.15.0/tutorials/jokes#set-up-prisma
@@ -26,7 +30,7 @@ GO
 ```
 
 ```
-npx prism db push
+npx prisma db push
 ```
 
 ## Use Prisma to execute command against DB

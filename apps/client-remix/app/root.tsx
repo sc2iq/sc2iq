@@ -1,6 +1,7 @@
-import { HomeIcon, UserGroupIcon, UserIcon } from '@heroicons/react/24/solid'
+import { HomeIcon, PencilSquareIcon, UserGroupIcon, UserIcon } from '@heroicons/react/24/solid'
 import { LinksFunction, LoaderArgs, json } from "@remix-run/node"; // or cloudflare/deno
 import {
+  Link,
   Links,
   LiveReload,
   Meta,
@@ -89,24 +90,35 @@ const AppComponent: React.FC<React.PropsWithChildren<Props>> = ({ data, children
       </head>
       <body className="h-screen flex flex-col bg-slate-50 font-sans subpixel-antialiased">
         <header className="sticky top-0 bg-slate-600 border-b border-b-slate-700 text-white">
-          <div className="container mx-auto py-4">
-            <div className="center">
-              <NavLink to="/"><h1 className="text-3xl ">SC2IQ</h1></NavLink>
+          <div className="container mx-auto py-4 flex flex-col gap-2">
+            <div className="text-center">
+              <h1 className="text-3xl "><NavLink to="/">SC2IQ</NavLink></h1>
             </div>
-            <nav className="flex gap-4 items-center">
-              <NavLink className="link" to="/">
-                <div className="icon"><HomeIcon className="h-10 w-10 mr-3" /></div>
-                <div className="label">Home</div>
+            <nav className="flex gap-8 items-end">
+              <NavLink className="flex flex-col gap-1 items-center" to="/">
+                <HomeIcon className="h-8 w-8" />
+                <div>Home</div>
               </NavLink>
-              <NavLink className="link" to="users">
-                <div className="icon"><UserGroupIcon className="h-10 w-10 mr-3" /></div>
-                <div className="label">Users</div>
+              <NavLink className="flex flex-col gap-1 items-center" to="users">
+                <UserGroupIcon className="h-8 w-8" />
+                <div>Users</div>
               </NavLink>
-              <NavLink className="link" to="profile">
-                <div className="icon"><UserIcon className="h-10 w-10 mr-3" /></div>
-                <div className="label">Profile</div>
+              <NavLink className="flex flex-col gap-1 items-center" to="profile">
+                <UserIcon className="h-8 w-8" />
+                <div>Profile</div>
               </NavLink>
-              {data?.profile?.displayName}
+              <NavLink className="flex flex-col gap-1 items-center" to="feedback">
+                <PencilSquareIcon className="h-8 w-8" />
+                <div>Feeback</div>
+              </NavLink>
+              <Link to="profile" style={{ marginLeft: 'auto' }} className='flex flex-row items-end gap-4'>
+                {data?.profile && (
+                  <>
+                    {data.profile.displayName}
+                    <img src={data.profile.photos?.at(0)?.value} alt="Profile Picture" className="h-12 w-12 rounded-full" />
+                  </>
+                )}
+              </Link>
             </nav>
           </div>
         </header>

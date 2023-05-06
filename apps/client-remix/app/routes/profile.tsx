@@ -15,7 +15,7 @@ export const loader = async ({ request }: LoaderArgs) => {
   })
 }
 
-export default function Profile() {
+export default function ProfileRoute() {
   const { profile } = useLoaderData<typeof loader>()
 
   return (
