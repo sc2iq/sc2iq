@@ -1,4 +1,4 @@
-import { HomeIcon, PencilSquareIcon, UserGroupIcon, UserIcon } from '@heroicons/react/24/solid'
+import * as Icons from '@heroicons/react/24/solid'
 import { LinksFunction, LoaderArgs, json } from "@remix-run/node"; // or cloudflare/deno
 import {
   Link,
@@ -37,7 +37,7 @@ export const ErrorBoundary: V2_ErrorBoundaryComponent = () => {
         <h1 className="text-xl font-bold">Route Error!</h1>
         {error instanceof Error
           ? <p>{error.message}</p>
-          : <p>{JSON.stringify(error)}</p>
+          : <pre><code>{JSON.stringify(error, null, 4)}</code></pre>
         }
       </AppComponent>
     )
@@ -48,7 +48,7 @@ export const ErrorBoundary: V2_ErrorBoundaryComponent = () => {
       <h1 className="text-xl font-bold">Error!</h1>
       {error instanceof Error
         ? <p>{error.message}</p>
-        : <p>{JSON.stringify(error)}</p>
+        : <pre><code>{JSON.stringify(error, null, 4)}</code></pre>
       }
     </AppComponent>
   )
@@ -96,19 +96,31 @@ const AppComponent: React.FC<React.PropsWithChildren<Props>> = ({ data, children
             </div>
             <nav className="flex gap-8 items-end">
               <NavLink className="flex flex-col gap-1 items-center" to="/">
-                <HomeIcon className="h-8 w-8" />
+                <Icons.HomeIcon className="h-8 w-8" />
                 <div>Home</div>
               </NavLink>
+              <NavLink className="flex flex-col gap-1 items-center" to="questions">
+                <Icons.ChatBubbleBottomCenterTextIcon className="h-8 w-8" />
+                <div>Questions</div>
+              </NavLink>
+              <NavLink className="flex flex-col gap-1 items-center" to="test">
+                <Icons.TrophyIcon className="h-8 w-8" />
+                <div>Test</div>
+              </NavLink>
+              <NavLink className="flex flex-col gap-1 items-center" to="polls">
+                <Icons.ChatBubbleLeftRightIcon className="h-8 w-8" />
+                <div>Polls</div>
+              </NavLink>
               <NavLink className="flex flex-col gap-1 items-center" to="users">
-                <UserGroupIcon className="h-8 w-8" />
+                <Icons.UserGroupIcon className="h-8 w-8" />
                 <div>Users</div>
               </NavLink>
               <NavLink className="flex flex-col gap-1 items-center" to="profile">
-                <UserIcon className="h-8 w-8" />
+                <Icons.UserIcon className="h-8 w-8" />
                 <div>Profile</div>
               </NavLink>
               <NavLink className="flex flex-col gap-1 items-center" to="feedback">
-                <PencilSquareIcon className="h-8 w-8" />
+                <Icons.PencilSquareIcon className="h-8 w-8" />
                 <div>Feeback</div>
               </NavLink>
               <Link to="profile" style={{ marginLeft: 'auto' }} className='flex flex-row items-end gap-4'>

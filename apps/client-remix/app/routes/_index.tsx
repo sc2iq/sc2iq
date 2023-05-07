@@ -1,8 +1,6 @@
-import { MagnifyingGlassIcon } from "@heroicons/react/24/solid"
-import { ActionArgs, LoaderArgs, V2_MetaFunction, json, redirect } from "@remix-run/node"
+import { ActionArgs, LoaderArgs, V2_MetaFunction, json } from "@remix-run/node"
 import { Form, useLoaderData } from "@remix-run/react"
-import * as QuestionForm from "~/components/QuestionForm"
-import { SearchForm, formName as searchFormName } from "~/components/SearchForm"
+import * as SearchForm from "~/components/SearchForm"
 import { auth, getSession } from "~/services/auth.server"
 import { db } from "~/services/db.server"
 
@@ -26,29 +24,12 @@ export const meta: V2_MetaFunction = ({ matches }) => {
   return [{ title: `${rootTitle} - Home` }]
 }
 
-
 export const action = async ({ request }: ActionArgs) => {
   const rawForm = await request.formData()
   const formDataEntries = Object.fromEntries(rawForm)
   const formName = formDataEntries.formName as string
 
-  if (QuestionForm.formName === formName) {
-    const profile = await auth.isAuthenticated(request)
-    if (typeof profile?.id !== 'string') {
-      return null
-    }
-
-    const questionInput = QuestionForm.getQuestionInput(formDataEntries)
-    questionInput.createdBy = profile.id
-
-    // TODO: Remove as any
-    const question = await db.question.create({
-      data: questionInput as any
-    })
-
-    return redirect(`/?questionId=${question.id}`)
-  }
-  else if (searchFormName === formName) {
+  if (SearchForm.formName === formName) {
 
   }
 
@@ -56,15 +37,15 @@ export const action = async ({ request }: ActionArgs) => {
 }
 
 export default function Index() {
-  const { profile, error, questions } = useLoaderData<typeof loader>()
-  const hasProfile = profile !== null && typeof profile === 'object'
+  const loaderData = useLoaderData<typeof loader>()
+  const hasProfile = loaderData.profile !== null && typeof loaderData.profile === 'object'
 
   return (
     <div>
       <h1>Welcome to SC2IQ</h1>
       {!hasProfile
         && (<>
-          {error ? <div>{error.message}</div> : null}
+          {loaderData.error ? <div>{loaderData.error.message}</div> : null}
           <div className="center">
             <Form method="post" action="/auth">
               <button type="submit" className="logInButton">Sign In</button>
@@ -73,18 +54,13 @@ export default function Index() {
           <div>You must sign in before you play the game!</div>
         </>)}
 
-      <QuestionForm.Component />
-      <SearchForm />
-      <MagnifyingGlassIcon className="h-10 w-10 mr-3" />
-      <div>Search</div>
+      <SearchForm.Component />
       <h1>Questions:</h1>
-      <div>
-        {questions.map(question => {
-          return <div key={question.id}>
-            <h4>{question.question}</h4>
-          </div>
-        })}
-      </div>
+      {loaderData.questions.map(question => {
+        return <div key={question.id}>
+          <h4>{question.question}</h4>
+        </div>
+      })}
     </div>
   )
 }

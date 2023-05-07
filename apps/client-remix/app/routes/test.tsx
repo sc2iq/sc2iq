@@ -14,10 +14,10 @@ export const loader = async ({ request }: LoaderArgs) => {
   })
 }
 
-export default function FeedbackRoute() {
+export default function TestRoute() {
   return (
     <>
-      <h1>Feedback</h1>
+      <h1>Test</h1>
     </>
   )
 }

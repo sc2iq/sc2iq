@@ -1,3 +1,4 @@
+import * as Icons from "@heroicons/react/24/solid"
 import { Question } from "@prisma/client"
 import { Form, useNavigation } from "@remix-run/react"
 import React from "react"
@@ -15,7 +16,7 @@ export const schema = z.object({
   difficulty: z.string().transform(s => parseFloat(s)),
 })
 
-export function getQuestionInput(formDataEntries: FormDataEntries): Omit<Question, 'state' | 'createdAt' | 'createdBy' | 'updatedAt' | 'id'> & Partial<Question> {
+export function getFormData(formDataEntries: FormDataEntries): Omit<Question, 'state' | 'createdAt' | 'createdBy' | 'updatedAt' | 'id'> & Partial<Question> {
   return schema.parse(formDataEntries)
 }
 
@@ -33,33 +34,34 @@ export const Component = () => {
   }, [isSubmitting])
 
   return (
-    <Form method="post" ref={formRef} className="border p-2 rounded-md flex flex-col gap-2">
-      <h1>Create</h1>
-      <input type="text" autoComplete="off" placeholder='How much health does a Marine have?' id="question" name="question" required />
-      <div className="flex gap-4">
-        <label htmlFor='answer1'>Answer 1: </label>
-        <input className="flex-grow" type="text" autoComplete="off" id="answer1" name="answer1" required />
+    <Form method="post" ref={formRef} className="border p-6 rounded-xl flex flex-col gap-2 bg-slate-200 border-slate-400">
+      <h1 className="flex gap-2 items-center text-lg font-medium"><Icons.PencilSquareIcon className="h-8 w-8" /> Create Question</h1>
+      <input className="p-1" type="text" autoComplete="off" placeholder='How much health does a Marine have?' id="question" name="question" required />
+      <div className="flex gap-4 rounded-lg">
+        <label className="flex gap-2 items-center" htmlFor='answer1'><Icons.CheckIcon className="h-6 w-6 text-green-600" /> Correct Answer: </label>
+        <input className="flex-grow p-1 px-2" type="text" autoComplete="off" id="answer1" name="answer1" required />
       </div>
-      <div className="flex gap-4">
-        <label htmlFor='answer2'>Answer 2: </label>
-        <input className="flex-grow" type="text" autoComplete="off" id="answer2" name="answer2" required />
+      <div className="bg-slate-400 h-1"></div>
+      <div className="flex gap-4 rounded-lg">
+        <label className="flex gap-2 items-center" htmlFor='answer2'><Icons.XMarkIcon className="h-6 w-6 text-red-700" /> Answer 2: </label>
+        <input className="flex-grow p-1 px-2" type="text" autoComplete="off" id="answer2" name="answer2" required />
       </div>
-      <div className="flex gap-4">
-        <label htmlFor='answer3'>Answer 3: </label>
-        <input className="flex-grow" type="text" autoComplete="off" id="answer3" name="answer3" required />
+      <div className="flex gap-4 rounded-lg">
+        <label className="flex gap-2 items-center" htmlFor='answer3'><Icons.XMarkIcon className="h-6 w-6 text-red-700" /> Answer 3: </label>
+        <input className="flex-grow p-1 px-2" type="text" autoComplete="off" id="answer3" name="answer3" required />
       </div>
-      <div className="flex gap-4">
-        <label htmlFor='answer4'>Answer 4: </label>
-        <input className="flex-grow" type="text" autoComplete="off" id="answer4" name="answer4" required />
+      <div className="flex gap-4 rounded-lg">
+        <label className="flex gap-2 items-center" htmlFor='answer4'><Icons.XMarkIcon className="h-6 w-6 text-red-700" /> Answer 4: </label>
+        <input className="flex-grow p-1 px-2" type="text" autoComplete="off" id="answer4" name="answer4" required />
       </div>
-      <div className="flex gap-4">
-        <label htmlFor='difficulty'>Difficulty: </label>
-        <input className="flex-grow" type="number" autoComplete="off" id="difficulty" name="difficulty" required min={1} step={1} max={10} defaultValue={1} />
+      <div className="flex gap-4 rounded-lg">
+        <label className="flex gap-2 items-center" htmlFor='difficulty'><Icons.ScaleIcon className="h-6 w-6" /> Difficulty: </label>
+        <input className="flex-grow p-1 px-2" type="number" autoComplete="off" id="difficulty" name="difficulty" required min={1} step={1} max={10} defaultValue={1} />
       </div>
+      <input type="hidden" name="answerIndex" value={0} />
+      <input type="hidden" name="formName" value={formName} />
       <div>
-        <input type="hidden" name="answerIndex" value={0} />
-        <input type="hidden" name="formName" value={formName} />
-        <button type="submit">Create</button>
+        <button className="border px-4 py-2 flex gap-2 items-center bg-slate-600 text-slate-100 rounded-lg" type="submit"><Icons.PencilIcon className="h-5 w-5" /> Submit</button>
       </div>
     </Form>
   )
