@@ -1,4 +1,4 @@
-import { ActionArgs, LoaderArgs, V2_MetaFunction, json } from "@remix-run/node"
+import { ActionArgs, LoaderArgs, V2_MetaFunction, json, redirect } from "@remix-run/node"
 import { Form, useLoaderData } from "@remix-run/react"
 import * as SearchForm from "~/components/SearchForm"
 import { auth, getSession } from "~/services/auth.server"
@@ -30,6 +30,18 @@ export const action = async ({ request }: ActionArgs) => {
   const formName = formDataEntries.formName as string
 
   if (SearchForm.formName === formName) {
+    const profile = await auth.isAuthenticated(request)
+    if (typeof profile?.id !== 'string') {
+      return null
+    }
+
+    const searchInput = SearchForm.getFormData(formDataEntries)
+
+    // TODO: Remove as any
+    const queryString = new URLSearchParams(rawForm as URLSearchParams).toString()
+    console.log({ queryString, searchInput })
+
+    return redirect(`?search=${queryString}`)
 
   }
 

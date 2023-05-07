@@ -35,7 +35,7 @@ export const Component = () => {
   return (
     <Form method="post" ref={formRef} className="border p-5 rounded-xl flex flex-col gap-2 bg-slate-200 border-slate-400">
       <h1 className="flex gap-2 items-center text-lg font-medium"><Icons.PencilSquareIcon className="h-8 w-8" /> Create Poll</h1>
-      <input className="p-1" type="text" autoComplete="off" placeholder='How much health does a Marine have?' id="question" name="question" required />
+      <input className="p-1 px-2" type="text" autoComplete="off" placeholder='How much health does a Marine have?' id="question" name="question" required />
       <div className="flex gap-4 rounded-lg">
         <label className="flex gap-2 items-center" htmlFor='answer1'><Icons.CheckIcon className="h-6 w-6 text-green-600" /> Correct Answer: </label>
         <input className="flex-grow p-1 px-2" type="text" autoComplete="off" id="answer1" name="answer1" required />
@@ -53,7 +53,6 @@ export const Component = () => {
         <label className="flex gap-2 items-center" htmlFor='answer4'><Icons.XMarkIcon className="h-6 w-6 text-red-700" /> Answer 4: </label>
         <input className="flex-grow p-1 px-2" type="text" autoComplete="off" id="answer4" name="answer4" required />
       </div>
-      <input type="hidden" name="answerIndex" value={0} />
       <input type="hidden" name="formName" value={formName} />
       <div className="mt-2">
         <button className="border px-4 py-2 flex gap-2 items-center bg-slate-600 text-slate-100 rounded-lg" type="submit"><Icons.PencilIcon className="h-5 w-5" /> Submit</button>

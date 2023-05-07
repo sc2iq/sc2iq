@@ -58,7 +58,6 @@ export const Component = () => {
         <label className="flex gap-2 items-center" htmlFor='difficulty'><Icons.ScaleIcon className="h-6 w-6" /> Difficulty: </label>
         <input className="flex-grow p-1 px-2" type="number" autoComplete="off" id="difficulty" name="difficulty" required min={1} step={1} max={10} defaultValue={1} />
       </div>
-      <input type="hidden" name="answerIndex" value={0} />
       <input type="hidden" name="formName" value={formName} />
       <div className="mt-2">
         <button className="border px-4 py-2 flex gap-2 items-center bg-slate-600 text-slate-100 rounded-lg" type="submit"><Icons.PencilIcon className="h-5 w-5" /> Submit</button>
