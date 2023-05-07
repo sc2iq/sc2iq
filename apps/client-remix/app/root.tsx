@@ -80,6 +80,21 @@ type Props = {
 }
 
 const AppComponent: React.FC<React.PropsWithChildren<Props>> = ({ data, children }) => {
+  const navLinkClassNameFn = ({ isActive, isPending }: { isPending: boolean, isActive: boolean }) => {
+    let classes = "flex flex-col gap-1 p-3 items-center rounded-md border"
+    if (isPending) {
+      classes += " bg-slate-500"
+    }
+    else if (isActive) {
+      classes += " bg-slate-400 border-slate-700"
+    }
+    else {
+      classes += " border-transparent"
+    }
+
+    return classes
+  }
+
   return (
     <html lang="en" className="min-h-full">
       <head>
@@ -95,31 +110,31 @@ const AppComponent: React.FC<React.PropsWithChildren<Props>> = ({ data, children
               <h1 className="text-4xl font-semibold"><NavLink to="/">SC2IQ</NavLink></h1>
             </div>
             <nav className="flex gap-8 items-end">
-              <NavLink className="flex flex-col gap-1 items-center" to="/">
+              <NavLink className={navLinkClassNameFn} to="/">
                 <Icons.HomeIcon className="h-8 w-8" />
                 <div>Home</div>
               </NavLink>
-              <NavLink className="flex flex-col gap-1 items-center" to="questions">
+              <NavLink className={navLinkClassNameFn} to="questions">
                 <Icons.ChatBubbleBottomCenterTextIcon className="h-8 w-8" />
                 <div>Questions</div>
               </NavLink>
-              <NavLink className="flex flex-col gap-1 items-center" to="test">
+              <NavLink className={navLinkClassNameFn} to="test">
                 <Icons.TrophyIcon className="h-8 w-8" />
                 <div>Test</div>
               </NavLink>
-              <NavLink className="flex flex-col gap-1 items-center" to="polls">
+              <NavLink className={navLinkClassNameFn} to="polls">
                 <Icons.ChatBubbleLeftRightIcon className="h-8 w-8" />
                 <div>Polls</div>
               </NavLink>
-              <NavLink className="flex flex-col gap-1 items-center" to="users">
+              <NavLink className={navLinkClassNameFn} to="users">
                 <Icons.UserGroupIcon className="h-8 w-8" />
                 <div>Users</div>
               </NavLink>
-              <NavLink className="flex flex-col gap-1 items-center" to="profile">
+              <NavLink className={navLinkClassNameFn} to="profile">
                 <Icons.UserIcon className="h-8 w-8" />
                 <div>Profile</div>
               </NavLink>
-              <NavLink className="flex flex-col gap-1 items-center" to="feedback">
+              <NavLink className={navLinkClassNameFn} to="feedback">
                 <Icons.PencilSquareIcon className="h-8 w-8" />
                 <div>Feeback</div>
               </NavLink>
