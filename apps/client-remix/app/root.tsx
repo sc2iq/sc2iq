@@ -92,7 +92,7 @@ const AppComponent: React.FC<React.PropsWithChildren<Props>> = ({ data, children
         <header className="sticky top-0 bg-slate-600 border-b border-b-slate-700 text-white">
           <div className="container mx-auto py-4 flex flex-col gap-2">
             <div className="text-center">
-              <h1 className="text-3xl "><NavLink to="/">SC2IQ</NavLink></h1>
+              <h1 className="text-4xl font-semibold"><NavLink to="/">SC2IQ</NavLink></h1>
             </div>
             <nav className="flex gap-8 items-end">
               <NavLink className="flex flex-col gap-1 items-center" to="/">

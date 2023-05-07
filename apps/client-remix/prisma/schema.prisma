@@ -56,6 +56,7 @@ model Poll {
   id             String           @id @default(uuid())
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
+  createdBy      String
   question       String
   answer1        String
   answer2        String

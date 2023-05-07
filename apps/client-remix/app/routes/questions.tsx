@@ -1,5 +1,6 @@
 import { ActionArgs, LinksFunction, LoaderArgs, json, redirect } from "@remix-run/node"
 import { useLoaderData } from "@remix-run/react"
+import Question from "~/components/Question"
 import * as QuestionForm from "~/components/QuestionForm"
 import { auth } from "~/services/auth.server"
 import { db } from "~/services/db.server"
@@ -8,9 +9,7 @@ export const links: LinksFunction = () => [
 ]
 
 export const loader = async ({ request }: LoaderArgs) => {
-  const profile = await auth.isAuthenticated(request, {
-    failureRedirect: "/"
-  })
+  const profile = await auth.isAuthenticated(request)
   const questions = await db.question.findMany()
 
   return json({
@@ -38,7 +37,7 @@ export const action = async ({ request }: ActionArgs) => {
       data: questionInput as any
     })
 
-    return redirect(`/?questionId=${question.id}`)
+    return redirect(`?questionId=${question.id}`)
   }
 
   return null
@@ -50,11 +49,9 @@ export default function QuestionsRoute() {
   return (
     <>
       <QuestionForm.Component />
-      <h1>Questions</h1>
+      <h1 className="text-2xl">Questions</h1>
       {loaderData.questions.map(question => {
-        return <div key={question.id}>
-          <h4>{question.question}</h4>
-        </div>
+        return <Question key={question.id} question={question} />
       })}
     </>
   )
