@@ -1,13 +1,14 @@
 import * as Icons from "@heroicons/react/24/solid"
 import { Form } from "@remix-run/react"
 import z from "zod"
+import { tagsString } from "~/helpers"
 import { FormDataEntries, SearchInput } from "~/types"
 
 export const formName = 'formNameSearch'
 
 export const schema = z.object({
   text: z.string(),
-  tags: z.string().transform(tagsString => tagsString.split(',').map(s => s.trim().toLowerCase())),
+  tags: z.string().transform(s => tagsString(s)),
   difficultyMin: z.string().transform(s => parseFloat(s)),
   difficultyMax: z.string().transform(s => parseFloat(s)),
 })

@@ -29,12 +29,13 @@ export const action = async ({ request }: ActionArgs) => {
       return null
     }
 
-    const questionInput = QuestionForm.getFormData(formDataEntries)
-    questionInput.createdBy = profile.id
+    const { question, tags} = QuestionForm.getFormData(formDataEntries)
+    question.createdBy = profile.id
 
+    console.log({ question, tags })
     // TODO: Remove as any
-    const question = await db.question.create({
-      data: questionInput as any
+    const newQuestion = await db.question.create({
+      data: question as any
     })
 
     return redirect(`?questionId=${question.id}`)
