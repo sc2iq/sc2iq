@@ -6,3 +6,4 @@ export type SearchInput = {
   difficultyMin: number
   difficultyMax: number
 }
+

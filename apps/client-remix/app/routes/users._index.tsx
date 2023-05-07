@@ -1,6 +1,7 @@
 import { json, LinksFunction, LoaderArgs } from "@remix-run/node"
-import { Link, useLoaderData } from "@remix-run/react"
+import { useLoaderData } from "@remix-run/react"
 import React from "react"
+import { User } from "~/components/User"
 import { auth } from "~/services/auth.server"
 import { managementClient } from "~/services/auth0management.server"
 
@@ -26,12 +27,16 @@ export default function Profile() {
   return (
     <>
         <h1>Users</h1>
-        <div className="users">
-            <div>#</div><div>Image</div><div>Name</div><div>Email</div><div>Id</div><div>View</div>
+        <div className="grid grid-cols-4 gap-2">
+            <div className="">#</div>
+            <div>Image</div>
+            <div>Name</div>
+            <div>Link</div>
             {users.map((user, i) => {
                 return (
                     <React.Fragment key={user.user_id}>
-                        <div>{i + 1}</div><img src={user.picture} className="userImage" /><div>{user.nickname}</div><div>{user.email}</div><div>{user.user_id}</div><Link to={`/users/${user.user_id}`}>Vew</Link>
+                        <div>{i + 1}</div>
+                        <User user={user as any} />
                     </React.Fragment>
                 )
             })}
