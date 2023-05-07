@@ -24,6 +24,7 @@ model Question {
   id             String           @id @default(cuid())
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
+  createdBy      String
   question       String
   answer1        String
   answer2        String
@@ -31,8 +32,8 @@ model Question {
   answer4        String
   difficulty     Float
   state          String           @default("pending")
-  tagsOnEntities TagsOnEntities[]
-  answerInput    AnswerInput[]
+  TagsOnEntities TagsOnEntities[]
+  AnswerInput    AnswerInput[]
 }
 
 model QuestionDetails {

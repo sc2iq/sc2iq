@@ -33,9 +33,17 @@ export const action = async ({ request }: ActionArgs) => {
   const formName = formDataEntries.formName as string
 
   if (QuestionForm.formName === formName) {
+    const profile = await auth.isAuthenticated(request)
+    if (typeof profile?.id !== 'string') {
+      return null
+    }
+
     const questionInput = QuestionForm.getQuestionInput(formDataEntries)
+    questionInput.createdBy = profile.id
+
+    // TODO: Remove as any
     const question = await db.question.create({
-      data: questionInput
+      data: questionInput as any
     })
 
     return redirect(`/?questionId=${question.id}`)

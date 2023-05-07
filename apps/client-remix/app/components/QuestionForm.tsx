@@ -15,7 +15,7 @@ export const schema = z.object({
   difficulty: z.string().transform(s => parseFloat(s)),
 })
 
-export function getQuestionInput(formDataEntries: FormDataEntries): Omit<Question, 'createdAt' | 'updatedAt' | 'id'> {
+export function getQuestionInput(formDataEntries: FormDataEntries): Omit<Question, 'state' | 'createdAt' | 'createdBy' | 'updatedAt' | 'id'> & Partial<Question> {
   return schema.parse(formDataEntries)
 }
 
