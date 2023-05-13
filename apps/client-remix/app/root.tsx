@@ -47,7 +47,7 @@ export const ErrorBoundary: V2_ErrorBoundaryComponent = () => {
     <AppComponent>
       <h1 className="text-xl font-bold">Error!</h1>
       {error instanceof Error
-        ? <p>{error.message}</p>
+        ? <pre>{error.message}</pre>
         : <pre><code>{JSON.stringify(error, null, 4)}</code></pre>
       }
     </AppComponent>
@@ -80,20 +80,28 @@ type Props = {
 }
 
 const AppComponent: React.FC<React.PropsWithChildren<Props>> = ({ data, children }) => {
-  const navLinkClassNameFn = ({ isActive, isPending }: { isPending: boolean, isActive: boolean }) => {
-    let classes = "flex flex-col gap-1 p-3 items-center rounded-md border"
+  const navLinkClassNameFn =  (isLoggedIn: boolean) => ({ isActive, isPending }: { isPending: boolean, isActive: boolean }) => {
+    let classes = "flex flex-col gap-1 p-3 px-5 items-center rounded-md border"
+    if (!isActive && !isLoggedIn) {
+      classes += " text-slate-400 cursor-not-allowed"
+    }
     if (isPending) {
       classes += " bg-slate-500"
     }
     else if (isActive) {
-      classes += " bg-slate-400 border-slate-700"
+      classes += " bg-slate-400 border-slate-400 text-white"
     }
     else {
       classes += " border-transparent"
+      if (isLoggedIn) {
+        classes += " hover:bg-slate-400/40"
+      }
     }
 
     return classes
   }
+
+  const isLoggedIn = Boolean(data?.profile)
 
   return (
     <html lang="en" className="min-h-full">
@@ -109,32 +117,32 @@ const AppComponent: React.FC<React.PropsWithChildren<Props>> = ({ data, children
             <div className="text-center">
               <h1 className="text-4xl font-semibold"><NavLink to="/">SC2IQ</NavLink></h1>
             </div>
-            <nav className="flex gap-8 items-end">
-              <NavLink className={navLinkClassNameFn} to="/">
+            <nav className="flex gap-5 items-end">
+              <NavLink className={(...args) => navLinkClassNameFn(true)(...args)} to="/" end>
                 <Icons.HomeIcon className="h-8 w-8" />
                 <div>Home</div>
               </NavLink>
-              <NavLink className={navLinkClassNameFn} to="questions">
+              <NavLink className={(...args) => navLinkClassNameFn(true)(...args)} to="questions">
                 <Icons.ChatBubbleBottomCenterTextIcon className="h-8 w-8" />
                 <div>Questions</div>
               </NavLink>
-              <NavLink className={navLinkClassNameFn} to="test">
+              <NavLink className={(...args) => navLinkClassNameFn(isLoggedIn)(...args)} to="test">
                 <Icons.TrophyIcon className="h-8 w-8" />
                 <div>Test</div>
               </NavLink>
-              <NavLink className={navLinkClassNameFn} to="polls">
+              <NavLink className={(...args) => navLinkClassNameFn(isLoggedIn)(...args)} to="polls">
                 <Icons.ChatBubbleLeftRightIcon className="h-8 w-8" />
                 <div>Polls</div>
               </NavLink>
-              <NavLink className={navLinkClassNameFn} to="users">
+              <NavLink className={(...args) => navLinkClassNameFn(isLoggedIn)(...args)} to="users">
                 <Icons.UserGroupIcon className="h-8 w-8" />
                 <div>Users</div>
               </NavLink>
-              <NavLink className={navLinkClassNameFn} to="profile">
+              <NavLink className={(...args) => navLinkClassNameFn(isLoggedIn)(...args)} to="profile">
                 <Icons.UserIcon className="h-8 w-8" />
                 <div>Profile</div>
               </NavLink>
-              <NavLink className={navLinkClassNameFn} to="feedback">
+              <NavLink className={(...args) => navLinkClassNameFn(isLoggedIn)(...args)} to="feedback">
                 <Icons.PencilSquareIcon className="h-8 w-8" />
                 <div>Feeback</div>
               </NavLink>

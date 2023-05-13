@@ -10,13 +10,19 @@ export const loader = async ({ request }: LoaderArgs) => {
   const profile = await auth.isAuthenticated(request)
   const session = await getSession(request.headers.get("Cookie"))
   const error = session.get(auth.sessionErrorKey) as LoaderError
-  const questions = await db.question.findMany()
 
-  return json({
-    profile,
-    error,
-    questions,
-  })
+  try {
+    const questions = await db.question.findMany()
+
+    return json({
+      profile,
+      error,
+      questions,
+    })
+  }
+  catch (e) {
+    throw new Error(`Error attempting to load items. It is likely that the database was asleep.\n\nThis is likely the first request to wake it up. Please try again in a few minutes.\n\n${e}`)
+  }
 }
 
 export const meta: V2_MetaFunction = ({ matches }) => {
@@ -60,10 +66,9 @@ export default function Index() {
           {loaderData.error ? <div>{loaderData.error.message}</div> : null}
           <div className="center">
             <Form method="post" action="/auth">
-              <button type="submit" className="logInButton">Sign In</button>
+              <button type="submit" className="px-5 py-3 border border-slate-700 bg-slate-400 rounded-md text-lg my-2">Log In</button>
             </Form>
           </div>
-          <div>You must sign in before you play the game!</div>
         </>)}
 
       <SearchForm.Component />
