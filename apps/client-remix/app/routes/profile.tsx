@@ -18,6 +18,8 @@ export const loader = async ({ request }: LoaderArgs) => {
 export default function ProfileRoute() {
   const { profile } = useLoaderData<typeof loader>()
 
+  console.log({ profile })
+
   return (
     <>
       <h1>Profile</h1>

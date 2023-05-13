@@ -11,6 +11,7 @@ export function User(props: Props) {
     <>
       <img src={props.user.picture} className="h-10 w-10 rounded-full" />
       <div>{props.user.nickname}</div>
+      <div>{props.user.email}</div>
       <div>
         <Link to={`/users/${props.user.user_id}`} className="bg-slate-300 rounded-lg px-2 py-1">View</Link>
       </div>
