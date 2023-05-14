@@ -126,9 +126,7 @@ const AppComponent: React.FC<React.PropsWithChildren<Props>> = ({ data, children
       <body className="h-screen flex flex-col bg-slate-50 font-sans subpixel-antialiased">
         <header className="sticky top-0 bg-slate-600 border-b border-b-slate-700 text-slate-200">
           <div className="container mx-auto py-4 flex flex-col gap-2">
-            <div className="text-center">
-              <h1 className="text-4xl font-semibold"><NavLink to="/">SC2IQ</NavLink></h1>
-            </div>
+            <h1 className="text-6xl text-center font-semibold mb-4"><NavLink to="/">StarCraft 2 Intelligence Quotient</NavLink></h1>
             <nav className="flex gap-5 items-end">
               <NavLink className={(...args) => navLinkClassNameFn(true)(...args)} to="/" end>
                 <Icons.HomeIcon className="h-8 w-8" />
