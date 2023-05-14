@@ -1,4 +1,4 @@
-import { DataFunctionArgs, json } from "@remix-run/node"
+import { DataFunctionArgs, V2_MetaFunction, json } from "@remix-run/node"
 import { Link, useLoaderData } from "@remix-run/react"
 import { auth } from "~/services/auth.server"
 import { managementClient } from "~/services/auth0management.server"
@@ -14,6 +14,11 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
   return json({
     user,
   })
+}
+
+export const meta: V2_MetaFunction = ({ matches, data }) => {
+  const rootTitle = (matches as any[]).find(m => m.id === 'root').meta.find((m: any) => m.title).title
+  return [{ title: `${rootTitle} - Users - ${data.user?.nickname}` }]
 }
 
 export default function Users() {

@@ -1,4 +1,4 @@
-import { json, LinksFunction, LoaderArgs } from "@remix-run/node"
+import { json, LinksFunction, LoaderArgs, V2_MetaFunction } from "@remix-run/node"
 import { useLoaderData } from "@remix-run/react"
 import React from "react"
 import { User } from "~/components/User"
@@ -7,6 +7,11 @@ import { managementClient } from "~/services/auth0management.server"
 
 export const links: LinksFunction = () => [
 ]
+
+export const meta: V2_MetaFunction = ({ matches }) => {
+  const rootTitle = (matches as any[]).find(m => m.id === 'root').meta.find((m: any) => m.title).title
+  return [{ title: `${rootTitle} - Users` }]
+}
 
 export const loader = async ({ request }: LoaderArgs) => {
   const profile = await auth.isAuthenticated(request, {

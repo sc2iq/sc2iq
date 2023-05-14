@@ -1,4 +1,4 @@
-import { ActionArgs, LinksFunction, LoaderArgs, json, redirect } from "@remix-run/node"
+import { ActionArgs, LinksFunction, LoaderArgs, V2_MetaFunction, json, redirect } from "@remix-run/node"
 import { useLoaderData } from "@remix-run/react"
 import Poll from "~/components/Poll"
 import * as PollForm from "~/components/PollForm"
@@ -7,6 +7,11 @@ import { db } from "~/services/db.server"
 
 export const links: LinksFunction = () => [
 ]
+
+export const meta: V2_MetaFunction = ({ matches }) => {
+  const rootTitle = (matches as any[]).find(m => m.id === 'root').meta.find((m: any) => m.title).title
+  return [{ title: `${rootTitle} - Polls` }]
+}
 
 export const loader = async ({ request }: LoaderArgs) => {
   const profile = await auth.isAuthenticated(request)

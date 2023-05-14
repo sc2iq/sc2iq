@@ -9,8 +9,6 @@ type LoaderError = { message: string } | null
 export const loader = async ({ request }: LoaderArgs) => {
   const profile = await auth.isAuthenticated(request)
   const session = await getSession(request.headers.get("Cookie"))
-  const sessionData = session.get(auth.sessionKey) as object
-  console.log({ sessionData })
   const error = session.get(auth.sessionErrorKey) as LoaderError
 
   try {
@@ -50,7 +48,6 @@ export const action = async ({ request }: ActionArgs) => {
     console.log({ queryString, searchInput })
 
     return redirect(`?search=${queryString}`)
-
   }
 
   return null
