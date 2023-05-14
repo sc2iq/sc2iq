@@ -42,33 +42,33 @@ export const Component = () => {
   }, [isSubmitting])
 
   return (
-    <Form method="post" ref={formRef} className="border p-5 rounded-xl flex flex-col gap-2 bg-slate-200 border-slate-400">
+    <Form method="post" ref={formRef} className="border p-5 rounded-xl flex flex-col gap-2 bg-slate-200 border-slate-300">
       <h1 className="flex gap-2 items-center text-lg font-medium"><Icons.PencilSquareIcon className="h-8 w-8" /> Create Question</h1>
-      <input className="p-1" type="text" autoComplete="off" placeholder='How much health does a Marine have?' id="question" name="question" required />
+      <input className="p-1 px-2 rounded-md" type="text" autoComplete="off" placeholder='How much health does a Marine have?' id="question" name="question" required />
       <div className="flex gap-4 rounded-lg">
         <label className="flex gap-2 items-center w-40" htmlFor='answer1'><Icons.CheckIcon className="h-6 w-6 text-green-600" /> Correct Answer: </label>
-        <input className="flex-grow p-1 px-2" type="text" autoComplete="off" id="answer1" name="answer1" required />
+        <input className="flex-grow p-1 px-2 rounded-md" type="text" autoComplete="off" id="answer1" name="answer1" placeholder="45" required />
       </div>
       <div className="bg-slate-400 h-1"></div>
       <div className="flex gap-4 rounded-lg">
         <label className="flex gap-2 items-center w-40" htmlFor='answer2'><Icons.XMarkIcon className="h-6 w-6 text-red-700" /> Answer 2: </label>
-        <input className="flex-grow p-1 px-2" type="text" autoComplete="off" id="answer2" name="answer2" required />
+        <input className="flex-grow p-1 px-2 rounded-md" type="text" autoComplete="off" id="answer2" name="answer2" placeholder="55" required />
       </div>
       <div className="flex gap-4 rounded-lg">
         <label className="flex gap-2 items-center w-40" htmlFor='answer3'><Icons.XMarkIcon className="h-6 w-6 text-red-700" /> Answer 3: </label>
-        <input className="flex-grow p-1 px-2" type="text" autoComplete="off" id="answer3" name="answer3" required />
+        <input className="flex-grow p-1 px-2 rounded-md" type="text" autoComplete="off" id="answer3" name="answer3" placeholder="35" required />
       </div>
       <div className="flex gap-4 rounded-lg">
         <label className="flex gap-2 items-center w-40" htmlFor='answer4'><Icons.XMarkIcon className="h-6 w-6 text-red-700" /> Answer 4: </label>
-        <input className="flex-grow p-1 px-2" type="text" autoComplete="off" id="answer4" name="answer4" required />
+        <input className="flex-grow p-1 px-2 rounded-md" type="text" autoComplete="off" id="answer4" name="answer4" placeholder="65" required />
       </div>
       <div className="flex gap-4 rounded-lg">
         <label className="flex gap-2 items-center w-40" htmlFor='difficulty'><Icons.ScaleIcon className="h-6 w-6" /> Difficulty: </label>
-        <input className="flex-grow p-1 px-2" type="number" autoComplete="off" id="difficulty" name="difficulty" required min={1} step={1} max={10} defaultValue={1} />
+        <input className="flex-grow p-1 px-2 rounded-md" type="number" autoComplete="off" id="difficulty" name="difficulty" required min={1} step={1} max={10} defaultValue={1} />
       </div>
       <div className="flex gap-4 rounded-lg">
         <label className="flex gap-2 items-center w-40" htmlFor='tags'><Icons.TagIcon className="h-6 w-6" /> Tags:</label>
-        <input className="flex-grow p-1 px-2" type="text" autoComplete="off" id="tags" name="tags" required />
+        <input className="flex-grow p-1 px-2 rounded-md" type="text" autoComplete="off" id="tags" name="tags" required />
       </div>
       <input type="hidden" name="formName" value={formName} />
       <div className="flex flex-row gap-2 mt-2">

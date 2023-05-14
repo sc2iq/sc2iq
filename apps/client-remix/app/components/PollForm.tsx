@@ -35,22 +35,26 @@ export const Component = () => {
   return (
     <Form method="post" ref={formRef} className="p-5 rounded-xl flex flex-col gap-2 bg-slate-200 border border-slate-300">
       <h1 className="flex gap-2 items-center text-lg font-medium"><Icons.PencilSquareIcon className="h-8 w-8" /> Create Poll</h1>
-      <input className="p-1 px-2" type="text" autoComplete="off" placeholder='How much health does a Marine have?' id="question" name="question" required />
+      <input className="p-1 px-3 rounded-md" type="text" autoComplete="off" placeholder='Should we introduce asymmetrical maps?' id="question" name="question" required />
       <div className="flex gap-4 rounded-lg">
-        <label className="flex gap-2 items-center" htmlFor='answer1'><Icons.QuestionMarkCircleIcon className="h-6 w-6 text-slate-500" />Answer 1: </label>
-        <input className="flex-grow p-1 px-2" type="text" autoComplete="off" id="answer1" name="answer1" required />
+        <label className="flex gap-2 items-center w-40" htmlFor='answer1'><Icons.QuestionMarkCircleIcon className="h-6 w-6 text-slate-500" />Answer 1: </label>
+        <input className="flex-grow p-1 px-3 rounded-md" type="text" autoComplete="off" id="answer1" name="answer1" required placeholder="Yes" />
       </div>
       <div className="flex gap-4 rounded-lg">
-        <label className="flex gap-2 items-center" htmlFor='answer2'><Icons.QuestionMarkCircleIcon className="h-6 w-6 text-slate-500" /> Answer 2: </label>
-        <input className="flex-grow p-1 px-2" type="text" autoComplete="off" id="answer2" name="answer2" required />
+        <label className="flex gap-2 items-center w-40" htmlFor='answer2'><Icons.QuestionMarkCircleIcon className="h-6 w-6 text-slate-500" /> Answer 2: </label>
+        <input className="flex-grow p-1 px-3 rounded-md" type="text" autoComplete="off" id="answer2" name="answer2" required placeholder="Yes" />
       </div>
       <div className="flex gap-4 rounded-lg">
-        <label className="flex gap-2 items-center" htmlFor='answer3'><Icons.QuestionMarkCircleIcon className="h-6 w-6 text-slate-500" /> Answer 3: </label>
-        <input className="flex-grow p-1 px-2" type="text" autoComplete="off" id="answer3" name="answer3" required />
+        <label className="flex gap-2 items-center w-40" htmlFor='answer3'><Icons.QuestionMarkCircleIcon className="h-6 w-6 text-slate-500" /> Answer 3: </label>
+        <input className="flex-grow p-1 px-3 rounded-md" type="text" autoComplete="off" id="answer3" name="answer3" required placeholder="No" />
       </div>
       <div className="flex gap-4 rounded-lg">
-        <label className="flex gap-2 items-center" htmlFor='answer4'><Icons.QuestionMarkCircleIcon className="h-6 w-6 text-slate-500" /> Answer 4: </label>
-        <input className="flex-grow p-1 px-2" type="text" autoComplete="off" id="answer4" name="answer4" required />
+        <label className="flex gap-2 items-center w-40" htmlFor='answer4'><Icons.QuestionMarkCircleIcon className="h-6 w-6 text-slate-500" /> Answer 4: </label>
+        <input className="flex-grow p-1 px-3 rounded-md" type="text" autoComplete="off" id="answer4" name="answer4" required placeholder="No" />
+      </div>
+      <div className="flex gap-4 rounded-lg">
+        <label className="flex gap-2 items-center w-40" htmlFor='tags'><Icons.TagIcon className="h-6 w-6" /> Tags:</label>
+        <input className="flex-grow p-1 px-3 rounded-md" type="text" autoComplete="off" id="tags" name="tags" required />
       </div>
       <input type="hidden" name="formName" value={formName} />
       <div className="flex flex-row gap-2 mt-2">

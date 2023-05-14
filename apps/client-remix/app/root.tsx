@@ -97,15 +97,15 @@ const AppComponent: React.FC<React.PropsWithChildren<Props>> = ({ data, children
       classes += " text-slate-400 cursor-not-allowed"
     }
     if (isPending) {
-      classes += " bg-slate-500"
+      classes += " bg-slate-600 border-slate-600"
     }
     else if (isActive) {
-      classes += " bg-slate-400 border-slate-400 text-white"
+      classes += " bg-slate-500 border-slate-500 text-amber-300"
     }
     else {
       classes += " border-transparent"
       if (isLoggedIn) {
-        classes += " hover:bg-slate-400/40"
+        classes += " hover:bg-slate-500/40"
       }
     }
 
@@ -124,7 +124,7 @@ const AppComponent: React.FC<React.PropsWithChildren<Props>> = ({ data, children
         <Links />
       </head>
       <body className="h-screen flex flex-col bg-slate-50 font-sans subpixel-antialiased">
-        <header className="sticky top-0 bg-slate-600 border-b border-b-slate-700 text-white">
+        <header className="sticky top-0 bg-slate-600 border-b border-b-slate-700 text-slate-200">
           <div className="container mx-auto py-4 flex flex-col gap-2">
             <div className="text-center">
               <h1 className="text-4xl font-semibold"><NavLink to="/">SC2IQ</NavLink></h1>
