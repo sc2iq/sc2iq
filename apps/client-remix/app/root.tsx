@@ -15,10 +15,11 @@ import {
   useRouteError,
 } from "@remix-run/react"
 import { V2_ErrorBoundaryComponent } from "@remix-run/react/dist/routeModules"
+import { Role } from "auth0"
 import { Auth0Profile } from 'remix-auth-auth0'
+import { managementClient } from "~/services/auth0management.server"
 import { auth } from './services/auth.server'
 import styles from "./styles/tailwind.css"
-
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
@@ -35,6 +36,9 @@ export const ErrorBoundary: V2_ErrorBoundaryComponent = () => {
     return (
       <AppComponent>
         <h1 className="text-xl font-bold">Route Error!</h1>
+        <div>
+          <Link to="/" className="block px-5 py-3 border border-slate-700 bg-slate-400 rounded-md text-lg my-2">Go Home!</Link>
+        </div>
         {error instanceof Error
           ? <p>{error.message}</p>
           : <pre><code>{JSON.stringify(error, null, 4)}</code></pre>
@@ -56,9 +60,15 @@ export const ErrorBoundary: V2_ErrorBoundaryComponent = () => {
 
 export const loader = async ({ request }: LoaderArgs) => {
   const profile = await auth.isAuthenticated(request)
+  let userRoles: Role[] | undefined = undefined
+
+  if (profile?.id) {
+    userRoles = await managementClient.getUserRoles({ id: profile.id })
+  }
 
   return json({
     profile,
+    userRoles,
   })
 }
 
@@ -75,12 +85,13 @@ export default function App() {
 // TODO: Find way to use typeof loader
 type Props = {
   data?: {
-    profile: Auth0Profile | null
+    profile: Auth0Profile | null,
+    userRoles?: Role[]
   }
 }
 
 const AppComponent: React.FC<React.PropsWithChildren<Props>> = ({ data, children }) => {
-  const navLinkClassNameFn =  (isLoggedIn: boolean) => ({ isActive, isPending }: { isPending: boolean, isActive: boolean }) => {
+  const navLinkClassNameFn = (isLoggedIn: boolean) => ({ isActive, isPending }: { isPending: boolean, isActive: boolean }) => {
     let classes = "flex flex-col gap-1 p-3 px-5 items-center rounded-md border"
     if (!isActive && !isLoggedIn) {
       classes += " text-slate-400 cursor-not-allowed"
@@ -102,6 +113,7 @@ const AppComponent: React.FC<React.PropsWithChildren<Props>> = ({ data, children
   }
 
   const isLoggedIn = Boolean(data?.profile)
+  const userRole = data?.userRoles?.at(0)?.name
 
   return (
     <html lang="en" className="min-h-full">
@@ -146,11 +158,20 @@ const AppComponent: React.FC<React.PropsWithChildren<Props>> = ({ data, children
                 <Icons.PencilSquareIcon className="h-8 w-8" />
                 <div>Feeback</div>
               </NavLink>
-              <Link to="profile" style={{ marginLeft: 'auto' }} className='flex flex-row items-end gap-4'>
+              {userRole === "admin" && (
+                <NavLink className={(...args) => navLinkClassNameFn(isLoggedIn)(...args)} to="admin">
+                  <Icons.ShieldExclamationIcon className="h-8 w-8" />
+                  <div>Admin</div>
+                </NavLink>
+              )}
+              <Link to="profile" style={{ marginLeft: 'auto' }} className='flex flex-row items-end text-right gap-4'>
                 {data?.profile && (
                   <>
-                    {data.profile.displayName}
-                    <img src={data.profile.photos?.at(0)?.value} alt="Profile Picture" className="h-12 w-12 rounded-full" />
+                    <div>
+                      <div>{userRole}</div>
+                      <div>{data.profile.displayName}</div>
+                    </div>
+                    <img src={data.profile.photos?.at(0)?.value} alt="Profile Picture" className="h-16 w-16 rounded-full border border-slate-800 shadow-lg" />
                   </>
                 )}
               </Link>

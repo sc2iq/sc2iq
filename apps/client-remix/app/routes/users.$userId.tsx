@@ -22,7 +22,7 @@ export default function Users() {
   return (
     <>
       <h1><Link to="/users">Users</Link> &gt; User</h1>
-      <img src={user.picture} className="rounded-full" />
+      <img src={user.picture} alt="Profile Picture" className="rounded-full" />
       <dl className="grid grid-cols-[100px_minmax(900px,_1fr)]">
         <dt>Name:</dt><dd>{user.nickname}</dd>
         <dt>Email:</dt><dd>{user.email}</dd>
