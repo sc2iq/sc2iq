@@ -13,9 +13,10 @@ export const meta: V2_MetaFunction = ({ matches, data }) => {
 }
 
 export const loader = async ({ request }: LoaderArgs) => {
-  const profile = await auth.isAuthenticated(request, {
+  const authResult = await auth.isAuthenticated(request, {
     failureRedirect: "/"
   })
+  const profile = authResult?.profile
   let userRoles: Role[] | undefined = undefined
 
   if (profile?.id) {

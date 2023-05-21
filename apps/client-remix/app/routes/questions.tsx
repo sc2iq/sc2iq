@@ -14,7 +14,8 @@ export const meta: V2_MetaFunction = ({ matches }) => {
 }
 
 export const loader = async ({ request }: LoaderArgs) => {
-  const profile = await auth.isAuthenticated(request)
+  const authResult = await auth.isAuthenticated(request)
+  const profile = authResult?.profile
   const questions = await db.question.findMany()
 
   return json({
@@ -29,7 +30,8 @@ export const action = async ({ request }: ActionArgs) => {
   const formName = formDataEntries.formName as string
 
   if (QuestionForm.formName === formName) {
-    const profile = await auth.isAuthenticated(request)
+    const authResult = await auth.isAuthenticated(request)
+    const profile = authResult?.profile
     if (typeof profile?.id !== 'string') {
       return null
     }

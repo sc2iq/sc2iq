@@ -7,7 +7,8 @@ import { db } from "~/services/db.server"
 type LoaderError = { message: string } | null
 
 export const loader = async ({ request }: LoaderArgs) => {
-  const profile = await auth.isAuthenticated(request)
+  const authResult = await auth.isAuthenticated(request)
+  const profile = authResult?.profile
   const session = await getSession(request.headers.get("Cookie"))
   const error = session.get(auth.sessionErrorKey) as LoaderError
 
@@ -36,7 +37,8 @@ export const action = async ({ request }: ActionArgs) => {
   const formName = formDataEntries.formName as string
 
   if (SearchForm.formName === formName) {
-    const profile = await auth.isAuthenticated(request)
+    const authResult = await auth.isAuthenticated(request)
+    const profile = authResult?.profile
     if (typeof profile?.id !== 'string') {
       return null
     }

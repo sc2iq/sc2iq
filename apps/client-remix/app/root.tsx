@@ -59,7 +59,9 @@ export const ErrorBoundary: V2_ErrorBoundaryComponent = () => {
 }
 
 export const loader = async ({ request }: LoaderArgs) => {
-  const profile = await auth.isAuthenticated(request)
+  const authResult = await auth.isAuthenticated(request)
+  console.log({ authResult })
+  const profile = authResult?.profile
   let userRoles: Role[] | undefined = undefined
 
   if (profile?.id) {
@@ -85,8 +87,8 @@ export default function App() {
 // TODO: Find way to use typeof loader
 type Props = {
   data?: {
-    profile: Auth0Profile | null,
-    userRoles?: Role[]
+    profile?: Auth0Profile,
+    userRoles?: Role[],
   }
 }
 
@@ -181,9 +183,12 @@ const AppComponent: React.FC<React.PropsWithChildren<Props>> = ({ data, children
         </main>
         <footer className="bg-slate-600 border-b border-b-slate-700 text-white">
           <div className="container mx-auto py-12">
-            <h2 className="text-lg">References</h2>
+            <h2 className="text-lg">SC2IQ</h2>
             <ul className="list-disc ml-6">
-              <li><a href="https://learn.microsoft.com/en-us/azure/machine-learning/?view=azureml-api-2" target="_blank">Azure Machine Learning</a></li>
+              <li><a href="https://liquipedia.net/starcraft2/Unit_Statistics_(Legacy_of_the_Void)" target="_blank">Liquipedia Unit Statistics</a></li>
+            </ul>
+            <ul className="list-disc ml-6">
+              <li><a href="https://www.unitstatistics.com/starcraft2/" target="_blank">Unit Statistics</a></li>
             </ul>
           </div>
         </footer>
