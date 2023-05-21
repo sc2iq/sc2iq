@@ -60,7 +60,6 @@ export const ErrorBoundary: V2_ErrorBoundaryComponent = () => {
 
 export const loader = async ({ request }: LoaderArgs) => {
   const authResult = await auth.isAuthenticated(request)
-  console.log({ authResult })
   const profile = authResult?.profile
   let userRoles: Role[] | undefined = undefined
 

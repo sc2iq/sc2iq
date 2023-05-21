@@ -1,8 +1,5 @@
-import { ActionArgs, LinksFunction, LoaderArgs, V2_MetaFunction, json } from "@remix-run/node"
-import { useLoaderData } from "@remix-run/react"
-import * as QuestionAdmin from "~/components/QuestionAdmin"
-import { auth } from "~/services/auth.server"
-import { db } from "~/services/db.server"
+import { ActionArgs, LinksFunction, LoaderArgs, V2_MetaFunction } from "@remix-run/node"
+import { NavLink, Outlet } from "@remix-run/react"
 
 export const links: LinksFunction = () => [
 ]
@@ -13,49 +10,30 @@ export const meta: V2_MetaFunction = ({ matches }) => {
 }
 
 export const loader = async ({ request }: LoaderArgs) => {
-  const authResult = await auth.isAuthenticated(request, {
-    failureRedirect: "/"
-  })
-  const profile = authResult?.profile
-
-  const questions = await db.question.findMany()
-
-  return json({
-    profile,
-    questions,
-  })
-}
-
-export const action = async ({ request }: ActionArgs) => {
-  const rawForm = await request.formData()
-  const formDataEntries = Object.fromEntries(rawForm)
-  const formName = formDataEntries.formName as string
-
-  if (QuestionAdmin.formName === formName) {
-    const authResult = await auth.isAuthenticated(request, {
-      failureRedirect: "/"
-    })
-    const profile = authResult?.profile
-
-    if (typeof profile?.id !== 'string') {
-      return null
-    }
-
-    console.log({ formDataEntries })
-  }
-
   return null
 }
 
+export const action = async ({ request }: ActionArgs) => {
+
+}
+
 export default function AdminRoute() {
-  const loaderData = useLoaderData<typeof loader>()
+  const navLinkClassNameFn = ({ isActive, isPending }: { isPending: boolean, isActive: boolean }) => {
+    let classes = "p-4 py-2 text-xl bg-slate-300 rounded-md"
+    if (isActive) {
+      classes += " bg-slate-500 border-slate-500 text-slate-50"
+    }
+
+    return classes
+  }
 
   return (
     <>
-      <h1 className="text-2xl">Questions</h1>
-      {loaderData.questions.map(question => {
-        return <QuestionAdmin.Component key={question.id} question={question as any} />
-      })}
+      <div className="rounded-md flex gap-2 items-center py-2">
+        <NavLink className={navLinkClassNameFn} to="/admin" end>Questions</NavLink>
+        <NavLink className={navLinkClassNameFn} to="/admin/polls">Polls</NavLink>
+      </div>
+      <Outlet />
     </>
   )
 }
