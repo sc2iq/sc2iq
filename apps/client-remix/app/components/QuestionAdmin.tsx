@@ -1,12 +1,26 @@
 import * as Icons from "@heroicons/react/24/solid"
 import { Question } from "@prisma/client"
 import { Form } from "@remix-run/react"
+import z from "zod"
+import { FormDataEntries } from "~/types"
 
 type Props = {
   question: Question
 }
 
 export const formName = "question:approve"
+
+export const schema = z.object({
+  questionId: z.string(),
+})
+
+export function getFormData(formDataEntries: FormDataEntries): { questionId: string } {
+  const questionFormData = schema.parse(formDataEntries)
+
+  return {
+    questionId: questionFormData.questionId,
+  }
+}
 
 export function Component(props: Props) {
   return (
@@ -21,6 +35,7 @@ export function Component(props: Props) {
 
       <Form method="post" className="">
         <input type="hidden" name="formName" value={formName} />
+        <input type="hidden" name="questionId" value={props.question.id} />
         <button className="border px-4 py-2 flex gap-2 items-center bg-slate-600 text-slate-100 rounded-lg" type="submit"><Icons.CheckIcon className="h-5 w-5" /> Approve</button>
       </Form>
     </div>

@@ -1,6 +1,6 @@
 import { ActionArgs, LinksFunction, LoaderArgs, V2_MetaFunction, json } from "@remix-run/node"
 import { useLoaderData } from "@remix-run/react"
-import * as QuestionAdmin from "~/components/QuestionAdmin"
+import * as PollAdmin from "~/components/PollAdmin"
 import { auth } from "~/services/auth.server"
 import { db } from "~/services/db.server"
 
@@ -31,7 +31,7 @@ export const action = async ({ request }: ActionArgs) => {
   const formDataEntries = Object.fromEntries(rawForm)
   const formName = formDataEntries.formName as string
 
-  if (QuestionAdmin.formName === formName) {
+  if (PollAdmin.formName === formName) {
     const authResult = await auth.isAuthenticated(request, {
       failureRedirect: "/"
     })
@@ -54,7 +54,7 @@ export default function AdminRoute() {
     <>
       <h1 className="text-3xl py-2">Poll Approval</h1>
       {loaderData.polls.map(poll => {
-        return <QuestionAdmin.Component key={poll.id} question={poll as any} />
+        return <PollAdmin.Component key={poll.id} poll={poll as any} />
       })}
     </>
   )

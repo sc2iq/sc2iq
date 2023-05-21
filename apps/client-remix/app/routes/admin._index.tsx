@@ -18,7 +18,11 @@ export const loader = async ({ request }: LoaderArgs) => {
   })
   const profile = authResult?.profile
 
-  const questions = await db.question.findMany()
+  const questions = await db.question.findMany({
+    where: {
+      state: "pending"
+    }
+  })
 
   return json({
     profile,
@@ -41,7 +45,20 @@ export const action = async ({ request }: ActionArgs) => {
       return null
     }
 
-    console.log({ formDataEntries })
+    const { questionId } = QuestionAdmin.getFormData(formDataEntries)
+
+    const question = await db.question.update({
+      where: {
+        id: questionId
+      },
+      data: {
+        state: "approved"
+      }
+    })
+
+    console.log({ question })
+
+    return { question }
   }
 
   return null
