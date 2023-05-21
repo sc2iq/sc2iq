@@ -69,8 +69,12 @@ export default function AdminRoute() {
 
   return (
     <>
-      <h1 className="text-3xl py-2">Question Approval</h1>
-      {loaderData.questions.map(question => {
+      <h1 className="text-3xl py-2">({loaderData.questions.length}) Questions Pending Approval</h1>
+      {loaderData.questions.length === 0
+        ? <>
+          No Questions
+        </>
+        : loaderData.questions.map(question => {
         return <QuestionAdmin.Component key={question.id} question={question as any} />
       })}
     </>

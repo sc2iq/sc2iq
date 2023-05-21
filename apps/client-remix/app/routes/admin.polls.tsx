@@ -69,8 +69,12 @@ export default function AdminRoute() {
 
   return (
     <>
-      <h1 className="text-3xl py-2">Poll Approval</h1>
-      {loaderData.polls.map(poll => {
+      <h1 className="text-3xl py-2">({loaderData.polls.length}) Polls Pending Approval</h1>
+      {loaderData.polls.length === 0
+        ? <>
+          No Polls
+        </>
+        : loaderData.polls.map(poll => {
         return <PollAdmin.Component key={poll.id} poll={poll as any} />
       })}
     </>
