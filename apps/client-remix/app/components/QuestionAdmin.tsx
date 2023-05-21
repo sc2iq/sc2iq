@@ -1,6 +1,6 @@
 import * as Icons from "@heroicons/react/24/solid"
 import { Question } from "@prisma/client"
-import { Form } from "@remix-run/react"
+import { Form, Link } from "@remix-run/react"
 import z from "zod"
 import { FormDataEntries } from "~/types"
 
@@ -32,6 +32,10 @@ export function Component(props: Props) {
       <div>Answer 4: {props.question.answer4}</div>
       <div>Difficulty: {props.question.difficulty}</div>
       <div>Tags: []</div>
+      <div>Created By: <Link className="text-slate-600 hover:underline" to={`/users/${props.question.createdBy}`}>{props.question.createdBy}</Link></div>
+      <div>Created At: {new Date(props.question.createdAt as any).toLocaleString('en-us')}</div>
+      <div>Updated At: {new Date(props.question.updatedAt as any).toLocaleString('en-us')}</div>
+
 
       <Form method="post" className="">
         <input type="hidden" name="formName" value={formName} />

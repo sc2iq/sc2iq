@@ -16,7 +16,11 @@ export const meta: V2_MetaFunction = ({ matches }) => {
 export const loader = async ({ request }: LoaderArgs) => {
   const authResult = await auth.isAuthenticated(request)
   const profile = authResult?.profile
-  const polls = await db.poll.findMany()
+  const polls = await db.poll.findMany({
+    where: {
+      state: "approved"
+    }
+  })
 
   return json({
     profile,

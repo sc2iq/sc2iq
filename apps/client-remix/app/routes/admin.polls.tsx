@@ -18,7 +18,11 @@ export const loader = async ({ request }: LoaderArgs) => {
   })
   const profile = authResult?.profile
 
-  const polls = await db.poll.findMany()
+  const polls = await db.poll.findMany({
+    where: {
+      state: "pending"
+    }
+  })
 
   return json({
     profile,
@@ -41,7 +45,20 @@ export const action = async ({ request }: ActionArgs) => {
       return null
     }
 
-    console.log({ formDataEntries })
+    const { pollId } = PollAdmin.getFormData(formDataEntries)
+
+    const poll = await db.poll.update({
+      where: {
+        id: pollId
+      },
+      data: {
+        state: "approved"
+      }
+    })
+
+    console.log({ poll })
+
+    return { poll }
   }
 
   return null
