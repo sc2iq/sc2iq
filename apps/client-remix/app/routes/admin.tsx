@@ -1,5 +1,7 @@
-import { ActionArgs, LinksFunction, LoaderArgs, V2_MetaFunction } from "@remix-run/node"
+import { ActionArgs, LinksFunction, LoaderArgs, V2_MetaFunction, redirect } from "@remix-run/node"
 import { NavLink, Outlet } from "@remix-run/react"
+import { auth } from "~/services/auth.server"
+import { managementClient } from "~/services/auth0management.server"
 
 export const links: LinksFunction = () => [
 ]
@@ -10,7 +12,19 @@ export const meta: V2_MetaFunction = ({ matches }) => {
 }
 
 export const loader = async ({ request }: LoaderArgs) => {
-  return null
+  const authResult = await auth.isAuthenticated(request, {
+    failureRedirect: "/"
+  })
+
+  if (typeof authResult?.profile?.id === 'string') {
+    const userRoles = await managementClient.getUserRoles({ id: authResult?.profile?.id })
+
+    if (userRoles.some(r => r.name === 'approver')) {
+      return null
+    }
+  }
+
+  return redirect('/')
 }
 
 export const action = async ({ request }: ActionArgs) => {
