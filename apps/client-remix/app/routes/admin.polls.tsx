@@ -2,6 +2,7 @@ import { ActionArgs, LinksFunction, LoaderArgs, V2_MetaFunction, json } from "@r
 import { useLoaderData } from "@remix-run/react"
 import * as PollAdmin from "~/components/PollAdmin"
 import { auth } from "~/services/auth.server"
+import { managementClient } from "~/services/auth0management.server"
 import { db } from "~/services/db.server"
 
 export const links: LinksFunction = () => [
@@ -40,12 +41,15 @@ export const action = async ({ request }: ActionArgs) => {
       failureRedirect: "/"
     })
     const profile = authResult?.profile
-
     if (typeof profile?.id !== 'string') {
       return null
     }
 
     const { pollId } = PollAdmin.getFormData(formDataEntries)
+    const userRoles = await managementClient.getUserRoles({ id: profile.id })
+    if (!userRoles.some(r => r.name === 'approver')) {
+      throw new Error(`You attempted to aprove poll: ${pollId} but you (user: ${profile.id}) is not an approver`)
+    }
 
     const poll = await db.poll.update({
       where: {

@@ -2,6 +2,7 @@ import { ActionArgs, LinksFunction, LoaderArgs, V2_MetaFunction, json } from "@r
 import { useLoaderData } from "@remix-run/react"
 import * as QuestionAdmin from "~/components/QuestionAdmin"
 import { auth } from "~/services/auth.server"
+import { managementClient } from "~/services/auth0management.server"
 import { db } from "~/services/db.server"
 
 export const links: LinksFunction = () => [
@@ -40,12 +41,15 @@ export const action = async ({ request }: ActionArgs) => {
       failureRedirect: "/"
     })
     const profile = authResult?.profile
-
     if (typeof profile?.id !== 'string') {
       return null
     }
 
     const { questionId } = QuestionAdmin.getFormData(formDataEntries)
+    const userRoles = await managementClient.getUserRoles({ id: profile.id })
+    if (!userRoles.some(r => r.name === 'approver')) {
+      throw new Error(`You attempted to aprove question: ${questionId} but you (user: ${profile.id}) is not an approver`)
+    }
 
     const question = await db.question.update({
       where: {
@@ -75,8 +79,8 @@ export default function AdminRoute() {
           No Questions
         </>
         : loaderData.questions.map(question => {
-        return <QuestionAdmin.Component key={question.id} question={question as any} />
-      })}
+          return <QuestionAdmin.Component key={question.id} question={question as any} />
+        })}
     </>
   )
 }
