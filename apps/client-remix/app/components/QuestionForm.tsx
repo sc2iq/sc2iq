@@ -22,6 +22,17 @@ export function getFormData(formDataEntries: FormDataEntries): { question: Parti
   const tags = questionFormData.tags
   delete (questionFormData as any).tags
 
+  const answers = [
+    questionFormData.answer1,
+    questionFormData.answer2,
+    questionFormData.answer3,
+    questionFormData.answer4,
+  ]
+
+  if (new Set(answers).size !== 4) {
+    throw new Error(`You attempted to submit a question but there were duplicate answers. All answers must be unique! Answers: [${[...answers].join(', ')}]`)
+  }
+
   return {
     question: questionFormData,
     tags: tags

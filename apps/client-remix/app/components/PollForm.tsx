@@ -16,7 +16,20 @@ export const schema = z.object({
 })
 
 export function getFormData(formDataEntries: FormDataEntries): Omit<Poll, 'state' | 'createdAt' | 'createdBy' | 'updatedAt' | 'id'> & Partial<Poll> {
-  return schema.parse(formDataEntries)
+  const pollFormData = schema.parse(formDataEntries)
+
+  const answers = [
+    pollFormData.answer1,
+    pollFormData.answer2,
+    pollFormData.answer3,
+    pollFormData.answer4,
+  ]
+
+  if (new Set(answers).size !== 4) {
+    throw new Error(`You attempted to submit a poll but there were duplicate answers. All answers must be unique! Answers: [${[...answers].join(', ')}]`)
+  }
+
+  return pollFormData
 }
 
 export const Component = () => {
@@ -37,19 +50,19 @@ export const Component = () => {
       <h1 className="flex gap-2 items-center text-lg font-medium"><Icons.PencilSquareIcon className="h-8 w-8" /> Create Poll</h1>
       <input className="p-1 px-3 rounded-md" type="text" autoComplete="off" placeholder='Should we introduce asymmetrical maps?' id="question" name="question" required />
       <div className="flex gap-4 rounded-lg">
-        <label className="flex gap-2 items-center w-40" htmlFor='answer1'><Icons.QuestionMarkCircleIcon className="h-6 w-6 text-slate-500" />Answer 1: </label>
+        <label className="flex gap-2 items-center w-40" htmlFor='answer1'><Icons.QuestionMarkCircleIcon className="h-6 w-6 text-slate-500" />Option 1: </label>
         <input className="flex-grow p-1 px-3 rounded-md" type="text" autoComplete="off" id="answer1" name="answer1" required placeholder="Yes" />
       </div>
       <div className="flex gap-4 rounded-lg">
-        <label className="flex gap-2 items-center w-40" htmlFor='answer2'><Icons.QuestionMarkCircleIcon className="h-6 w-6 text-slate-500" /> Answer 2: </label>
+        <label className="flex gap-2 items-center w-40" htmlFor='answer2'><Icons.QuestionMarkCircleIcon className="h-6 w-6 text-slate-500" /> Option 2: </label>
         <input className="flex-grow p-1 px-3 rounded-md" type="text" autoComplete="off" id="answer2" name="answer2" required placeholder="Yes" />
       </div>
       <div className="flex gap-4 rounded-lg">
-        <label className="flex gap-2 items-center w-40" htmlFor='answer3'><Icons.QuestionMarkCircleIcon className="h-6 w-6 text-slate-500" /> Answer 3: </label>
+        <label className="flex gap-2 items-center w-40" htmlFor='answer3'><Icons.QuestionMarkCircleIcon className="h-6 w-6 text-slate-500" /> Option 3: </label>
         <input className="flex-grow p-1 px-3 rounded-md" type="text" autoComplete="off" id="answer3" name="answer3" required placeholder="No" />
       </div>
       <div className="flex gap-4 rounded-lg">
-        <label className="flex gap-2 items-center w-40" htmlFor='answer4'><Icons.QuestionMarkCircleIcon className="h-6 w-6 text-slate-500" /> Answer 4: </label>
+        <label className="flex gap-2 items-center w-40" htmlFor='answer4'><Icons.QuestionMarkCircleIcon className="h-6 w-6 text-slate-500" /> Option 4: </label>
         <input className="flex-grow p-1 px-3 rounded-md" type="text" autoComplete="off" id="answer4" name="answer4" required placeholder="No" />
       </div>
       <div className="flex gap-4 rounded-lg">
