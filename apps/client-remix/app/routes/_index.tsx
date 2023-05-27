@@ -1,5 +1,6 @@
 import { ActionArgs, LoaderArgs, V2_MetaFunction, json, redirect } from "@remix-run/node"
-import { Form, useLoaderData } from "@remix-run/react"
+import { Form, useActionData, useLoaderData } from "@remix-run/react"
+import Question from "~/components/Question"
 import * as SearchForm from "~/components/SearchForm"
 import { auth, getSession } from "~/services/auth.server"
 import { db } from "~/services/db.server"
@@ -45,6 +46,13 @@ export const action = async ({ request }: ActionArgs) => {
 
     const searchInput = SearchForm.getFormData(formDataEntries)
 
+    if (searchInput.difficultyMax < searchInput.difficultyMin) {
+      return {
+        name: formName,
+        error: `You attempted to search for questions with max difficulty less min difficulty which would return 0 results. Please increase max or lower min difficult and try again.`
+      }
+    }
+
     // TODO: Remove as any
     const queryString = new URLSearchParams(rawForm as URLSearchParams).toString()
     console.log({ queryString, searchInput })
@@ -57,11 +65,12 @@ export const action = async ({ request }: ActionArgs) => {
 
 export default function Index() {
   const loaderData = useLoaderData<typeof loader>()
+  const actionData = useActionData<typeof action>()
   const hasProfile = loaderData.profile !== null && typeof loaderData.profile === 'object'
 
   return (
     <div>
-      <h1>Welcome to SC2IQ</h1>
+      <h1 className="text-center font-semibold text-3xl py-2">Welcome to SC2IQ</h1>
       {!hasProfile
         && (<>
           {loaderData.error ? <div>{loaderData.error.message}</div> : null}
@@ -73,12 +82,16 @@ export default function Index() {
         </>)}
 
       <SearchForm.Component />
-      <h1>Questions:</h1>
-      {loaderData.questions.map(question => {
-        return <div key={question.id}>
-          <h4>{question.question}</h4>
-        </div>
-      })}
+      <h1 className="font-semibold text-2xl py-2">Questions:</h1>
+      <div className="flex flex-col gap-8">
+        {loaderData.questions.map(question => {
+          return <Question
+            key={question.id}
+            question={question}
+            error={(actionData as any)?.error}
+          />
+        })}
+      </div>
     </div>
   )
 }

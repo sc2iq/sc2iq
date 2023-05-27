@@ -52,7 +52,7 @@ export default function Profile() {
     <>
       <h1>Users</h1>
       <div className="grid grid-cols-[100px_100px_100px_minmax(900px,_1fr)_200px] gap-2">
-        <div className="">#</div>
+        <div>#</div>
         <div>Image</div>
         <div>Name</div>
         <div>Email</div>

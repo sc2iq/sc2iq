@@ -35,8 +35,7 @@ export default function ProfileRoute() {
 
   return (
     <>
-      <h1>Profile</h1>
-      <img src={profile.photos?.at(0)?.value} alt="Profile Picture" className="rounded-full" />
+      <img src={profile.photos?.at(0)?.value} alt="Profile Picture" className="border-4 border-slate-600 rounded-full h-60 w-60 my-5" />
       <Form method="post" action="/logout">
         <button type="submit" className="px-5 py-3 border border-slate-700 bg-slate-400 rounded-md text-lg my-2">Sign Out</button>
       </Form>
@@ -47,7 +46,10 @@ export default function ProfileRoute() {
         <dt>Email</dt>
         <dd>{profile?.emails?.at(0)?.value}</dd>
         <dt>Roles:</dt>
-        <dd>{userRoles?.map(userRole => <>Role: {userRole.name} Description: {userRole.description}</>)}</dd>
+        <dd>{userRoles?.map(userRole => <div>
+          <div>Role: {userRole.name}</div>
+          <div>Description: {userRole.description}</div>
+        </div>)}</dd>
       </dl>
     </>
   )

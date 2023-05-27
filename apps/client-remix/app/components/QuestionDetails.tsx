@@ -1,20 +1,15 @@
 import * as Icons from "@heroicons/react/24/solid"
 import { Question } from "@prisma/client"
-import { Link } from "@remix-run/react"
 
 type Props = {
   // TODO: Find way to use SerializeObject<UndefinedToOptional<Question>>
   question: Omit<Question, 'createdAt' | 'updatedAt'> & { createdAt: string, updatedAt: string }
-  error?: string
 }
 
 export default function Component(props: Props) {
   return (
-    <div className="border p-5 rounded-xl flex flex-col gap-2 bg-slate-200 border-slate-300">
-      <h2 className="flex gap-2 items-center text-lg">
-        <span className="font-semibold">{props.question.question}</span>
-        <Link to={`/questions/${props.question.id}`} className="flex gap-2 items-center ml-auto p-2 bg-slate-300 rounded-md text-slate-600"><Icons.QuestionMarkCircleIcon className="h-6 w-6 text-slate-400 inline-block" /> View Details</Link>
-      </h2>
+    <div className="flex flex-col gap-2">
+      <h2 className="flex gap-2 items-center text-lg font-semibold">{props.question.question}</h2>
       <div className="flex gap-4">
         <label className="flex gap-2 items-center w-40" htmlFor='answer1'><Icons.CheckIcon className="h-6 w-6 text-green-600" /> Correct Answer: </label>
         <div className="flex-grow rounded-md p-2 px-3 bg-white">{props.question.answer1}</div>
@@ -37,7 +32,6 @@ export default function Component(props: Props) {
       <div className="flex gap-2"><Icons.TagIcon className="h-6 w-6" /> Tags:</div>
       {/* TODO ADD TAGS */}
       <div>None</div>
-
     </div>
   )
 }

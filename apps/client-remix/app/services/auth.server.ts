@@ -4,9 +4,6 @@ import type { Auth0Profile } from "remix-auth-auth0"
 import { Auth0Strategy } from "remix-auth-auth0"
 
 import {
-  AUTH0_API_CLIENT_ID,
-  AUTH0_API_CLIENT_SECRET,
-  AUTH0_API_DOMAIN,
   AUTH0_CALLBACK_URL,
   AUTH0_CLIENT_ID,
   AUTH0_CLIENT_SECRET,
@@ -41,21 +38,5 @@ const auth0Strategy = new Auth0Strategy<{ profile: Auth0Profile, accessToken: st
 )
 
 auth.use(auth0Strategy)
-
-const auth0ApiStrategy = new Auth0Strategy<{ profile: Auth0Profile, accessToken: string }>(
-  {
-    callbackURL: AUTH0_CALLBACK_URL,
-    clientID: AUTH0_API_CLIENT_ID,
-    clientSecret: AUTH0_API_CLIENT_SECRET,
-    domain: AUTH0_API_DOMAIN
-  },
-  async ({ profile, accessToken, extraParams, context }) => {
-    console.log(`auth0ApiStrategy`, { profile, accessToken, extraParams, context })
-    console.log(accessToken)
-    return { profile, accessToken }
-  }
-)
-
-// auth.use(auth0ApiStrategy)
 
 export const { getSession, commitSession, destroySession } = sessionStorage

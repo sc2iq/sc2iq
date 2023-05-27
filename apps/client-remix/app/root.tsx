@@ -163,7 +163,7 @@ const AppComponent: React.FC<React.PropsWithChildren<Props>> = ({ data, children
                   <div>Admin</div>
                 </NavLink>
               )}
-              <Link to="profile" style={{ marginLeft: 'auto' }} className='flex flex-row items-end text-right gap-4'>
+              <Link to="profile" style={{ marginLeft: 'auto' }} className='flex flex-row items-end text-right gap-4 p-3 px-5 rounded-md hover:bg-slate-500/40'>
                 {data?.profile && (
                   <>
                     <div>

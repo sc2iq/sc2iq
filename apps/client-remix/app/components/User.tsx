@@ -1,3 +1,4 @@
+import * as Icons from "@heroicons/react/24/solid"
 import { UserMetadata } from "@prisma/client"
 import { Link } from "@remix-run/react"
 import { User } from 'auth0'
@@ -13,7 +14,7 @@ export function User(props: Props) {
       <div>{props.user.nickname}</div>
       <div>{props.user.email}</div>
       <div>
-        <Link to={`/users/${props.user.user_id}`} className="bg-slate-300 rounded-lg px-2 py-1">View</Link>
+        <Link to={`/users/${props.user.user_id}`} className="flex gap-2 rounded-lg px-2 py-1 bg-slate-300 hover:bg-slate-400"><Icons.IdentificationIcon className="h-6 w-6 text-slate-500 inline-block" /> View</Link>
       </div>
     </>
   )

@@ -62,15 +62,15 @@ export const Component = () => {
       </div>
       <div className="bg-slate-400 h-1"></div>
       <div className="flex gap-4 rounded-lg">
-        <label className="flex gap-2 items-center w-40" htmlFor='answer2'><Icons.XMarkIcon className="h-6 w-6 text-red-700" /> Answer 2: </label>
+        <label className="flex gap-2 items-center w-40" htmlFor='answer2'><Icons.XMarkIcon className="h-6 w-6 text-red-700" /> Alternate Answer: </label>
         <input className="flex-grow p-1 px-2 rounded-md" type="text" autoComplete="off" id="answer2" name="answer2" placeholder="55" required />
       </div>
       <div className="flex gap-4 rounded-lg">
-        <label className="flex gap-2 items-center w-40" htmlFor='answer3'><Icons.XMarkIcon className="h-6 w-6 text-red-700" /> Answer 3: </label>
+        <label className="flex gap-2 items-center w-40" htmlFor='answer3'><Icons.XMarkIcon className="h-6 w-6 text-red-700" /> Alternate Answer: </label>
         <input className="flex-grow p-1 px-2 rounded-md" type="text" autoComplete="off" id="answer3" name="answer3" placeholder="35" required />
       </div>
       <div className="flex gap-4 rounded-lg">
-        <label className="flex gap-2 items-center w-40" htmlFor='answer4'><Icons.XMarkIcon className="h-6 w-6 text-red-700" /> Answer 4: </label>
+        <label className="flex gap-2 items-center w-40" htmlFor='answer4'><Icons.XMarkIcon className="h-6 w-6 text-red-700" /> Alternate Answer: </label>
         <input className="flex-grow p-1 px-2 rounded-md" type="text" autoComplete="off" id="answer4" name="answer4" placeholder="65" required />
       </div>
       <div className="flex gap-4 rounded-lg">

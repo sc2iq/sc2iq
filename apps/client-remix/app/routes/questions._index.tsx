@@ -40,7 +40,7 @@ export const action = async ({ request }: ActionArgs) => {
       return null
     }
 
-    const { question, tags} = QuestionForm.getFormData(formDataEntries)
+    const { question, tags } = QuestionForm.getFormData(formDataEntries)
     question.createdBy = profile.id
 
     console.log({ question, tags })
@@ -62,9 +62,14 @@ export default function QuestionsRoute() {
     <>
       <QuestionForm.Component />
       <h1 className="text-2xl">Questions</h1>
-      {loaderData.questions.map(question => {
-        return <Question key={question.id} question={question} />
-      })}
+      <div className="flex flex-col gap-8">
+        {loaderData.questions.map(question => {
+          return <Question
+            key={question.id}
+            question={question}
+          />
+        })}
+      </div>
     </>
   )
 }
