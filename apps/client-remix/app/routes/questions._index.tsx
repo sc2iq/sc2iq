@@ -89,7 +89,9 @@ export default function QuestionsRoute() {
       <SearchForm.Component />
       <h1 className="text-2xl">Questions</h1>
       <div className="flex flex-col gap-8">
-        {loaderData.questions.map(question => {
+        {loaderData.questions.length === 0
+          ? <>No Questions</>
+          : loaderData.questions.map(question => {
           return <Question
             key={question.id}
             question={question}

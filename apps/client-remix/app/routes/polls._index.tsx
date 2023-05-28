@@ -64,7 +64,9 @@ export default function PollsRoute() {
       <SearchForm.Component />
       <h1 className="text-2xl">Polls</h1>
       <div className="flex flex-col gap-8">
-        {loaderData.polls.map(poll => {
+        {loaderData.polls.length === 0
+          ? <>No Polls</>
+          : loaderData.polls.map(poll => {
           return <Poll
             key={poll.id}
             poll={poll}
