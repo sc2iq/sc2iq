@@ -11,9 +11,9 @@ type Props = {
 export default function Component(props: Props) {
   return (
     <div className="border p-5 rounded-xl flex flex-col gap-2 bg-slate-200 border-slate-300">
-      <h2 className="flex gap-2 items-center text-lg">
+      <h2 className="flex gap-2 items-center text-2xl py-2">
         <span className="font-semibold">{props.question.question}</span>
-        <Link to={`/questions/${props.question.id}`} className="flex gap-2 items-center ml-auto p-2 bg-slate-300 rounded-md text-slate-600"><Icons.QuestionMarkCircleIcon className="h-6 w-6 text-slate-400 inline-block" /> View Details</Link>
+        <Link to={`/questions/${props.question.id}`} className="flex gap-2 items-center ml-auto p-1 px-2 bg-slate-300 rounded-md text-lg text-slate-600"><Icons.QuestionMarkCircleIcon className="h-6 w-6 text-slate-400 inline-block" /> View Details</Link>
       </h2>
       <div className="flex gap-4">
         <div className="flex gap-2 items-center w-40"><Icons.CheckIcon className="h-6 w-6 text-green-600" /> Correct Answer: </div>
@@ -37,7 +37,6 @@ export default function Component(props: Props) {
       <div className="flex gap-2"><Icons.TagIcon className="h-6 w-6" /> Tags:</div>
       {/* TODO ADD TAGS */}
       <div>None</div>
-
     </div>
   )
 }

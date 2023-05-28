@@ -2,6 +2,7 @@ import { ActionArgs, LinksFunction, LoaderArgs, V2_MetaFunction, json, redirect 
 import { useLoaderData } from "@remix-run/react"
 import Poll from "~/components/Poll"
 import * as PollForm from "~/components/PollForm"
+import * as SearchForm from "~/components/SearchForm"
 import { auth } from "~/services/auth.server"
 import { db } from "~/services/db.server"
 
@@ -60,10 +61,16 @@ export default function PollsRoute() {
   return (
     <>
       <PollForm.Component />
+      <SearchForm.Component />
       <h1 className="text-2xl">Polls</h1>
-      {loaderData.polls.map(poll => {
-        return <Poll key={poll.id} poll={poll} />
-      })}
+      <div className="flex flex-col gap-8">
+        {loaderData.polls.map(poll => {
+          return <Poll
+            key={poll.id}
+            poll={poll}
+          />
+        })}
+      </div>
     </>
   )
 }
