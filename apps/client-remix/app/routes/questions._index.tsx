@@ -2,6 +2,7 @@ import { ActionArgs, LinksFunction, LoaderArgs, V2_MetaFunction, json, redirect 
 import { useLoaderData } from "@remix-run/react"
 import Question from "~/components/Question"
 import * as QuestionForm from "~/components/QuestionForm"
+import * as SearchForm from "~/components/SearchForm"
 import { auth } from "~/services/auth.server"
 import { db } from "~/services/db.server"
 
@@ -52,8 +53,32 @@ export const action = async ({ request }: ActionArgs) => {
     return redirect(`?questionId=${question.id}`)
   }
 
+  if (SearchForm.formName === formName) {
+    const authResult = await auth.isAuthenticated(request)
+    const profile = authResult?.profile
+    if (typeof profile?.id !== 'string') {
+      return null
+    }
+
+    const searchInput = SearchForm.getFormData(formDataEntries)
+
+    if (searchInput.difficultyMax < searchInput.difficultyMin) {
+      return {
+        name: formName,
+        error: `You attempted to search for questions with max difficulty less min difficulty which would return 0 results. Please increase max or lower min difficult and try again.`
+      }
+    }
+
+    // TODO: Remove as any
+    const queryString = new URLSearchParams(rawForm as URLSearchParams).toString()
+    console.log({ queryString, searchInput })
+
+    return redirect(`?search=${queryString}`)
+  }
+
   return null
 }
+
 
 export default function QuestionsRoute() {
   const loaderData = useLoaderData<typeof loader>()
@@ -61,6 +86,7 @@ export default function QuestionsRoute() {
   return (
     <>
       <QuestionForm.Component />
+      <SearchForm.Component />
       <h1 className="text-2xl">Questions</h1>
       <div className="flex flex-col gap-8">
         {loaderData.questions.map(question => {

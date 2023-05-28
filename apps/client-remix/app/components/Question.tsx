@@ -16,20 +16,20 @@ export default function Component(props: Props) {
         <Link to={`/questions/${props.question.id}`} className="flex gap-2 items-center ml-auto p-2 bg-slate-300 rounded-md text-slate-600"><Icons.QuestionMarkCircleIcon className="h-6 w-6 text-slate-400 inline-block" /> View Details</Link>
       </h2>
       <div className="flex gap-4">
-        <label className="flex gap-2 items-center w-40" htmlFor='answer1'><Icons.CheckIcon className="h-6 w-6 text-green-600" /> Correct Answer: </label>
+        <div className="flex gap-2 items-center w-40"><Icons.CheckIcon className="h-6 w-6 text-green-600" /> Correct Answer: </div>
         <div className="flex-grow rounded-md p-2 px-3 bg-white">{props.question.answer1}</div>
       </div>
-      <div className="bg-slate-400 h-1"></div>
+      <div className="bg-slate-400 h-px"></div>
       <div className="flex gap-4">
-        <label className="flex gap-2 items-center w-40" htmlFor='answer2'><Icons.XMarkIcon className="h-6 w-6 text-red-700" /> Alternate Answer: </label>
+        <div className="flex gap-2 items-center w-40"><Icons.XMarkIcon className="h-6 w-6 text-red-700" /> Alternate Answer: </div>
         <div className="flex-grow p-2 px-3 rounded-md bg-white">{props.question.answer2}</div>
       </div>
       <div className="flex gap-4">
-        <label className="flex gap-2 items-center w-40" htmlFor='answer2'><Icons.XMarkIcon className="h-6 w-6 text-red-700" /> Alternate Answer: </label>
+        <div className="flex gap-2 items-center w-40"><Icons.XMarkIcon className="h-6 w-6 text-red-700" /> Alternate Answer: </div>
         <div className="flex-grow p-2 px-3 rounded-md bg-white">{props.question.answer3}</div>
       </div>
       <div className="flex gap-4">
-        <label className="flex gap-2 items-center w-40" htmlFor='answer2'><Icons.XMarkIcon className="h-6 w-6 text-red-700" /> Alternate Answer: </label>
+        <div className="flex gap-2 items-center w-40"><Icons.XMarkIcon className="h-6 w-6 text-red-700" /> Alternate Answer: </div>
         <div className="flex-grow p-2 px-3 rounded-md bg-white">{props.question.answer4}</div>
       </div>
       <label htmlFor="questionDifficulty" className="flex gap-2"><Icons.ScaleIcon className="h-6 w-6" /> Difficulty: </label>

@@ -1,14 +1,9 @@
 import { DataFunctionArgs, V2_MetaFunction, json } from "@remix-run/node"
 import { Link, useLoaderData } from "@remix-run/react"
-import { auth } from "~/services/auth.server"
 import { managementClient } from "~/services/auth0management.server"
 
 export const loader = async ({ request, params }: DataFunctionArgs) => {
   const { userId } = params
-  await auth.isAuthenticated(request, {
-    failureRedirect: "/"
-  })
-
   const user = await managementClient.getUser({ id: userId! })
 
   return json({
@@ -21,7 +16,7 @@ export const meta: V2_MetaFunction = ({ matches, data }) => {
   return [{ title: `${rootTitle} - Users - ${data.user?.nickname}` }]
 }
 
-export default function Users() {
+export default function UsersUserRoute() {
   const { user } = useLoaderData<typeof loader>()
 
   return (

@@ -68,7 +68,7 @@ export const action = async ({ request }: ActionArgs) => {
   return null
 }
 
-export default function AdminRoute() {
+export default function AdminPollsRoute() {
   const loaderData = useLoaderData<typeof loader>()
 
   return (

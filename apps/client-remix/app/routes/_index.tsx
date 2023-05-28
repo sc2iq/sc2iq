@@ -1,7 +1,5 @@
-import { ActionArgs, LoaderArgs, V2_MetaFunction, json, redirect } from "@remix-run/node"
-import { Form, useActionData, useLoaderData } from "@remix-run/react"
-import Question from "~/components/Question"
-import * as SearchForm from "~/components/SearchForm"
+import { ActionArgs, LoaderArgs, V2_MetaFunction, json } from "@remix-run/node"
+import { Form, Link, useActionData, useLoaderData } from "@remix-run/react"
 import { auth, getSession } from "~/services/auth.server"
 import { db } from "~/services/db.server"
 
@@ -37,61 +35,43 @@ export const action = async ({ request }: ActionArgs) => {
   const formDataEntries = Object.fromEntries(rawForm)
   const formName = formDataEntries.formName as string
 
-  if (SearchForm.formName === formName) {
-    const authResult = await auth.isAuthenticated(request)
-    const profile = authResult?.profile
-    if (typeof profile?.id !== 'string') {
-      return null
-    }
-
-    const searchInput = SearchForm.getFormData(formDataEntries)
-
-    if (searchInput.difficultyMax < searchInput.difficultyMin) {
-      return {
-        name: formName,
-        error: `You attempted to search for questions with max difficulty less min difficulty which would return 0 results. Please increase max or lower min difficult and try again.`
-      }
-    }
-
-    // TODO: Remove as any
-    const queryString = new URLSearchParams(rawForm as URLSearchParams).toString()
-    console.log({ queryString, searchInput })
-
-    return redirect(`?search=${queryString}`)
-  }
-
   return null
 }
 
-export default function Index() {
+export default function IndexRoute() {
   const loaderData = useLoaderData<typeof loader>()
   const actionData = useActionData<typeof action>()
   const hasProfile = loaderData.profile !== null && typeof loaderData.profile === 'object'
 
   return (
-    <div>
-      <h1 className="text-center font-semibold text-3xl py-2">Welcome to SC2IQ</h1>
+    <>
+      <h1 className="text-center font-semibold text-3xl py-2">Welcome to SC2IQ!</h1>
       {!hasProfile
         && (<>
           {loaderData.error ? <div>{loaderData.error.message}</div> : null}
-          <div className="center">
+          <div className="flex justify-center">
             <Form method="post" action="/auth">
-              <button type="submit" className="px-5 py-3 border border-slate-700 bg-slate-400 rounded-md text-lg my-2">Log In</button>
+              <button type="submit" className="px-5 py-4 border border-slate-500 bg-slate-400 rounded-md text-4xl font-semibold my-4">Log In</button>
             </Form>
           </div>
         </>)}
 
-      <SearchForm.Component />
-      <h1 className="font-semibold text-2xl py-2">Questions:</h1>
-      <div className="flex flex-col gap-8">
-        {loaderData.questions.map(question => {
-          return <Question
-            key={question.id}
-            question={question}
-            error={(actionData as any)?.error}
-          />
-        })}
+      <div className="grid grid-flow-col gap-6">
+        <div>
+          <h2 className="font-semibold text-3xl py-2">What is SC2IQ?</h2>
+          <p className="leading-6">
+            Sc2iq is an attempt to improve the way feedback is collected from the community by using game IQ to weight the opinions.<br />
+            The premise is that the more knowlege you have about a subject the more value your opinion should hold.
+          </p>
+        </div>
+        <div>
+          <h2 className="font-semibold text-3xl py-2">How do I use SC2IQ?</h2>
+          <p className="leadeing-6">
+            Study <Link to="questions" className="underline underline-offset-2">questions</Link> to learn about Starcraft<br />
+            Take <Link to="test" className="underline underline-offset-2">tests</Link> to establish your StarCraft 2 Intelligence metric and collect Votes!<br />
+            Vote on <Link to="polls" className="underline underline-offset-2">polls</Link> influence discussion and perhaps balance changes!</p>
+        </div>
       </div>
-    </div>
+    </>
   )
 }

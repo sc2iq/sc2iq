@@ -14,9 +14,7 @@ export const meta: V2_MetaFunction = ({ matches }) => {
 }
 
 export const loader = async ({ request }: LoaderArgs) => {
-  const authResult = await auth.isAuthenticated(request, {
-    failureRedirect: "/"
-  })
+  const authResult = await auth.isAuthenticated(request)
   const profile = authResult?.profile
 
   const users = await managementClient.getUsers()
@@ -45,7 +43,7 @@ export const loader = async ({ request }: LoaderArgs) => {
   })
 }
 
-export default function Profile() {
+export default function UserRoute() {
   const { profile, users } = useLoaderData<typeof loader>()
 
   return (

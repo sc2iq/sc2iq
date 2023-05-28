@@ -60,7 +60,7 @@ export const Component = () => {
         <label className="flex gap-2 items-center w-40" htmlFor='answer1'><Icons.CheckIcon className="h-6 w-6 text-green-600" /> Correct Answer: </label>
         <input className="flex-grow p-1 px-2 rounded-md" type="text" autoComplete="off" id="answer1" name="answer1" placeholder="45" required />
       </div>
-      <div className="bg-slate-400 h-1"></div>
+      <div className="bg-slate-400 h-px"></div>
       <div className="flex gap-4 rounded-lg">
         <label className="flex gap-2 items-center w-40" htmlFor='answer2'><Icons.XMarkIcon className="h-6 w-6 text-red-700" /> Alternate Answer: </label>
         <input className="flex-grow p-1 px-2 rounded-md" type="text" autoComplete="off" id="answer2" name="answer2" placeholder="55" required />

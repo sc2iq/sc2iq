@@ -127,7 +127,7 @@ const AppComponent: React.FC<React.PropsWithChildren<Props>> = ({ data, children
       <body className="h-screen flex flex-col bg-slate-50 font-sans subpixel-antialiased">
         <header className="sticky top-0 bg-slate-600 border-b border-b-slate-700 text-slate-200">
           <div className="container mx-auto py-4 flex flex-col gap-2">
-            <h1 className="text-6xl text-center font-semibold mb-4"><NavLink to="/">StarCraft 2 Intelligence Quotient</NavLink></h1>
+            <h1 className="text-6xl text-center font-semibold mb-4 mt-6"><NavLink to="/">StarCraft 2 Intelligence Quotient</NavLink></h1>
             <nav className="flex gap-5 items-end">
               <NavLink className={(...args) => navLinkClassNameFn(true)(...args)} to="/" end>
                 <Icons.HomeIcon className="h-8 w-8" />
@@ -137,23 +137,19 @@ const AppComponent: React.FC<React.PropsWithChildren<Props>> = ({ data, children
                 <Icons.ChatBubbleBottomCenterTextIcon className="h-8 w-8" />
                 <div>Questions</div>
               </NavLink>
-              <NavLink className={(...args) => navLinkClassNameFn(isLoggedIn)(...args)} to="test">
+              <NavLink className={(...args) => navLinkClassNameFn(true)(...args)} to="test">
                 <Icons.TrophyIcon className="h-8 w-8" />
                 <div>Test</div>
               </NavLink>
-              <NavLink className={(...args) => navLinkClassNameFn(isLoggedIn)(...args)} to="polls">
+              <NavLink className={(...args) => navLinkClassNameFn(true)(...args)} to="polls">
                 <Icons.ChatBubbleLeftRightIcon className="h-8 w-8" />
                 <div>Polls</div>
               </NavLink>
-              <NavLink className={(...args) => navLinkClassNameFn(isLoggedIn)(...args)} to="users">
+              <NavLink className={(...args) => navLinkClassNameFn(true)(...args)} to="users">
                 <Icons.UserGroupIcon className="h-8 w-8" />
                 <div>Users</div>
               </NavLink>
-              <NavLink className={(...args) => navLinkClassNameFn(isLoggedIn)(...args)} to="profile">
-                <Icons.UserIcon className="h-8 w-8" />
-                <div>Profile</div>
-              </NavLink>
-              <NavLink className={(...args) => navLinkClassNameFn(isLoggedIn)(...args)} to="feedback">
+              <NavLink className={(...args) => navLinkClassNameFn(true)(...args)} to="feedback">
                 <Icons.PencilSquareIcon className="h-8 w-8" />
                 <div>Feeback</div>
               </NavLink>
