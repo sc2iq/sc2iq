@@ -1,6 +1,7 @@
 import { ActionArgs, LinksFunction, LoaderArgs, V2_MetaFunction, redirect } from "@remix-run/node"
 import { Form, useLoaderData } from "@remix-run/react"
 import { auth } from "~/services/auth.server"
+import { db } from "~/services/db.server"
 
 export const links: LinksFunction = () => [
 ]
@@ -28,16 +29,18 @@ export const action = async ({ request }: ActionArgs) => {
   if (formNameTestStart === formName) {
     const authResult = await auth.isAuthenticated(request)
     const profile = authResult?.profile
-    const test = {
-      id: 'asdfa',
-    }
+    const test = await db.test.create({
+      data: {
+        userId: profile?.id
+      }
+    })
 
     const urlParams = {
       userId: profile?.id ?? '',
     }
 
     const queryString = new URLSearchParams(urlParams).toString()
-    console.log({ queryString })
+    console.log({ test, queryString })
 
     return redirect(`/test/${test.id}?${queryString}`)
   }

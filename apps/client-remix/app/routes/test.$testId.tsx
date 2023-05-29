@@ -15,9 +15,14 @@ export const meta: V2_MetaFunction = ({ matches }) => {
   return [{ title: `${rootTitle} - Test` }]
 }
 
-export const loader = async ({ request }: LoaderArgs) => {
+export const loader = async ({ request, params }: LoaderArgs) => {
   const authResult = await auth.isAuthenticated(request)
   const profile = authResult?.profile
+  const test = await db.test.findUnique({
+    where: {
+      id: params.testId
+    }
+  })
   const questions = await db.question.findMany({
     where: {
       state: "approved"
@@ -27,6 +32,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 
   return json({
     profile,
+    test,
     questions,
   })
 }
