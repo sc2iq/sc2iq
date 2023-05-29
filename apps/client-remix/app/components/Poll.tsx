@@ -31,9 +31,14 @@ export default function Component(props: Props) {
         <div className="flex gap-2 items-center w-40"><Icons.XMarkIcon className="h-6 w-6 text-red-700" /> Alternate Answer: </div>
         <div className="flex-grow p-2 px-3 rounded-md bg-white">{props.poll.answer4}</div>
       </div>
-      <div className="flex gap-2"><Icons.TagIcon className="h-6 w-6" /> Tags:</div>
-      {/* TODO ADD TAGS */}
-      <div>None</div>
+      <div className="flex gap-4 items-center">
+        <div className="flex gap-2 items-center w-40">
+          <Icons.TagIcon className="h-6 w-6 text-slate-600" />
+          <div>Tags:</div>
+        </div>
+        {/* TODO ADD TAGS */}
+        <div>None</div>
+      </div>
     </div>
   )
 }

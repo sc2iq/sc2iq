@@ -11,7 +11,7 @@ type Props = {
 export default function Component(props: Props) {
   return (
     <div className="border p-5 rounded-xl flex flex-col gap-2 bg-slate-200 border-slate-300">
-      <h2 className="flex gap-2 items-center text-2xl py-2">
+      <h2 className="flex gap-2 items-center text-2xl pb-2">
         <span className="font-semibold">{props.question.question}</span>
         <Link to={`/questions/${props.question.id}`} className="flex gap-2 items-center ml-auto p-1 px-2 bg-slate-300 rounded-md text-lg text-slate-600"><Icons.QuestionMarkCircleIcon className="h-6 w-6 text-slate-400 inline-block" /> View Details</Link>
       </h2>
@@ -32,11 +32,18 @@ export default function Component(props: Props) {
         <div className="flex gap-2 items-center w-40"><Icons.XMarkIcon className="h-6 w-6 text-red-700" /> Alternate Answer: </div>
         <div className="flex-grow p-2 px-3 rounded-md bg-white">{props.question.answer4}</div>
       </div>
-      <label htmlFor="questionDifficulty" className="flex gap-2"><Icons.ScaleIcon className="h-6 w-6" /> Difficulty: </label>
-      <input name="questionDifficulty" title="Question Difficulty" type="range" min={1} max={10} value={props.question.difficulty} readOnly/>
-      <div className="flex gap-2"><Icons.TagIcon className="h-6 w-6" /> Tags:</div>
-      {/* TODO ADD TAGS */}
-      <div>None</div>
+      <div className="flex gap-4">
+        <label htmlFor="questionDifficulty" className="flex gap-2 w-40"><Icons.ScaleIcon className="h-6 w-6 text-slate-600" /> Difficulty: </label>
+        <input className="flex-grow" name="questionDifficulty" title="Question Difficulty" type="range" min={1} max={10} value={props.question.difficulty} readOnly />
+      </div>
+      <div className="flex gap-4 items-center">
+        <div className="flex gap-2 items-center w-40">
+          <Icons.TagIcon className="h-6 w-6 text-slate-600" />
+          <div>Tags:</div>
+        </div>
+        {/* TODO ADD TAGS */}
+        <div>None</div>
+      </div>
     </div>
   )
 }

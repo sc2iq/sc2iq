@@ -66,7 +66,7 @@ export const Component = () => {
         <input className="flex-grow p-1 px-3 rounded-md" type="text" autoComplete="off" id="answer4" name="answer4" required placeholder="No" />
       </div>
       <div className="flex gap-4 rounded-lg">
-        <label className="flex gap-2 items-center w-40" htmlFor='tags'><Icons.TagIcon className="h-6 w-6" /> Tags:</label>
+        <label className="flex gap-2 items-center w-40" htmlFor='tags'><Icons.TagIcon className="h-6 w-6 text-slate-500" /> Tags:</label>
         <input className="flex-grow p-1 px-3 rounded-md" type="text" autoComplete="off" id="tags" name="tags" />
       </div>
       <input type="hidden" name="formName" value={formName} />
