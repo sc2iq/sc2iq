@@ -1,7 +1,6 @@
 import { ActionArgs, LoaderArgs, V2_MetaFunction, json } from "@remix-run/node"
 import { Form, Link, useActionData, useLoaderData } from "@remix-run/react"
 import { auth, getSession } from "~/services/auth.server"
-import { db } from "~/services/db.server"
 
 type LoaderError = { message: string } | null
 
@@ -12,12 +11,9 @@ export const loader = async ({ request }: LoaderArgs) => {
   const error = session.get(auth.sessionErrorKey) as LoaderError
 
   try {
-    const questions = await db.question.findMany()
-
     return json({
       profile,
       error,
-      questions,
     })
   }
   catch (e) {
