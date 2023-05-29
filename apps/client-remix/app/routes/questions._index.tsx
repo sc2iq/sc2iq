@@ -10,7 +10,10 @@ export const links: LinksFunction = () => [
 ]
 
 export const meta: V2_MetaFunction = ({ matches }) => {
-  const rootTitle = (matches as any[]).find(m => m.id === 'root').meta.find((m: any) => m.title).title
+  const rootTitle = (matches as any[])
+    .find(m => m.id === 'root').meta
+    .find((m: any) => m.title).title
+
   return [{ title: `${rootTitle} - Questions` }]
 }
 
@@ -50,7 +53,7 @@ export const action = async ({ request }: ActionArgs) => {
       data: question as any
     })
 
-    return redirect(`?questionId=${question.id}`)
+    return redirect(`?questionId=${newQuestion.id}`)
   }
 
   if (SearchForm.formName === formName) {
@@ -69,11 +72,10 @@ export const action = async ({ request }: ActionArgs) => {
       }
     }
 
-    // TODO: Remove as any
     const queryString = new URLSearchParams(rawForm as URLSearchParams).toString()
     console.log({ queryString, searchInput })
 
-    return redirect(`?search=${queryString}`)
+    return redirect(`?${queryString}`)
   }
 
   return null

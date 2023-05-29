@@ -93,3 +93,9 @@ model ScoreInput {
   startedAt String
   userId    String
 }
+
+model Test {
+  id        String   @id @default(cuid())
+  startedAt DateTime @default(now())
+  userId    String
+}
