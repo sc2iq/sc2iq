@@ -22,17 +22,19 @@ const sessionStorage = createCookieSessionStorage({
   }
 })
 
-export const auth = new Authenticator<{ profile: Auth0Profile, accessToken: string }>(sessionStorage)
+type Auth0StragegyValue = { profile: Auth0Profile, accessToken: string }
 
-const auth0Strategy = new Auth0Strategy<{ profile: Auth0Profile, accessToken: string }>(
+export const auth = new Authenticator<Auth0StragegyValue>(sessionStorage)
+
+const auth0Strategy = new Auth0Strategy<Auth0StragegyValue>(
   {
     callbackURL: AUTH0_CALLBACK_URL,
     clientID: AUTH0_CLIENT_ID,
     clientSecret: AUTH0_CLIENT_SECRET,
     domain: AUTH0_DOMAIN
   },
-  async ({ profile, accessToken, extraParams, context }) => {
-    console.log(`auth0Strategy`, { profile, accessToken, extraParams, context })
+  async ({ profile, accessToken, refreshToken, extraParams, context }) => {
+    console.log(`auth0Strategy`, { profile, accessToken, refreshToken, extraParams, context })
     return { profile, accessToken }
   }
 )
