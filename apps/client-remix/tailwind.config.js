@@ -9,6 +9,9 @@ module.exports = {
       fontFamily: {
         sans: ['Inter var', ...defaultTheme.fontFamily.sans],
       },
+      lineHeight: {
+        'loose': '5rem',
+      }
     },
   },
   plugins: [],

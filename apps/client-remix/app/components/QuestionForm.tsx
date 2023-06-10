@@ -45,6 +45,7 @@ export const Component = () => {
   const isSubmitting = navigation.state === 'submitting'
     && navigation.formData.get('formName') === formName
   const formRef = React.createRef<HTMLFormElement>()
+  const [isDifficultyRatingsHelpVisible, setDifficultyHelp] = React.useState(false)
 
   React.useEffect(() => {
     if (isSubmitting) {
@@ -76,7 +77,19 @@ export const Component = () => {
       <div className="flex gap-4 rounded-lg">
         <label className="flex gap-2 items-center w-40" htmlFor='difficulty'><Icons.ScaleIcon className="h-6 w-6 text-slate-500" /> Difficulty: </label>
         <input className="flex-grow p-1 px-2 rounded-md" type="number" autoComplete="off" id="difficulty" name="difficulty" required min={1} step={1} max={10} defaultValue={1} />
+        <button type="button"
+          onClick={() => setDifficultyHelp(x => !x)}
+          className="flex gap-2 items-center rounded-md p-1 px-2 bg-slate-400 text-slate-50 hover:bg-slate-500 hover:text-white"
+        >
+          <Icons.QuestionMarkCircleIcon className="h-6 w-6 text-slate-500" /> How to determine diffuculty?
+        </button>
       </div>
+      {isDifficultyRatingsHelpVisible && (
+        <div className="flex gap-4 rounded-lg">
+          <label className="flex gap-2 items-center w-40" htmlFor='difficulty'></label>
+          <div className="flex-grow p-1 px-2 rounded-md text-slate-500">1. Unit Stats 2. Unit Battles 3. Timings 4. Tournament Stats 5. Odd Unit Behavior 10: Rare Player Facts</div>
+        </div>
+      )}
       <div className="flex gap-4 rounded-lg">
         <label className="flex gap-2 items-center w-40" htmlFor='tags'><Icons.TagIcon className="h-6 w-6 text-slate-500" /> Tags:</label>
         <input className="flex-grow p-1 px-2 rounded-md" type="text" autoComplete="off" id="tags" name="tags" placeholder="terran, unit, stats" />
