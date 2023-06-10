@@ -1,5 +1,6 @@
 import { ActionArgs, LoaderArgs, V2_MetaFunction, json } from "@remix-run/node"
 import { Form, Link, useActionData, useLoaderData } from "@remix-run/react"
+import { ErrorBoundaryComponent } from "~/components/ErrorBoundary"
 import { auth, getSession } from "~/services/auth.server"
 
 type LoaderError = { message: string } | null
@@ -33,6 +34,9 @@ export const action = async ({ request }: ActionArgs) => {
 
   return null
 }
+
+
+export const ErrorBoundary = ErrorBoundaryComponent
 
 export default function IndexRoute() {
   const loaderData = useLoaderData<typeof loader>()

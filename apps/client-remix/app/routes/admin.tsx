@@ -1,5 +1,6 @@
 import { ActionArgs, LinksFunction, LoaderArgs, V2_MetaFunction, redirect } from "@remix-run/node"
 import { NavLink, Outlet } from "@remix-run/react"
+import { ErrorBoundaryComponent } from "~/components/ErrorBoundary"
 import { auth } from "~/services/auth.server"
 import { managementClient } from "~/services/auth0management.server"
 
@@ -30,6 +31,8 @@ export const loader = async ({ request }: LoaderArgs) => {
 export const action = async ({ request }: ActionArgs) => {
 
 }
+
+export const ErrorBoundary = ErrorBoundaryComponent
 
 export default function AdminRoute() {
   const navLinkClassNameFn = ({ isActive, isPending }: { isPending: boolean, isActive: boolean }) => {

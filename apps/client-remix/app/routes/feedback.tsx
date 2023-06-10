@@ -1,5 +1,6 @@
 import { LinksFunction, LoaderArgs, json } from "@remix-run/node"
 import { V2_MetaFunction } from "@remix-run/react"
+import { ErrorBoundaryComponent } from "~/components/ErrorBoundary"
 import { auth } from "~/services/auth.server"
 
 export const links: LinksFunction = () => [
@@ -18,6 +19,8 @@ export const loader = async ({ request }: LoaderArgs) => {
     profile,
   })
 }
+
+export const ErrorBoundary = ErrorBoundaryComponent
 
 export default function FeedbackRoute() {
   return (

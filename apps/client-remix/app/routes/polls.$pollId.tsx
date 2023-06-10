@@ -1,6 +1,7 @@
 import * as Icons from "@heroicons/react/24/solid"
 import { ActionArgs, DataFunctionArgs, V2_MetaFunction, json, redirect } from "@remix-run/node"
 import { Form, useLoaderData } from "@remix-run/react"
+import { ErrorBoundaryComponent } from "~/components/ErrorBoundary"
 import PollDetails from "~/components/PollDetails"
 import { managementClient } from "~/services/auth0management.server"
 import { db } from "~/services/db.server"
@@ -45,6 +46,8 @@ export const action = async ({ request }: ActionArgs) => {
 
   return null
 }
+
+export const ErrorBoundary = ErrorBoundaryComponent
 
 export default function PollsPollRoute() {
   const loaderData = useLoaderData<typeof loader>()

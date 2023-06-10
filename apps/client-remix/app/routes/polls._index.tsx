@@ -1,5 +1,6 @@
 import { ActionArgs, LinksFunction, LoaderArgs, V2_MetaFunction, json, redirect } from "@remix-run/node"
 import { useLoaderData } from "@remix-run/react"
+import { ErrorBoundaryComponent } from "~/components/ErrorBoundary"
 import Poll from "~/components/Poll"
 import * as PollForm from "~/components/PollForm"
 import * as SearchForm from "~/components/SearchForm"
@@ -54,6 +55,8 @@ export const action = async ({ request }: ActionArgs) => {
 
   return null
 }
+
+export const ErrorBoundary = ErrorBoundaryComponent
 
 export default function PollsRoute() {
   const loaderData = useLoaderData<typeof loader>()

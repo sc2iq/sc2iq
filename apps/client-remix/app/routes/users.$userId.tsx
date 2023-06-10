@@ -1,5 +1,6 @@
 import { DataFunctionArgs, V2_MetaFunction, json } from "@remix-run/node"
 import { Link, useLoaderData } from "@remix-run/react"
+import { ErrorBoundaryComponent } from "~/components/ErrorBoundary"
 import { managementClient } from "~/services/auth0management.server"
 
 export const loader = async ({ request, params }: DataFunctionArgs) => {
@@ -15,6 +16,9 @@ export const meta: V2_MetaFunction = ({ matches, data }) => {
   const rootTitle = (matches as any[]).find(m => m.id === 'root').meta.find((m: any) => m.title).title
   return [{ title: `${rootTitle} - Users - ${data.user?.nickname}` }]
 }
+
+
+export const ErrorBoundary = ErrorBoundaryComponent
 
 export default function UsersUserRoute() {
   const { user } = useLoaderData<typeof loader>()

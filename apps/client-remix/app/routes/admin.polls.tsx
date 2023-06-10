@@ -1,5 +1,6 @@
 import { ActionArgs, LinksFunction, LoaderArgs, V2_MetaFunction, json } from "@remix-run/node"
 import { useLoaderData } from "@remix-run/react"
+import { ErrorBoundaryComponent } from "~/components/ErrorBoundary"
 import * as PollAdmin from "~/components/PollAdmin"
 import { auth } from "~/services/auth.server"
 import { managementClient } from "~/services/auth0management.server"
@@ -67,6 +68,8 @@ export const action = async ({ request }: ActionArgs) => {
 
   return null
 }
+
+export const ErrorBoundary = ErrorBoundaryComponent
 
 export default function AdminPollsRoute() {
   const loaderData = useLoaderData<typeof loader>()

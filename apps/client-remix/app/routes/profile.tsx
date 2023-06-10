@@ -1,6 +1,7 @@
 import { json, LinksFunction, LoaderArgs } from "@remix-run/node"
 import { Form, useLoaderData, V2_MetaFunction } from "@remix-run/react"
 import { Role } from "auth0"
+import { ErrorBoundaryComponent } from "~/components/ErrorBoundary"
 import { auth } from "~/services/auth.server"
 import { managementClient } from "~/services/auth0management.server"
 
@@ -28,6 +29,8 @@ export const loader = async ({ request }: LoaderArgs) => {
     userRoles,
   })
 }
+
+export const ErrorBoundary = ErrorBoundaryComponent
 
 export default function ProfileRoute() {
   const loaderData = useLoaderData<typeof loader>()

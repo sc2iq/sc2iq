@@ -1,5 +1,6 @@
 import { ActionArgs, LinksFunction, LoaderArgs, V2_MetaFunction, redirect } from "@remix-run/node"
 import { Form, useLoaderData } from "@remix-run/react"
+import { ErrorBoundaryComponent } from "~/components/ErrorBoundary"
 import { auth } from "~/services/auth.server"
 import { db } from "~/services/db.server"
 
@@ -48,6 +49,8 @@ export const action = async ({ request }: ActionArgs) => {
   return null
 }
 
+
+export const ErrorBoundary = ErrorBoundaryComponent
 
 export default function TestRoute() {
   const loaderData = useLoaderData<typeof loader>()
