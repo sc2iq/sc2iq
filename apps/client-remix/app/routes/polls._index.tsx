@@ -63,18 +63,20 @@ export default function PollsRoute() {
 
   return (
     <>
-      <PollForm.Component />
-      <SearchForm.Component />
-      <h1 className="text-2xl">Polls</h1>
-      <div className="flex flex-col gap-8">
-        {loaderData.polls.length === 0
-          ? <>No Polls</>
-          : loaderData.polls.map(poll => {
-          return <Poll
-            key={poll.id}
-            poll={poll}
-          />
-        })}
+      <div className="flex flex-col gap-6">
+        <PollForm.Component />
+        <SearchForm.Component />
+        <h1 className="text-2xl">Polls</h1>
+        <div className="flex flex-col gap-8">
+          {loaderData.polls.length === 0
+            ? <>No Polls</>
+            : loaderData.polls.map(poll => {
+              return <Poll
+                key={poll.id}
+                poll={poll}
+              />
+            })}
+        </div>
       </div>
     </>
   )
