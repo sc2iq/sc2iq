@@ -15,3 +15,5 @@ export const AUTH0_MANAGEMENT_APP_CLIENT_ID = process.env.AUTH0_MANAGEMENT_APP_C
 export const AUTH0_MANAGEMENT_APP_CLIENT_SECRET = process.env.AUTH0_MANAGEMENT_APP_CLIENT_SECRET!
 
 export const COOKIE_SECRET = process.env.COOKIE_SECRET!
+
+export const APPROVER_ROLE_NAME = 'approver'

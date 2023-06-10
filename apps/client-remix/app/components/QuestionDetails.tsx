@@ -35,18 +35,22 @@ export default function Component(props: Props) {
         <div className="flex gap-2 items-center w-40"><Icons.XMarkIcon className="h-6 w-6 text-red-700" /> Alternate Answer: </div>
         <div className="flex-grow p-2 px-3 rounded-md bg-white">{props.question.answer4}</div>
       </div>
-      <label htmlFor="questionDifficulty" className="flex gap-2"><Icons.ScaleIcon className="h-6 w-6" /> Difficulty: </label>
-      <input name="questionDifficulty" title="Question Difficulty" type="range" min={1} max={10} value={props.question.difficulty} readOnly/>
-      <div className="flex gap-2"><Icons.TagIcon className="h-6 w-6" /> Tags:</div>
-      {/* TODO ADD TAGS */}
-      <div>None</div>
+      <div className="flex gap-4">
+        <div className="flex gap-2 items-center w-40"><Icons.ScaleIcon className="h-6 w-6 text-slate-600" /> Difficulty: </div>
+        <input className="flex-grow p-2 px-3 rounded-md bg-white" name="questionDifficulty" title="Question Difficulty" type="range" min={1} max={10} value={props.question.difficulty} readOnly />
+      </div>
+      <div className="flex gap-4">
+        <div className="flex gap-2 items-center w-40"><Icons.TagIcon className="h-6 w-6 text-slate-600" /> Tags: </div>
+        {/* TODO ADD TAGS */}
+        <div>None</div>
+      </div>
       <div className="flex gap-4">
         <div className="flex gap-2 items-center w-40"><Icons.UserCircleIcon className="h-6 w-6 text-slate-500" /> Created By: </div>
-        <div className="flex-grow p-2 px-3 rounded-md"><Link to={`/users/${props.createdBy.user_id}`} className="underline underline-offset-2">{props.createdBy.name}</Link></div>
+        <div className="flex-grow py-2 rounded-md"><Link to={`/users/${props.createdBy.user_id}`} className="underline underline-offset-2">{props.createdBy.name}</Link></div>
       </div>
       <div className="flex gap-4">
         <div className="flex gap-2 items-center w-40"><Icons.ClockIcon className="h-6 w-6 text-slate-500" /> Created At: </div>
-        <div className="flex-grow p-2 px-3 rounded-md">{dateFormatter.format(new Date(props.question.createdAt))}</div>
+        <div className="flex-grow py-2 rounded-md">{dateFormatter.format(new Date(props.question.createdAt))}</div>
       </div>
     </div>
   )

@@ -1,6 +1,7 @@
 import { ActionArgs, LinksFunction, LoaderArgs, V2_MetaFunction, redirect } from "@remix-run/node"
 import { NavLink, Outlet } from "@remix-run/react"
 import { ErrorBoundaryComponent } from "~/components/ErrorBoundary"
+import { APPROVER_ROLE_NAME } from "~/constants/index.server"
 import { auth } from "~/services/auth.server"
 import { managementClient } from "~/services/auth0management.server"
 
@@ -19,8 +20,8 @@ export const loader = async ({ request }: LoaderArgs) => {
 
   if (typeof authResult?.profile?.id === 'string') {
     const userRoles = await managementClient.getUserRoles({ id: authResult?.profile?.id })
-
-    if (userRoles.some(r => r.name === 'approver')) {
+    console.log({ profile: authResult?.profile, userRoles })
+    if (userRoles.some(r => r.name === APPROVER_ROLE_NAME)) {
       return null
     }
   }
