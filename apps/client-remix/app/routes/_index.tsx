@@ -55,7 +55,7 @@ export default function IndexRoute() {
         ? (<>
           <h1 className="text-center font-semibold text-3xl py-2">Welcome back, {loaderData.profile?.displayName}!</h1>
           <h1 className="font-semibold text-3xl py-2">Personal Stats</h1>
-          <div className="flex flex-col gap-2 font-semibold text-2xl">
+          <div className="flex flex-col gap-2 text-2xl">
             <div className="flex gap-4">
               <div>SC2IQ:</div>
               <div>3492</div>
@@ -92,16 +92,19 @@ export default function IndexRoute() {
               </p>
             </div>
           </div>
+          <div>
+            <h2 className="font-semibold text-3xl py-2">Read More on <Link to="about" className="underline underline-offset-2">About</Link></h2>
+          </div>
         </>)}
 
       <>
 
-        <h1 className="font-semibold text-3xl py-2">Recently Added Questions:</h1>
-        <div className="flex flex-col gap-2 text-2xl">
+        <h1 className="font-semibold text-2xl py-2">Recently Added Questions:</h1>
+        <div className="flex flex-col gap-2">
           Lorem Ipsum
         </div>
-        <h1 className="font-semibold text-3xl py-2">Recently Added Polls:</h1>
-        <div className="flex flex-col gap-2 text-2xl">
+        <h1 className="font-semibold text-2xl py-2">Recently Added Polls:</h1>
+        <div className="flex flex-col gap-2">
           Lorem Ipsum
         </div>
       </>
