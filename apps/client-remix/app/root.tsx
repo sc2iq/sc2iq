@@ -149,6 +149,10 @@ const AppComponent: React.FC<React.PropsWithChildren<Props>> = ({ data, children
                 <Icons.UserGroupIcon className="h-8 w-8" />
                 <div>Users</div>
               </NavLink>
+              <NavLink className={(...args) => navLinkClassNameFn(true)(...args)} to="about">
+                <Icons.InformationCircleIcon className="h-8 w-8" />
+                <div>About</div>
+              </NavLink>
               <NavLink className={(...args) => navLinkClassNameFn(true)(...args)} to="feedback">
                 <Icons.PencilSquareIcon className="h-8 w-8" />
                 <div>Feeback</div>
