@@ -15,27 +15,27 @@ export default function Component(props: Props) {
         <Link to={`/polls/${props.poll.id}`} className="flex gap-2 items-center ml-auto p-1 px-2 bg-slate-300 rounded-md text-lg text-slate-600"><Icons.QuestionMarkCircleIcon className="h-6 w-6 text-slate-400 inline-block" /> View Details</Link>
       </h2>
       <div className="flex gap-4">
-        <div className="flex gap-2 items-center w-10"><Icons.CheckIcon className="h-6 w-6 text-slate-600" /> 1: </div>
+        <div className="flex gap-2 items-center w-20"><Icons.CheckIcon className="h-6 w-6 text-slate-600" /> 1: </div>
         <div className="flex-grow rounded-md p-2 px-3 bg-white">{props.poll.answer1}</div>
         <button className="rounded-md p-2 px-3 bg-slate-400 text-slate-50 hover:bg-slate-500 hover:text-white">Vote!</button>
       </div>
       <div className="flex gap-4">
-        <div className="flex gap-2 items-center w-10"><Icons.XMarkIcon className="h-6 w-6 text-slate-600" /> 2: </div>
+        <div className="flex gap-2 items-center w-20"><Icons.XMarkIcon className="h-6 w-6 text-slate-600" /> 2: </div>
         <div className="flex-grow p-2 px-3 rounded-md bg-white">{props.poll.answer2}</div>
         <button className="rounded-md p-2 px-3 bg-slate-400 text-slate-50 hover:bg-slate-500 hover:text-white">Vote!</button>
       </div>
       <div className="flex gap-4">
-        <div className="flex gap-2 items-center w-10"><Icons.XMarkIcon className="h-6 w-6 text-slate-600" /> 3: </div>
+        <div className="flex gap-2 items-center w-20"><Icons.XMarkIcon className="h-6 w-6 text-slate-600" /> 3: </div>
         <div className="flex-grow p-2 px-3 rounded-md bg-white">{props.poll.answer3}</div>
         <button className="rounded-md p-2 px-3 bg-slate-400 text-slate-50 hover:bg-slate-500 hover:text-white">Vote!</button>
       </div>
       <div className="flex gap-4">
-        <div className="flex gap-2 items-center w-10"><Icons.XMarkIcon className="h-6 w-6 text-slate-600" /> 4: </div>
+        <div className="flex gap-2 items-center w-20"><Icons.XMarkIcon className="h-6 w-6 text-slate-600" /> 4: </div>
         <div className="flex-grow p-2 px-3 rounded-md bg-white">{props.poll.answer4}</div>
         <button className="rounded-md p-2 px-3 bg-slate-400 text-slate-50 hover:bg-slate-500 hover:text-white">Vote!</button>
       </div>
       <div className="flex gap-4 items-center">
-        <div className="flex gap-2 items-center w-40">
+        <div className="flex gap-2 items-center w-20">
           <Icons.TagIcon className="h-6 w-6 text-slate-600" />
           <div>Tags:</div>
         </div>
