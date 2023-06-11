@@ -1,5 +1,5 @@
 import * as Icons from "@heroicons/react/24/solid"
-import { ActionArgs, DataFunctionArgs, V2_MetaFunction, json, redirect } from "@remix-run/node"
+import { ActionArgs, DataFunctionArgs, V2_MetaFunction, json } from "@remix-run/node"
 import { Form, useLoaderData } from "@remix-run/react"
 import { ErrorBoundaryComponent } from "~/components/ErrorBoundary"
 import QuestionDetails from "~/components/QuestionDetails"
@@ -8,9 +8,11 @@ import { db } from "~/services/db.server"
 
 export const loader = async ({ params }: DataFunctionArgs) => {
   const { questionId } = params
-  const question = await db.question.findFirstOrThrow({ where: {
-    id: questionId
-  }})
+  const question = await db.question.findFirstOrThrow({
+    where: {
+      id: questionId
+    }
+  })
 
 
   const user = await managementClient.getUser({ id: question.createdBy })
@@ -30,19 +32,30 @@ export const meta: V2_MetaFunction = ({ matches, data, params }) => {
   return [{ title: `${parentTitle} - Question: ${params?.questionId}` }]
 }
 
+const formNameDelete = "questionDetailDelete"
+
 export const action = async ({ request }: ActionArgs) => {
   const rawForm = await request.formData()
   const formDataEntries = Object.fromEntries(rawForm)
   const formName = formDataEntries.formName as string
 
-  if (formName === "questionDetailDelete") {
+  if (formName === formNameDelete) {
     const questionId = formDataEntries.questionId as string
-    const deletedQuestion = await db.question.delete({ where: { id: questionId }})
+    const archivedQuestion = await db.question.update({
+      where: {
+        id: questionId
+      },
+      data: {
+        state: "archived"
+      }
+    })
 
-    return redirect('/questions')
+    console.log({ archivedQuestion })
+
+    return { question: archivedQuestion }
+
   }
 
-  return null
 }
 
 export const ErrorBoundary = ErrorBoundaryComponent
@@ -53,13 +66,11 @@ export default function QuestionQuestionRoute() {
   return (
     <>
       <QuestionDetails question={loaderData.question} createdBy={loaderData.user} />
-      <div>
-        <Form method="post">
-          <input type="hidden" name="formName" value="questionDetailDelete" />
-          <input type="hidden" name="questionId" value={loaderData.question.id} />
-          <button className="border px-4 py-2 flex gap-2 items-center bg-red-600 text-white rounded-lg" type="submit"><Icons.XMarkIcon className="h-5 w-5" /> Delete</button>
-        </Form>
-      </div>
+      <Form method="post">
+        <input type="hidden" name="formName" value={formNameDelete} />
+        <input type="hidden" name="questionId" value={loaderData.question.id} />
+        <button className="border px-4 py-2 flex gap-2 items-center bg-orange-500 text-white rounded-lg" type="submit"><Icons.ArchiveBoxIcon className="h-5 w-5" /> Archive</button>
+      </Form>
     </>
   )
 }
