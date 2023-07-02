@@ -1,10 +1,10 @@
+import { getAuth } from "@clerk/remix/ssr.server"
 import { ActionArgs, LinksFunction, LoaderArgs, V2_MetaFunction, json, redirect } from "@remix-run/node"
 import { useLoaderData } from "@remix-run/react"
 import { ErrorBoundaryComponent } from "~/components/ErrorBoundary"
 import Question from "~/components/Question"
 import * as QuestionForm from "~/components/QuestionForm"
 import * as SearchForm from "~/components/SearchForm"
-import { auth } from "~/services/auth.server"
 import { db } from "~/services/db.server"
 
 export const links: LinksFunction = () => [
@@ -18,9 +18,7 @@ export const meta: V2_MetaFunction = ({ matches }) => {
   return [{ title: `${rootTitle} - Questions` }]
 }
 
-export const loader = async ({ request }: LoaderArgs) => {
-  const authResult = await auth.isAuthenticated(request)
-  const profile = authResult?.profile
+export const loader = async (args: LoaderArgs) => {
   const questions = await db.question.findMany({
     where: {
       state: "approved"
@@ -28,25 +26,24 @@ export const loader = async ({ request }: LoaderArgs) => {
   })
 
   return json({
-    profile,
     questions,
   })
 }
 
-export const action = async ({ request }: ActionArgs) => {
-  const rawForm = await request.formData()
+export const action = async (args: ActionArgs) => {
+  const rawForm = await args.request.formData()
   const formDataEntries = Object.fromEntries(rawForm)
   const formName = formDataEntries.formName as string
 
+  const { userId } = await getAuth(args)
+  if (!userId) {
+    return null
+  }
+
   if (QuestionForm.formName === formName) {
-    const authResult = await auth.isAuthenticated(request)
-    const profile = authResult?.profile
-    if (typeof profile?.id !== 'string') {
-      return null
-    }
 
     const { question, tags } = QuestionForm.getFormData(formDataEntries)
-    question.createdBy = profile.id
+    question.createdBy = userId
 
     console.log({ question, tags })
     // TODO: Remove as any
@@ -58,12 +55,6 @@ export const action = async ({ request }: ActionArgs) => {
   }
 
   if (SearchForm.formName === formName) {
-    const authResult = await auth.isAuthenticated(request)
-    const profile = authResult?.profile
-    if (typeof profile?.id !== 'string') {
-      return null
-    }
-
     const searchInput = SearchForm.getFormData(formDataEntries)
 
     if (searchInput.difficultyMax < searchInput.difficultyMin) {
@@ -73,7 +64,7 @@ export const action = async ({ request }: ActionArgs) => {
       }
     }
 
-    const queryString = new URLSearchParams(rawForm as URLSearchParams).toString()
+    const queryString = new URLSearchParams(searchInput as any).toString()
     console.log({ queryString, searchInput })
 
     return redirect(`?${queryString}`)

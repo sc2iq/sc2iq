@@ -15,7 +15,7 @@
     "@types/auth0": "^2.20.2",
     "@types/node": "^13.13.5",
     "@types/node-fetch": "^2.5.7",
-    "auth0": "^2.24.0",
+    "@clerk/remix": "2.6.16",
     "dotenv": "^8.2.0",
     "node-fetch": "^2.6.0",
     "typescript": "^3.8.3"

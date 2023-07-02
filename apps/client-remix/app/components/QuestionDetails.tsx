@@ -1,7 +1,7 @@
+import { User } from "@clerk/remix/api.server"
 import * as Icons from "@heroicons/react/24/solid"
 import { Question } from "@prisma/client"
 import { Link } from "@remix-run/react"
-import { User } from "auth0"
 
 type Props = {
   // TODO: Find way to use SerializeObject<UndefinedToOptional<Question>>
@@ -46,7 +46,7 @@ export default function Component(props: Props) {
       </div>
       <div className="flex gap-4">
         <div className="flex gap-2 items-center w-40"><Icons.UserCircleIcon className="h-6 w-6 text-slate-500" /> Created By: </div>
-        <div className="flex-grow py-2 rounded-md"><Link to={`/users/${props.createdBy.user_id}`} className="underline underline-offset-2">{props.createdBy.name}</Link></div>
+        <div className="flex-grow py-2 rounded-md"><Link to={`/users/${props.createdBy.id}`} className="underline underline-offset-2">{props.createdBy.username ?? props.createdBy.firstName ?? props.createdBy.id}</Link></div>
       </div>
       <div className="flex gap-4">
         <div className="flex gap-2 items-center w-40"><Icons.ClockIcon className="h-6 w-6 text-slate-500" /> Created At: </div>

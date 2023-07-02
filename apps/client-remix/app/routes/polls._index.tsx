@@ -1,10 +1,10 @@
+import { getAuth } from "@clerk/remix/ssr.server"
 import { ActionArgs, LinksFunction, LoaderArgs, V2_MetaFunction, json, redirect } from "@remix-run/node"
 import { useLoaderData } from "@remix-run/react"
 import { ErrorBoundaryComponent } from "~/components/ErrorBoundary"
 import Poll from "~/components/Poll"
 import * as PollForm from "~/components/PollForm"
 import * as SearchForm from "~/components/SearchForm"
-import { auth } from "~/services/auth.server"
 import { db } from "~/services/db.server"
 
 export const links: LinksFunction = () => [
@@ -15,9 +15,7 @@ export const meta: V2_MetaFunction = ({ matches }) => {
   return [{ title: `${rootTitle} - Polls` }]
 }
 
-export const loader = async ({ request }: LoaderArgs) => {
-  const authResult = await auth.isAuthenticated(request)
-  const profile = authResult?.profile
+export const loader = async (args: LoaderArgs) => {
   const polls = await db.poll.findMany({
     where: {
       state: "approved"
@@ -25,25 +23,23 @@ export const loader = async ({ request }: LoaderArgs) => {
   })
 
   return json({
-    profile,
     polls,
   })
 }
 
-export const action = async ({ request }: ActionArgs) => {
-  const rawForm = await request.formData()
+export const action = async (args: ActionArgs) => {
+  const rawForm = await args.request.formData()
   const formDataEntries = Object.fromEntries(rawForm)
   const formName = formDataEntries.formName as string
 
   if (PollForm.formName === formName) {
-    const authResult = await auth.isAuthenticated(request)
-    const profile = authResult?.profile
-    if (typeof profile?.id !== 'string') {
+    const { userId } = await getAuth(args)
+    if (!userId) {
       return null
     }
 
     const pollInput = PollForm.getFormData(formDataEntries)
-    pollInput.createdBy = profile.id
+    pollInput.createdBy = userId
 
     // TODO: Remove as any
     const poll = await db.poll.create({

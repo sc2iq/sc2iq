@@ -1,9 +1,8 @@
+import { createClerkClient } from "@clerk/remix/api.server"
+import { getAuth } from "@clerk/remix/ssr.server"
 import { ActionArgs, LinksFunction, LoaderArgs, V2_MetaFunction, redirect } from "@remix-run/node"
 import { NavLink, Outlet } from "@remix-run/react"
 import { ErrorBoundaryComponent } from "~/components/ErrorBoundary"
-import { APPROVER_ROLE_NAME } from "~/constants/index.server"
-import { auth } from "~/services/auth.server"
-import { managementClient } from "~/services/auth0management.server"
 
 export const links: LinksFunction = () => [
 ]
@@ -13,15 +12,15 @@ export const meta: V2_MetaFunction = ({ matches }) => {
   return [{ title: `${rootTitle} - Admin` }]
 }
 
-export const loader = async ({ request }: LoaderArgs) => {
-  const authResult = await auth.isAuthenticated(request, {
-    failureRedirect: "/"
-  })
+export const loader = async (args: LoaderArgs) => {
+  const { userId } = await getAuth(args)
 
-  if (typeof authResult?.profile?.id === 'string') {
-    const userRoles = await managementClient.getUserRoles({ id: authResult?.profile?.id })
-    console.log({ profile: authResult?.profile, userRoles })
-    if (userRoles.some(r => r.name === APPROVER_ROLE_NAME)) {
+  if (typeof userId === 'string') {
+    const clerkClient = createClerkClient({
+      secretKey: process.env.CLERK_SECRET_KEY
+    })
+    const organizationMemberships = await clerkClient.users.getOrganizationMembershipList({ userId })
+    if (!organizationMemberships.some(m => m.role === "admin")) {
       return null
     }
   }
@@ -29,7 +28,7 @@ export const loader = async ({ request }: LoaderArgs) => {
   return redirect('/')
 }
 
-export const action = async ({ request }: ActionArgs) => {
+export const action = async (args: ActionArgs) => {
 
 }
 

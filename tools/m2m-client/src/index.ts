@@ -1,8 +1,8 @@
 import dotenv from "dotenv"
-import auth0 from "auth0"
 import * as models from "./models"
 import * as client from "./services/client"
 import fs from 'fs'
+import { createClerkClient } from "@clerk/remix/api.server"
 
 process.on('unhandledRejection', (reason) => {
     throw reason
@@ -13,43 +13,27 @@ if (result.error) {
     throw result.error
 }
 
-const authenticationClient = new auth0.AuthenticationClient({
-    domain: process.env.DOMAIN!,
-    clientId: process.env.CLIENT_ID,
-    clientSecret: process.env.CLIENT_SECRET,
+const clerkClient = createClerkClient({
+  secretKey: process.env.CLERK_SECRET_KEY
 })
 
 async function main() {
-
     const questionInputsString = await fs.promises.readFile('./questionInputs.json', 'utf8')
     const questionInputs: models.QuestionInput[] = JSON.parse(questionInputsString)
-    
-    const tokenResponse = await authenticationClient.clientCredentialsGrant({ audience: 'https://sc2iq.com/api' })
 
-    // Fake user to represent this M2M Client?
-    const userInput: models.UserInput = {
-        id: 'E3V1FaKZ8anQt0K4G0TnwjpDund5Q6i3@clients',
-        name: 'sc2info.com',
-    }
+    const systemAdmin = await clerkClient.users.createUser({
+      firstName: 'System',
+      lastName: 'Administrator',
+    })
 
-    let user: models.User
-
-    try {
-        user = await client.getUser(userInput.id)
-    }
-    // Intentionally catch 404 rejection. This is signal that use does not exist yet.
-    catch (e) {
-        const error: Error = e
-        console.error(error)
-
-        user = await client.postUser(tokenResponse.access_token, userInput)
-    }
-    console.log({ user })
+    console.log({ systemAdmin })
+    // TODO: Get Token
+    const accessToken = ""
 
     const savedQuestions: string[] = []
     try {
         for(const question of questionInputs) {
-                const savedQuestion = await client.postQuestion(tokenResponse.access_token, question)
+                const savedQuestion = await client.postQuestion(accessToken, question)
                 savedQuestions.push(savedQuestion.id)
         }
     }
@@ -62,7 +46,7 @@ async function main() {
 }
 
 async function delay(ms: number): Promise<void> {
-    await new Promise((res) => setTimeout(() => res(), ms))
-} 
+    await new Promise((res) => setTimeout(() => res(undefined), ms))
+}
 
 main()

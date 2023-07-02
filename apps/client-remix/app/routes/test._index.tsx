@@ -1,7 +1,7 @@
+import { getAuth } from "@clerk/remix/ssr.server"
 import { ActionArgs, LinksFunction, LoaderArgs, V2_MetaFunction, redirect } from "@remix-run/node"
 import { Form, useLoaderData } from "@remix-run/react"
 import { ErrorBoundaryComponent } from "~/components/ErrorBoundary"
-import { auth } from "~/services/auth.server"
 import { db } from "~/services/db.server"
 
 export const links: LinksFunction = () => [
@@ -21,23 +21,25 @@ export const loader = async ({ request }: LoaderArgs) => {
 
 const formNameTestStart = "testStart"
 
-export const action = async ({ request }: ActionArgs) => {
-
-  const rawForm = await request.formData()
+export const action = async (args: ActionArgs) => {
+  const rawForm = await args.request.formData()
   const formDataEntries = Object.fromEntries(rawForm)
   const formName = formDataEntries.formName as string
 
   if (formNameTestStart === formName) {
-    const authResult = await auth.isAuthenticated(request)
-    const profile = authResult?.profile
+    const { userId } = await getAuth(args)
+    if (!userId) {
+      return null
+    }
+
     const test = await db.test.create({
       data: {
-        userId: profile?.id
+        userId: userId
       }
     })
 
     const urlParams = {
-      userId: profile?.id ?? '',
+      userId,
     }
 
     const queryString = new URLSearchParams(urlParams).toString()

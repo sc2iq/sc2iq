@@ -3,7 +3,7 @@ import { ActionArgs, DataFunctionArgs, V2_MetaFunction, json } from "@remix-run/
 import { Form, useLoaderData } from "@remix-run/react"
 import { ErrorBoundaryComponent } from "~/components/ErrorBoundary"
 import QuestionDetails from "~/components/QuestionDetails"
-import { managementClient } from "~/services/auth0management.server"
+import { clerkClient } from "~/services/clerk"
 import { db } from "~/services/db.server"
 
 export const loader = async ({ params }: DataFunctionArgs) => {
@@ -15,11 +15,11 @@ export const loader = async ({ params }: DataFunctionArgs) => {
   })
 
 
-  const user = await managementClient.getUser({ id: question.createdBy })
+  const questionCreator = await clerkClient.users.getUser(question.createdBy)
 
   return json({
     question,
-    user,
+    questionCreator,
   })
 }
 
@@ -53,9 +53,7 @@ export const action = async ({ request }: ActionArgs) => {
     console.log({ archivedQuestion })
 
     return { question: archivedQuestion }
-
   }
-
 }
 
 export const ErrorBoundary = ErrorBoundaryComponent
@@ -65,7 +63,7 @@ export default function QuestionQuestionRoute() {
 
   return (
     <>
-      <QuestionDetails question={loaderData.question} createdBy={loaderData.user} />
+      <QuestionDetails question={loaderData.question} createdBy={loaderData.questionCreator as any} />
       <Form method="post">
         <input type="hidden" name="formName" value={formNameDelete} />
         <input type="hidden" name="questionId" value={loaderData.question.id} />

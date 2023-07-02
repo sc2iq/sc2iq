@@ -1,5 +1,8 @@
+import { ClerkApp, ClerkCatchBoundary, useUser } from "@clerk/remix"
+import { rootAuthLoader } from "@clerk/remix/ssr.server"
 import * as Icons from '@heroicons/react/24/solid'
-import { LinksFunction, LoaderArgs, json } from "@remix-run/node"; // or cloudflare/deno
+import { cssBundleHref } from "@remix-run/css-bundle"
+import { ErrorBoundaryComponent, LinksFunction, LoaderArgs } from "@remix-run/node"
 import {
   Link,
   Links,
@@ -11,26 +14,24 @@ import {
   ScrollRestoration,
   V2_MetaFunction,
   isRouteErrorResponse,
-  useLoaderData,
-  useRouteError,
+  useLoaderData
 } from "@remix-run/react"
-import { V2_ErrorBoundaryComponent } from "@remix-run/react/dist/routeModules"
-import { Role } from "auth0"
-import { Auth0Profile } from 'remix-auth-auth0'
-import { managementClient } from "~/services/auth0management.server"
-import { auth } from './services/auth.server'
-import styles from "./styles/tailwind.css"
+import tailwindStyles from "./styles/tailwind.css"
 
 export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: styles },
+  ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
+  { rel: "stylesheet", href: tailwindStyles },
 ]
 
 export const meta: V2_MetaFunction = () => {
-  return [{ title: "SC2IQ" }]
+  return [
+    { charset: "utf-8" },
+    { viewport: "width=device-width,initial-scale=1" },
+    { title: "SC2IQ" },
+  ]
 }
 
-export const ErrorBoundary: V2_ErrorBoundaryComponent = () => {
-  const error = useRouteError()
+export const ErrorBoundary: ErrorBoundaryComponent = ({ error }: any) => {
   console.error(error)
   if (isRouteErrorResponse(error)) {
     return (
@@ -58,22 +59,19 @@ export const ErrorBoundary: V2_ErrorBoundaryComponent = () => {
   )
 }
 
-export const loader = async ({ request }: LoaderArgs) => {
-  const authResult = await auth.isAuthenticated(request)
-  const profile = authResult?.profile
-  let userRoles: Role[] | undefined = undefined
 
-  if (profile?.id) {
-    userRoles = await managementClient.getUserRoles({ id: profile.id })
-  }
+export const CatchBoundary = ClerkCatchBoundary()
 
-  return json({
-    profile,
-    userRoles,
+export const loader = async (args: LoaderArgs) => {
+  return rootAuthLoader(args, () => {
+    return {
+    }
+  }, {
+    loadUser: true,
   })
 }
 
-export default function App() {
+function App() {
   const loaderData = useLoaderData<typeof loader>()
 
   return (
@@ -83,15 +81,17 @@ export default function App() {
   )
 }
 
+export default ClerkApp(App)
+
 // TODO: Find way to use typeof loader
 type Props = {
   data?: {
-    profile?: Auth0Profile,
-    userRoles?: Role[],
   }
 }
 
-const AppComponent: React.FC<React.PropsWithChildren<Props>> = ({ data, children }) => {
+const AppComponent: React.FC<React.PropsWithChildren<Props>> = ({ children }) => {
+  const { isSignedIn, user } = useUser()
+
   const navLinkClassNameFn = (isLoggedIn: boolean) => ({ isActive, isPending }: { isPending: boolean, isActive: boolean }) => {
     let classes = "flex flex-col gap-1 p-3 px-5 items-center rounded-md border"
     if (!isActive && !isLoggedIn) {
@@ -113,14 +113,12 @@ const AppComponent: React.FC<React.PropsWithChildren<Props>> = ({ data, children
     return classes
   }
 
-  const isLoggedIn = Boolean(data?.profile)
-  const userRole = data?.userRoles?.at(0)?.name
+  const userRoles = user?.organizationMemberships?.map(m => m.role) ?? []
+  const isAdmin = userRoles.includes("admin")
 
   return (
     <html lang="en" className="min-h-full">
       <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
         <Meta />
         <Links />
       </head>
@@ -157,20 +155,20 @@ const AppComponent: React.FC<React.PropsWithChildren<Props>> = ({ data, children
                 <Icons.PencilSquareIcon className="h-8 w-8" />
                 <div>Feeback</div>
               </NavLink>
-              {userRole === "admin" && (
-                <NavLink className={(...args) => navLinkClassNameFn(isLoggedIn)(...args)} to="admin">
+              {isAdmin && (
+                <NavLink className={(...args) => navLinkClassNameFn(Boolean(isSignedIn))(...args)} to="admin">
                   <Icons.ShieldExclamationIcon className="h-8 w-8" />
                   <div>Admin</div>
                 </NavLink>
               )}
               <Link to="profile" style={{ marginLeft: 'auto' }} className='flex flex-row items-end text-right gap-4 p-3 px-5 rounded-md hover:bg-slate-500/40'>
-                {data?.profile && (
+                {userRoles.length > 0 && (
                   <>
                     <div>
-                      <div>{userRole}</div>
-                      <div>{data.profile.displayName}</div>
+                      <div>{userRoles.at(0)}</div>
+                      <div>{user?.username ?? user?.fullName}</div>
                     </div>
-                    <img src={data.profile.photos?.at(0)?.value} alt="Profile Picture" className="h-16 w-16 rounded-full border border-slate-800 shadow-lg" />
+                    <img src={user?.imageUrl} alt="Profile Picture" className="h-16 w-16 rounded-full border border-slate-800 shadow-lg" />
                   </>
                 )}
               </Link>

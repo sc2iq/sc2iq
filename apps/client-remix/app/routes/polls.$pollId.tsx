@@ -1,9 +1,9 @@
+import { createClerkClient } from "@clerk/remix/api.server"
 import * as Icons from "@heroicons/react/24/solid"
 import { ActionArgs, DataFunctionArgs, V2_MetaFunction, json, redirect } from "@remix-run/node"
 import { Form, useLoaderData } from "@remix-run/react"
 import { ErrorBoundaryComponent } from "~/components/ErrorBoundary"
 import PollDetails from "~/components/PollDetails"
-import { managementClient } from "~/services/auth0management.server"
 import { db } from "~/services/db.server"
 
 export const loader = async ({ params }: DataFunctionArgs) => {
@@ -14,12 +14,14 @@ export const loader = async ({ params }: DataFunctionArgs) => {
     }
   })
 
-
-  const user = await managementClient.getUser({ id: poll.createdBy })
+  const clerkClient = createClerkClient({
+    secretKey: process.env.CLERK_SECRET_KEY
+  })
+  const pollCreator = await clerkClient.users.getUser(poll.createdBy)
 
   return json({
     poll,
-    user,
+    pollCreator,
   })
 }
 
@@ -32,12 +34,14 @@ export const meta: V2_MetaFunction = ({ matches, data, params }) => {
   return [{ title: `${parentTitle} - Poll: ${params?.questionId}` }]
 }
 
+const pollDetailDeleteFormName = "pollDetailDelete"
+
 export const action = async ({ request }: ActionArgs) => {
   const rawForm = await request.formData()
   const formDataEntries = Object.fromEntries(rawForm)
   const formName = formDataEntries.formName as string
 
-  if (formName === "pollDetailDelete") {
+  if (formName === pollDetailDeleteFormName) {
     const pollId = formDataEntries.pollId as string
     const deletedpoll = await db.poll.delete({ where: { id: pollId } })
 
@@ -56,11 +60,11 @@ export default function PollsPollRoute() {
     <>
       <PollDetails
         poll={loaderData.poll}
-        createdBy={loaderData.user}
+        createdBy={loaderData.pollCreator as any}
       />
       <div>
         <Form method="post">
-          <input type="hidden" name="formName" value="pollDetailDelete" />
+          <input type="hidden" name="formName" value={pollDetailDeleteFormName} />
           <input type="hidden" name="pollId" value={loaderData.poll.id} />
           <button className="border px-4 py-2 flex gap-2 items-center bg-red-600 text-white rounded-lg" type="submit"><Icons.XMarkIcon className="h-5 w-5" /> Delete</button>
         </Form>

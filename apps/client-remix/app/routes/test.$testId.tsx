@@ -2,7 +2,6 @@ import { LinksFunction, LoaderArgs, V2_MetaFunction, json } from "@remix-run/nod
 import { useLoaderData } from "@remix-run/react"
 import { ErrorBoundaryComponent } from "~/components/ErrorBoundary"
 import * as TestForm from "~/components/TestForm"
-import { auth } from "~/services/auth.server"
 import { db } from "~/services/db.server"
 
 export const links: LinksFunction = () => [
@@ -17,8 +16,6 @@ export const meta: V2_MetaFunction = ({ matches }) => {
 }
 
 export const loader = async ({ request, params }: LoaderArgs) => {
-  const authResult = await auth.isAuthenticated(request)
-  const profile = authResult?.profile
   const questions = await db.question.findMany({
     where: {
       state: "approved"
@@ -32,7 +29,6 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   })
 
   return json({
-    profile,
     test,
     questions,
   })

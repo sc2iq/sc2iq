@@ -1,10 +1,9 @@
+import { createClerkClient } from "@clerk/remix/api.server"
+import { getAuth } from "@clerk/remix/ssr.server"
 import { ActionArgs, LinksFunction, LoaderArgs, V2_MetaFunction, json } from "@remix-run/node"
 import { useLoaderData } from "@remix-run/react"
 import { ErrorBoundaryComponent } from "~/components/ErrorBoundary"
 import * as PollAdmin from "~/components/PollAdmin"
-import { APPROVER_ROLE_NAME } from "~/constants/index.server"
-import { auth } from "~/services/auth.server"
-import { managementClient } from "~/services/auth0management.server"
 import { db } from "~/services/db.server"
 
 export const links: LinksFunction = () => [
@@ -15,12 +14,7 @@ export const meta: V2_MetaFunction = ({ matches }) => {
   return [{ title: `${rootTitle} - Admin` }]
 }
 
-export const loader = async ({ request }: LoaderArgs) => {
-  const authResult = await auth.isAuthenticated(request, {
-    failureRedirect: "/"
-  })
-  const profile = authResult?.profile
-
+export const loader = async (args: LoaderArgs) => {
   const polls = await db.poll.findMany({
     where: {
       state: "pending"
@@ -28,29 +22,28 @@ export const loader = async ({ request }: LoaderArgs) => {
   })
 
   return json({
-    profile,
     polls,
   })
 }
 
-export const action = async ({ request }: ActionArgs) => {
-  const rawForm = await request.formData()
+export const action = async (args: ActionArgs) => {
+  const { userId } = await getAuth(args)
+  if (!userId) {
+    return null
+  }
+
+  const rawForm = await args.request.formData()
   const formDataEntries = Object.fromEntries(rawForm)
   const formName = formDataEntries.formName as string
 
   if (PollAdmin.formName === formName) {
-    const authResult = await auth.isAuthenticated(request, {
-      failureRedirect: "/"
-    })
-    const profile = authResult?.profile
-    if (typeof profile?.id !== 'string') {
-      return null
-    }
-
     const { pollId } = PollAdmin.getFormData(formDataEntries)
-    const userRoles = await managementClient.getUserRoles({ id: profile.id })
-    if (!userRoles.some(r => r.name === APPROVER_ROLE_NAME)) {
-      throw new Error(`You attempted to aprove poll: ${pollId} but you (user: ${profile.id}) is not an approver`)
+    const clerkClient = createClerkClient({
+      secretKey: process.env.CLERK_SECRET_KEY
+    })
+    const organizationMemberships = await clerkClient.users.getOrganizationMembershipList({ userId })
+    if (!organizationMemberships.some(m => m.role === "admin")) {
+      throw new Error(`You attempted to aprove poll: ${pollId} but you (user: ${userId}) is not an approver`)
     }
 
     const poll = await db.poll.update({

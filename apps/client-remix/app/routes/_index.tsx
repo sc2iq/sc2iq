@@ -1,26 +1,8 @@
-import { ActionArgs, LoaderArgs, V2_MetaFunction, json } from "@remix-run/node"
-import { Form, Link, useActionData, useLoaderData } from "@remix-run/react"
+import { useUser } from "@clerk/remix"
+import { ActionArgs, V2_MetaFunction } from "@remix-run/node"
+import { Form, Link, useActionData } from "@remix-run/react"
 import { ErrorBoundaryComponent } from "~/components/ErrorBoundary"
-import { auth, getSession } from "~/services/auth.server"
 
-type LoaderError = { message: string } | null
-
-export const loader = async ({ request }: LoaderArgs) => {
-  const authResult = await auth.isAuthenticated(request)
-  const profile = authResult?.profile
-  const session = await getSession(request.headers.get("Cookie"))
-  const error = session.get(auth.sessionErrorKey) as LoaderError
-
-  try {
-    return json({
-      profile,
-      error,
-    })
-  }
-  catch (e) {
-    throw new Error(`Error attempting to load items. It is likely that the database was asleep.\n\nThis is likely the first request to wake it up. Please try again in a few minutes.\n\n${e}`)
-  }
-}
 
 export const meta: V2_MetaFunction = ({ matches }) => {
   const rootTitle = (matches as any[]).find(m => m.id === 'root').meta.find((m: any) => m.title).title
@@ -39,21 +21,15 @@ export const action = async ({ request }: ActionArgs) => {
 export const ErrorBoundary = ErrorBoundaryComponent
 
 export default function IndexRoute() {
-  const loaderData = useLoaderData<typeof loader>()
+  const { isSignedIn, user } = useUser()
   const actionData = useActionData<typeof action>()
-  const hasProfile = loaderData.profile !== null && typeof loaderData.profile === 'object'
+  const displayName = user?.fullName ?? user?.username ?? user?.emailAddresses?.at(0)?.emailAddress ?? user?.phoneNumbers?.at(0)?.phoneNumber ?? user?.id
 
   return (
     <>
-      {loaderData.error
-        && (
-          <>
-            <h1>Error:</h1>
-            <div>{loaderData.error.message}</div>
-          </>)}
-      {hasProfile
+      {isSignedIn
         ? (<>
-          <h1 className="text-center font-semibold text-3xl py-2">Welcome back, {loaderData.profile?.displayName}!</h1>
+          <h1 className="text-center font-semibold text-3xl py-2">Welcome back, {displayName}!</h1>
           <h1 className="font-semibold text-3xl py-2">Personal Stats</h1>
           <div className="flex flex-col gap-2 text-2xl">
             <div className="flex gap-4">

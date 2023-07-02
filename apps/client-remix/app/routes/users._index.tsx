@@ -2,9 +2,8 @@ import { json, LinksFunction, LoaderArgs, V2_MetaFunction } from "@remix-run/nod
 import { useLoaderData } from "@remix-run/react"
 import React from "react"
 import { ErrorBoundaryComponent } from "~/components/ErrorBoundary"
-import { User } from "~/components/User"
-import { auth } from "~/services/auth.server"
-import { managementClient } from "~/services/auth0management.server"
+import { UserComponent } from "~/components/User"
+import { clerkClient } from "~/services/clerk"
 
 export const links: LinksFunction = () => [
 ]
@@ -14,40 +13,18 @@ export const meta: V2_MetaFunction = ({ matches }) => {
   return [{ title: `${rootTitle} - Users` }]
 }
 
-export const loader = async ({ request }: LoaderArgs) => {
-  const authResult = await auth.isAuthenticated(request)
-  const profile = authResult?.profile
-
-  const users = await managementClient.getUsers()
-  const roles = await managementClient.getRoles()
-
-  const userRoles: Record<string, any[]> = {}
-  for (const role of roles) {
-    if (!role?.id) {
-      continue
-    }
-
-    const usersInRole = await managementClient.getUsersInRole({
-      id: role.id
-    })
-
-    if (usersInRole.length > 0) {
-      userRoles[role.id] = usersInRole
-    }
-  }
+export const loader = async (args: LoaderArgs) => {
+  const users = await clerkClient.users.getUserList()
 
   return json({
-    profile,
     users,
-    roles,
-    userRoles,
   })
 }
 
 export const ErrorBoundary = ErrorBoundaryComponent
 
 export default function UserRoute() {
-  const { profile, users } = useLoaderData<typeof loader>()
+  const { users } = useLoaderData<typeof loader>()
 
   return (
     <>
@@ -60,9 +37,9 @@ export default function UserRoute() {
         <div>Link</div>
         {users.map((user, i) => {
           return (
-            <React.Fragment key={user.user_id}>
+            <React.Fragment key={user.id}>
               <div>{i + 1}</div>
-              <User user={user as any} />
+              <UserComponent user={user as any} />
             </React.Fragment>
           )
         })}
