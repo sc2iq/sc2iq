@@ -3,11 +3,10 @@ import { V2_MetaFunction } from "@remix-run/node"
 import { Link } from "@remix-run/react"
 import { ErrorBoundaryComponent } from "~/components/ErrorBoundary"
 
-export const meta: V2_MetaFunction = ({ matches, data }) => {
+export const meta: V2_MetaFunction = ({ matches, params }) => {
   const rootTitle = (matches as any[]).find(m => m.id === 'root').meta.find((m: any) => m.title).title
-  return [{ title: `${rootTitle} - Users - ${data.user?.nickname}` }]
+  return [{ title: `${rootTitle} - Users - ${params?.userId}` }]
 }
-
 
 export const ErrorBoundary = ErrorBoundaryComponent
 

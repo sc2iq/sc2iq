@@ -10,8 +10,6 @@ type Props = {
 }
 
 const PollForm: React.FC<Props> = (props) => {
-    const { isAuthenticated, loginWithRedirect } = Auth0.useAuth0()
-
     const [isOpen, setIsOpen] = React.useState(false)
     const [question, setQuestion, onChangeQuestion, onKeyDownQuestion] = useInput()
     const [answer1, setAnswer1, onChangeAnswer1, onKeyDownAnswer1] = useInput()

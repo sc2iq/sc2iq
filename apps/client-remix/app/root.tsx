@@ -1,8 +1,8 @@
-import { ClerkApp, ClerkCatchBoundary, useUser } from "@clerk/remix"
+import { ClerkApp, V2_ClerkErrorBoundary, useUser } from "@clerk/remix"
 import { rootAuthLoader } from "@clerk/remix/ssr.server"
 import * as Icons from '@heroicons/react/24/solid'
 import { cssBundleHref } from "@remix-run/css-bundle"
-import { ErrorBoundaryComponent, LinksFunction, LoaderArgs } from "@remix-run/node"
+import { LinksFunction, LoaderArgs } from "@remix-run/node"
 import {
   Link,
   Links,
@@ -14,8 +14,10 @@ import {
   ScrollRestoration,
   V2_MetaFunction,
   isRouteErrorResponse,
-  useLoaderData
+  useLoaderData,
+  useRouteError
 } from "@remix-run/react"
+import { V2_ErrorBoundaryComponent } from "@remix-run/react/dist/routeModules"
 import tailwindStyles from "./styles/tailwind.css"
 
 export const links: LinksFunction = () => [
@@ -31,7 +33,9 @@ export const meta: V2_MetaFunction = () => {
   ]
 }
 
-export const ErrorBoundary: ErrorBoundaryComponent = ({ error }: any) => {
+export const CustomErrorBoundary: V2_ErrorBoundaryComponent = () => {
+  const error = useRouteError()
+
   console.error(error)
   if (isRouteErrorResponse(error)) {
     return (
@@ -59,8 +63,7 @@ export const ErrorBoundary: ErrorBoundaryComponent = ({ error }: any) => {
   )
 }
 
-
-export const CatchBoundary = ClerkCatchBoundary()
+export const ErrorBoundary = V2_ClerkErrorBoundary(CustomErrorBoundary)
 
 export const loader = async (args: LoaderArgs) => {
   return rootAuthLoader(args, () => {
@@ -83,13 +86,12 @@ function App() {
 
 export default ClerkApp(App)
 
-// TODO: Find way to use typeof loader
 type Props = {
   data?: {
   }
 }
 
-const AppComponent: React.FC<React.PropsWithChildren<Props>> = ({ children }) => {
+const AppComponent: React.FC<React.PropsWithChildren<Props>> = ({ children, data }) => {
   const { isSignedIn, user } = useUser()
 
   const navLinkClassNameFn = (isLoggedIn: boolean) => ({ isActive, isPending }: { isPending: boolean, isActive: boolean }) => {
@@ -115,6 +117,7 @@ const AppComponent: React.FC<React.PropsWithChildren<Props>> = ({ children }) =>
 
   const userRoles = user?.organizationMemberships?.map(m => m.role) ?? []
   const isAdmin = userRoles.includes("admin")
+  console.log({ userRoles, isAdmin })
 
   return (
     <html lang="en" className="min-h-full">
@@ -146,6 +149,10 @@ const AppComponent: React.FC<React.PropsWithChildren<Props>> = ({ children }) =>
               <NavLink className={(...args) => navLinkClassNameFn(true)(...args)} to="users">
                 <Icons.UserGroupIcon className="h-8 w-8" />
                 <div>Users</div>
+              </NavLink>
+              <NavLink className={(...args) => navLinkClassNameFn(true)(...args)} to="profile">
+                <Icons.UserCircleIcon className="h-8 w-8" />
+                <div>Profile</div>
               </NavLink>
               <NavLink className={(...args) => navLinkClassNameFn(true)(...args)} to="about">
                 <Icons.InformationCircleIcon className="h-8 w-8" />

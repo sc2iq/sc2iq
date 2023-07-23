@@ -31,7 +31,7 @@ export const meta: V2_MetaFunction = ({ matches, data, params }) => {
     .meta.find((m: any) => m.title)
     .title
 
-  return [{ title: `${parentTitle} - Poll: ${params?.questionId}` }]
+  return [{ title: `${parentTitle} - Poll: ${params?.pollId}` }]
 }
 
 const pollDetailDeleteFormName = "pollDetailDelete"
