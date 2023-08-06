@@ -1,5 +1,7 @@
 import type { V2_MetaFunction } from "@remix-run/node"
 import React from "react"
+import classNames from "classnames"
+import { BeakerIcon, PlayIcon, StopIcon } from '@heroicons/react/24/solid'
 
 export const meta: V2_MetaFunction = ({ matches }) => {
   const parentRoute = matches.find(m => (m as any)?.id === "root")
@@ -24,22 +26,15 @@ export default function Index() {
     // Create a new media recorder
     const mediaRecorder = new MediaRecorder(stream)
     mediaRecorderRef.current = mediaRecorder
+
+    stream.getAudioTracks().forEach(track => {
+      console.log(`Audio tracks: `, { track })
+    })
   }
 
   const onError = (reason: unknown) => {
     console.error('Error getting media stream')
     console.error(reason)
-  }
-
-  const onClickStartVisualizer = () => {
-    const mediaStream = mediaRecorderRef.current?.stream
-    if (!mediaStream) {
-      console.error('You attempted to start the visualizer before the Media stream was initialized')
-    }
-    else {
-      // Start the visualizer
-      visualize(mediaStream)
-    }
   }
 
   React.useEffect(() => {
@@ -57,10 +52,13 @@ export default function Index() {
       console.error('getUserMedia not supported on your browser!')
       setIsAudioSupported(false)
     }
-  }, [])
 
-  React.useEffect(() => {
-    audioCtxRef.current = new AudioContext()
+    async function getDevices() {
+      const devices = await navigator.mediaDevices.enumerateDevices()
+      console.log(devices)
+    }
+
+    getDevices()
   }, [])
 
   const onClickRecord: React.MouseEventHandler<HTMLButtonElement> = () => {
@@ -73,15 +71,24 @@ export default function Index() {
     // Reset the audio chunks
     audioChunksRef.current = []
 
+    // Record new chunks of data
     const mediaRecorder = mediaRecorderRef.current
     mediaRecorder.ondataavailable = function (e) {
       audioChunksRef.current.push(e.data)
     }
 
+    const mediaStream = mediaRecorder.stream
+    if (!mediaStream) {
+      console.error('You attempted to start the visualizer before the Media stream was initialized')
+    }
+
+    // Start the visualizer
+    visualize(mediaStream)
+
     mediaRecorder.start()
-    console.log(mediaRecorder.state)
     setMediaRecorderState(mediaRecorder.state)
-    console.log("recorder started")
+    console.log(mediaRecorder.state)
+    console.log("Recording started")
   }
 
   const onClickStop: React.MouseEventHandler<HTMLButtonElement> = () => {
@@ -99,9 +106,10 @@ export default function Index() {
   }
 
   const visualize = (stream: MediaStream) => {
-    const audioCtx = audioCtxRef.current
+    let audioCtx = audioCtxRef.current
     if (!audioCtx) {
-      return
+      audioCtx = new AudioContext()
+      audioCtxRef.current = audioCtx
     }
 
     const analyser = audioCtx.createAnalyser()
@@ -153,39 +161,51 @@ export default function Index() {
     requestAnimationFrame(() => draw(canvas, analyser, dataArray, bufferLength))
   }
 
+  const isRecording = mediaRecorderRef.current?.state === 'recording'
+  const isRecordButtonDisabled = !isAudioSupported || isRecording
+  const recordButtonClassNames = classNames({
+    [`flex flex-row gap-2 p-4 m-2 px-6 rounded-md ring-2 ring-offset-4 border-none font-semibold`]: true,
+    ['text-slate-300 bg-blue-800 ring-blue-400 ring-offset-slate-900']: isRecordButtonDisabled,
+    ['text-white bg-green-500 ring-green-200 ring-offset-green-900 shadow-[0_5px_80px_-15px_white] shadow-green-200']: !isRecording,
+    ['text-white bg-blue-500 ring-blue-200 ring-offset-slate-900']: !isRecordButtonDisabled && !isRecordButtonDisabled
+  })
+
+  const isStopButtonDisabled = !isAudioSupported || !isRecording
+  const stopButtonClassNames = classNames({
+    [`flex flex-row gap-2 p-4 m-2 px-4 rounded-md ring-2 ring-offset-4 border-none font-semibold`]: true,
+    ['text-slate-300 bg-blue-800 ring-blue-400 ring-offset-slate-900']: isStopButtonDisabled,
+    ['text-white bg-red-500 ring-red-200 ring-offset-slate-900']: !isStopButtonDisabled
+  })
+
   return (
     <>
       {isAudioSupported ?
         (
-          <div className="w-1/2">
-            <dl>
-              <dt>Media State 1</dt><dd>{mediaRecorderRef.current?.state}</dd>
-              <dt>Media State 2</dt><dd>{mediaRecorderState}</dd>
+          <div className="min-w-[500px]">
+            <dl className="grid grid-cols-[max-content_1fr] gap-x-4">
+              <dt>Device</dt><dd>{mediaRecorderRef.current?.stream.getAudioTracks().at(0)?.label}</dd>
+              <dt>State</dt><dd>{mediaRecorderRef.current?.state}</dd>
+              <dt>State</dt><dd>{mediaRecorderState}</dd>
             </dl>
             <div className="py-4">
-              <canvas id="visualizer" ref={canvasRef} className="bg-slate-500 ring-4 ring-offset-4 ring-blue-400 ring-offset-slate-900 m-2 rounded-2xl"></canvas>
+              <canvas id="visualizer" ref={canvasRef} className="w-full h-20 bg-slate-500 ring-4 ring-offset-4 ring-blue-400 ring-offset-slate-900 m-2 rounded-xl"></canvas>
             </div>
             <div id="buttons" className="flex flex-row gap-4">
               <button
-                className={`rounded-xl p-3 bg-green-700 text-slate-50`}
+                className={recordButtonClassNames}
                 onClick={onClickRecord}
-                disabled={mediaRecorderRef.current?.state === 'recording'}
+                disabled={isRecordButtonDisabled}
               >
+                <PlayIcon className="h-6 w-6" />
                 Record
               </button>
               <button
-                className={`rounded-xl p-3 bg-green-700 text-slate-50`}
+                className={stopButtonClassNames}
                 onClick={onClickStop}
-                disabled={mediaRecorderRef.current?.state !== 'recording'}
+                disabled={isStopButtonDisabled}
               >
+                <StopIcon className="h-6 w-6" />
                 Stop
-              </button>
-
-              <button
-                className={`rounded-xl p-3 bg-green-700 text-slate-50`}
-                onClick={onClickStartVisualizer}
-              >
-                Start Visualizer
               </button>
             </div>
           </div>
