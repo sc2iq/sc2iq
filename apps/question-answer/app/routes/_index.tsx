@@ -1,7 +1,7 @@
 import type { V2_MetaFunction } from "@remix-run/node"
 import React from "react"
 import classNames from "classnames"
-import { BeakerIcon, PlayIcon, StopIcon } from '@heroicons/react/24/solid'
+import { BeakerIcon, PlayIcon, StopIcon, XMarkIcon } from '@heroicons/react/24/solid'
 
 export const meta: V2_MetaFunction = ({ matches }) => {
   const parentRoute = matches.find(m => (m as any)?.id === "root")
@@ -12,12 +12,18 @@ export const meta: V2_MetaFunction = ({ matches }) => {
   ]
 }
 
+type AudioClip = {
+  name: string
+  url: string
+}
+
 export default function Index() {
   const [isAudioSupported, setIsAudioSupported] = React.useState(false)
   const mediaRecorderRef = React.useRef<MediaRecorder>()
   const [mediaRecorderState, setMediaRecorderState] = React.useState<'inactive' | 'recording' | 'paused'>('inactive')
   const audioCtxRef = React.useRef<AudioContext>()
   const audioChunksRef = React.useRef<Blob[]>([])
+  const [audioClips, setAudioClips] = React.useState<AudioClip[]>([])
   const canvasRef = React.createRef<HTMLCanvasElement>()
 
   const onSuccess = (stream: MediaStream) => {
@@ -75,6 +81,22 @@ export default function Index() {
     const mediaRecorder = mediaRecorderRef.current
     mediaRecorder.ondataavailable = function (e) {
       audioChunksRef.current.push(e.data)
+    }
+
+    mediaRecorder.onstop = function (e) {
+      const clipName = prompt('Enter a name for your sound clip?', 'My unnamed clip')
+
+
+      const blob = new Blob(audioChunksRef.current, { 'type': 'audio/ogg; codecs=opus' })
+      audioChunksRef.current = []
+
+      const audioObjectUrl = window.URL.createObjectURL(blob)
+      const audioClip: AudioClip = {
+        name: clipName || 'Unnamed clip',
+        url: audioObjectUrl,
+      }
+
+      setAudioClips((prevAudioClips) => [...prevAudioClips, audioClip])
     }
 
     const mediaStream = mediaRecorder.stream
@@ -161,11 +183,15 @@ export default function Index() {
     requestAnimationFrame(() => draw(canvas, analyser, dataArray, bufferLength))
   }
 
+  const onClickDeleteClip = (audioClip: AudioClip) => {
+    setAudioClips((prevAudioClips) => prevAudioClips.filter((clip) => clip !== audioClip))
+  }
+
   const isRecording = mediaRecorderRef.current?.state === 'recording'
   const isRecordButtonDisabled = !isAudioSupported || isRecording
   const recordButtonClassNames = classNames({
     [`flex flex-row gap-2 p-4 m-2 px-6 rounded-md ring-2 ring-offset-4 border-none font-semibold`]: true,
-    ['text-slate-300 bg-blue-800 ring-blue-400 ring-offset-slate-900']: isRecordButtonDisabled,
+    ['text-slate-300 bg-blue-800 ring-blue-400 ring-offset-slate-900 cursor-not-allowed']: isRecordButtonDisabled,
     ['text-white bg-green-500 ring-green-200 ring-offset-green-900 shadow-[0_5px_80px_-15px_white] shadow-green-200']: !isRecording,
     ['text-white bg-blue-500 ring-blue-200 ring-offset-slate-900']: !isRecordButtonDisabled && !isRecordButtonDisabled
   })
@@ -173,24 +199,30 @@ export default function Index() {
   const isStopButtonDisabled = !isAudioSupported || !isRecording
   const stopButtonClassNames = classNames({
     [`flex flex-row gap-2 p-4 m-2 px-4 rounded-md ring-2 ring-offset-4 border-none font-semibold`]: true,
-    ['text-slate-300 bg-blue-800 ring-blue-400 ring-offset-slate-900']: isStopButtonDisabled,
+    ['text-slate-300 bg-blue-800 ring-blue-400 ring-offset-slate-900 cursor-not-allowed']: isStopButtonDisabled,
     ['text-white bg-red-500 ring-red-200 ring-offset-slate-900']: !isStopButtonDisabled
+  })
+
+  const deleteButtonClassNames = classNames({
+    [`flex flex-row gap-2 p-2 px-4 m-1 mx-2 rounded-lg ring-2 ring-offset-4 border-none font-semibold`]: true,
+    ['text-white bg-red-500 ring-red-200 ring-offset-slate-900']: true
   })
 
   return (
     <>
       {isAudioSupported ?
         (
-          <div className="min-w-[500px]">
+          <div className="flex flex-col gap-8 items-center">
             <dl className="grid grid-cols-[max-content_1fr] gap-x-4">
               <dt>Device</dt><dd>{mediaRecorderRef.current?.stream.getAudioTracks().at(0)?.label}</dd>
               <dt>State</dt><dd>{mediaRecorderRef.current?.state}</dd>
               <dt>State</dt><dd>{mediaRecorderState}</dd>
             </dl>
-            <div className="py-4">
-              <canvas id="visualizer" ref={canvasRef} className="w-full h-20 bg-slate-500 ring-4 ring-offset-4 ring-blue-400 ring-offset-slate-900 m-2 rounded-xl"></canvas>
+            <div className="min-w-[700px] flex flex-col gap-2">
+              <h2 className="font-bold text-xl">Audio Visualizer:</h2>
+              <canvas id="visualizer" ref={canvasRef} className="w-full h-20 bg-slate-500 ring-4 ring-offset-4 ring-blue-400 ring-offset-slate-900 m-2 mx-2 rounded-xl"></canvas>
             </div>
-            <div id="buttons" className="flex flex-row gap-4">
+            <div className="flex flex-row gap-4 justify-center">
               <button
                 className={recordButtonClassNames}
                 onClick={onClickRecord}
@@ -207,6 +239,25 @@ export default function Index() {
                 <StopIcon className="h-6 w-6" />
                 Stop
               </button>
+            </div>
+            <div className="min-w-[500px] flex flex-col gap-2">
+              <h2 className="font-bold text-xl">Recorded Clips ({audioClips.length}):</h2>
+              <div className="rounded-md flex flex-col gap-4">
+                {audioClips.length === 0
+                  ? "No Clips Recorded"
+                  : audioClips.map(clip => (
+                    <div key={clip.name} className="rounded-md flex flex-col gap-2">
+                      <p>{clip.name}</p>
+                      <div className="flex flex-row gap-6 items-center">
+                        <audio controls src={clip.url} className="w-full"></audio>
+                        <button onClick={() => onClickDeleteClip(clip)} className={deleteButtonClassNames}>
+                          <XMarkIcon className="h-6 w-6" />
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+              </div>
             </div>
           </div>
         )

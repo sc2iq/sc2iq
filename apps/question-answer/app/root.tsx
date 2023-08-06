@@ -34,13 +34,12 @@ export default function App() {
       <body className="min-h-full bg-slate-800 text-slate-200 flex flex-col justify-center items-center gap-8">
         <header>
           <h1 className="text-4xl font-bold">Question and Answer</h1>
-          <p>Record audio using the <a href="https://developer.mozilla.org/en-US/docs/Web/API/MediaStream_Recording_API/Using_the_MediaStream_Recording_API" target="_blank">Media Streaming API</a></p>
         </header>
         <main>
           <Outlet />
         </main>
         <footer>
-          Footer
+          <p>Record audio using the <a href="https://developer.mozilla.org/en-US/docs/Web/API/MediaStream_Recording_API/Using_the_MediaStream_Recording_API" target="_blank" className="underline underline-offset-4">Media Streaming API</a></p>
         </footer>
         <ScrollRestoration />
         <Scripts />
