@@ -51,15 +51,6 @@ $clientImageTag = $(Get-Date -Format "yyyyMMddhhmm")
 $clientImageName = "$($sharedResourceVars.registryUrl)/${clientContainerName}:${clientImageTag}"
 
 $data = [ordered]@{
-  "auth0ReturnToUrl"            = $auth0ReturnToUrl
-  "auth0CallbackUrl"            = $auth0CallbackUrl
-  "auth0ClientId"               = $auth0ClientId
-  "auth0ClientSecret"           = "$($auth0ClientSecret.Substring(0, 5))..."
-  "auth0Domain"                 = $auth0Domain
-  "auth0LogoutUrl"              = $auth0LogoutUrl
-  "auth0ManagementClientId"     = $auth0ManagementClientId
-  "auth0ManagementClientSecret" = "$($auth0ManagementClientSecret.Substring(0, 5))..."
-
   "cookieSecret"                = "$($cookieSecret.Substring(0, 5))..."
   "databaseUrlSecret"           = "$($databaseUrlSecret.Substring(0, 5))..."
 
@@ -92,61 +83,61 @@ else {
 
 Write-Step "Provision $sc2iqResourceGroupName Resources (What-If: $($WhatIf))"
 
-Write-Step "Build and Push $clientImageName Image"
-docker build -t $clientImageName "$repoRoot/apps/client-remix"
+# Write-Step "Build and Push $clientImageName Image"
+# docker build -t $clientImageName "$repoRoot/apps/client-remix"
 
-if ($WhatIf -eq $False) {
-  docker push $clientImageName
-}
+# if ($WhatIf -eq $False) {
+#   docker push $clientImageName
+# }
 
-Write-Step "Deploy $clientImageName Container App (What-If: $($WhatIf))"
-$clientBicepContainerDeploymentFilePath = "$repoRoot/bicep/modules/clientContainerApp.bicep"
+# Write-Step "Deploy $clientImageName Container App (What-If: $($WhatIf))"
+# $clientBicepContainerDeploymentFilePath = "$repoRoot/bicep/modules/clientContainerApp.bicep"
 
-if ($WhatIf -eq $True) {
-  az deployment group create `
-    -g $sc2iqResourceGroupName `
-    -f $clientBicepContainerDeploymentFilePath `
-    -p managedEnvironmentResourceId=$($sharedResourceVars.containerAppsEnvResourceId) `
-    registryUrl=$($sharedResourceVars.registryUrl) `
-    registryUsername=$($sharedResourceVars.registryUsername) `
-    registryPassword=$($sharedResourceVars.registryUsername) `
-    imageName=$clientImageName `
-    containerName=$clientContainerName `
-    auth0ReturnToUrl=$auth0ReturnToUrl `
-    auth0CallbackUrl=$auth0CallbackUrl `
-    auth0ClientId=$auth0ClientId `
-    auth0ClientSecret=$auth0ClientSecret `
-    auth0Domain=$auth0Domain `
-    auth0LogoutUrl=$auth0LogoutUrl `
-    auth0managementClientId=$auth0managementClientId `
-    auth0managementClientSecret=$auth0managementClientSecret `
-    databaseUrl=$databaseUrlSecret `
-    cookieSecret=$cookieSecret `
-    --what-if
-}
-else {
-  $clientFqdn = $(az deployment group create `
-    -g $sc2iqResourceGroupName `
-    -f $clientBicepContainerDeploymentFilePath `
-    -p managedEnvironmentResourceId=$($sharedResourceVars.containerAppsEnvResourceId) `
-    registryUrl=$($sharedResourceVars.registryUrl) `
-    registryUsername=$($sharedResourceVars.registryUsername) `
-    registryPassword=$($sharedResourceVars.registryUsername) `
-    imageName=$clientImageName `
-    containerName=$clientContainerName `
-    auth0ReturnToUrl=$auth0ReturnToUrl `
-    auth0CallbackUrl=$auth0CallbackUrl `
-    auth0ClientId=$auth0ClientId `
-    auth0ClientSecret=$auth0ClientSecret `
-    auth0Domain=$auth0Domain `
-    auth0LogoutUrl=$auth0LogoutUrl `
-    auth0managementClientId=$auth0managementClientId `
-    auth0managementClientSecret=$auth0managementClientSecret `
-    databaseUrl=$databaseUrlSecret `
-    cookieSecret=$cookieSecret `
-    --query "properties.outputs.fqdn.value" `
-    -o tsv)
+# if ($WhatIf -eq $True) {
+#   az deployment group create `
+#     -g $sc2iqResourceGroupName `
+#     -f $clientBicepContainerDeploymentFilePath `
+#     -p managedEnvironmentResourceId=$($sharedResourceVars.containerAppsEnvResourceId) `
+#     registryUrl=$($sharedResourceVars.registryUrl) `
+#     registryUsername=$($sharedResourceVars.registryUsername) `
+#     registryPassword=$($sharedResourceVars.registryUsername) `
+#     imageName=$clientImageName `
+#     containerName=$clientContainerName `
+#     auth0ReturnToUrl=$auth0ReturnToUrl `
+#     auth0CallbackUrl=$auth0CallbackUrl `
+#     auth0ClientId=$auth0ClientId `
+#     auth0ClientSecret=$auth0ClientSecret `
+#     auth0Domain=$auth0Domain `
+#     auth0LogoutUrl=$auth0LogoutUrl `
+#     auth0managementClientId=$auth0managementClientId `
+#     auth0managementClientSecret=$auth0managementClientSecret `
+#     databaseUrl=$databaseUrlSecret `
+#     cookieSecret=$cookieSecret `
+#     --what-if
+# }
+# else {
+#   $clientFqdn = $(az deployment group create `
+#     -g $sc2iqResourceGroupName `
+#     -f $clientBicepContainerDeploymentFilePath `
+#     -p managedEnvironmentResourceId=$($sharedResourceVars.containerAppsEnvResourceId) `
+#     registryUrl=$($sharedResourceVars.registryUrl) `
+#     registryUsername=$($sharedResourceVars.registryUsername) `
+#     registryPassword=$($sharedResourceVars.registryUsername) `
+#     imageName=$clientImageName `
+#     containerName=$clientContainerName `
+#     auth0ReturnToUrl=$auth0ReturnToUrl `
+#     auth0CallbackUrl=$auth0CallbackUrl `
+#     auth0ClientId=$auth0ClientId `
+#     auth0ClientSecret=$auth0ClientSecret `
+#     auth0Domain=$auth0Domain `
+#     auth0LogoutUrl=$auth0LogoutUrl `
+#     auth0managementClientId=$auth0managementClientId `
+#     auth0managementClientSecret=$auth0managementClientSecret `
+#     databaseUrl=$databaseUrlSecret `
+#     cookieSecret=$cookieSecret `
+#     --query "properties.outputs.fqdn.value" `
+#     -o tsv)
 
-  $clientUrl = "https://$clientFqdn"
-  Write-Output $clientUrl
-}
+#   $clientUrl = "https://$clientFqdn"
+#   Write-Output $clientUrl
+# }

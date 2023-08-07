@@ -6,3 +6,11 @@ module sqlDatabase 'modules/sqlDatabase.bicep' = {
     uniqueRgString: uniqueRgString
   }
 }
+
+module storageBlobContainers 'modules/storageBlobContainers.bicep' = {
+  name: 'storageBlobContainersModule'
+  params: {
+    uniqueRgString: uniqueRgString
+  }
+}
+
