@@ -40,3 +40,13 @@ npx prisma db push
 ```
 prisma db execute --file ./prisma/scripts/create-dbs.sql
 ```
+
+## Docker
+
+```
+docker build -t sc2-iq-client .
+
+docker run -it --rm `
+    -p 8080:3000 `
+    scc2-iq-client
+```

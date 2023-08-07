@@ -32,14 +32,8 @@ az group create -l $resourceGroupLocation -g $sc2iqResourceGroupName --query nam
 $envFilePath = $(Resolve-Path "$repoRoot/.env").Path
 
 Write-Step "Get ENV Vars from: $envFilePath"
-$auth0ReturnToUrl = Get-EnvVarFromFile -envFilePath $envFilePath -variableName 'AUTH0_RETURN_TO_URL'
-$auth0CallbackUrl = Get-EnvVarFromFile -envFilePath $envFilePath -variableName 'AUTH0_CALLBACK_URL'
-$auth0ClientId = Get-EnvVarFromFile -envFilePath $envFilePath -variableName 'AUTH0_CLIENT_ID'
-$auth0ClientSecret = Get-EnvVarFromFile -envFilePath $envFilePath -variableName 'AUTH0_CLIENT_SECRET'
-$auth0Domain = Get-EnvVarFromFile -envFilePath $envFilePath -variableName 'AUTH0_DOMAIN'
-$auth0LogoutUrl = Get-EnvVarFromFile -envFilePath $envFilePath -variableName 'AUTH0_LOGOUT_URL'
-$auth0ManagementClientId = Get-EnvVarFromFile -envFilePath $envFilePath -variableName 'AUTH0_MANAGEMENT_APP_CLIENT_ID'
-$auth0ManagementClientSecret = Get-EnvVarFromFile -envFilePath $envFilePath -variableName 'AUTH0_MANAGEMENT_APP_CLIENT_SECRET'
+$clerkPublishableKey = Get-EnvVarFromFile -envFilePath $envFilePath -variableName 'CLERK_PUBLISHABLE_KEY'
+$clerkSecretKey = Get-EnvVarFromFile -envFilePath $envFilePath -variableName 'CLERK_SECRET_KEY'
 $cookieSecret = Get-EnvVarFromFile -envFilePath $envFilePath -variableName 'COOKIE_SECRET'
 $databaseUrlSecret = Get-EnvVarFromFile -envFilePath $envFilePath -variableName 'DATABASE_URL'
 
@@ -51,10 +45,12 @@ $clientImageTag = $(Get-Date -Format "yyyyMMddhhmm")
 $clientImageName = "$($sharedResourceVars.registryUrl)/${clientContainerName}:${clientImageTag}"
 
 $data = [ordered]@{
-  "cookieSecret"                = "$($cookieSecret.Substring(0, 5))..."
-  "databaseUrlSecret"           = "$($databaseUrlSecret.Substring(0, 5))..."
+  "cookieSecret"               = "$($cookieSecret.Substring(0, 5))..."
+  "databaseUrlSecret"          = "$($databaseUrlSecret.Substring(0, 5))..."
+  "clerkPublishableKey"        = $clerkPublishableKey
+  "clerkSecretKey"             = "$($clerkSecretKey.Substring(0, 10))..."
 
-  "clientImageName"             = $clientImageName
+  "clientImageName"            = $clientImageName
 
   "containerAppsEnvResourceId" = $($sharedResourceVars.containerAppsEnvResourceId)
   "registryUrl"                = $($sharedResourceVars.registryUrl)
@@ -83,61 +79,49 @@ else {
 
 Write-Step "Provision $sc2iqResourceGroupName Resources (What-If: $($WhatIf))"
 
-# Write-Step "Build and Push $clientImageName Image"
-# docker build -t $clientImageName "$repoRoot/apps/client-remix"
+Write-Step "Build and Push $clientImageName Image"
+docker build -t $clientImageName "$repoRoot/apps/client-remix"
 
-# if ($WhatIf -eq $False) {
-#   docker push $clientImageName
-# }
+if ($WhatIf -eq $False) {
+  docker push $clientImageName
+}
 
-# Write-Step "Deploy $clientImageName Container App (What-If: $($WhatIf))"
-# $clientBicepContainerDeploymentFilePath = "$repoRoot/bicep/modules/clientContainerApp.bicep"
+Write-Step "Deploy $clientImageName Container App (What-If: $($WhatIf))"
+$clientBicepContainerDeploymentFilePath = "$repoRoot/bicep/modules/clientContainerApp.bicep"
 
-# if ($WhatIf -eq $True) {
-#   az deployment group create `
-#     -g $sc2iqResourceGroupName `
-#     -f $clientBicepContainerDeploymentFilePath `
-#     -p managedEnvironmentResourceId=$($sharedResourceVars.containerAppsEnvResourceId) `
-#     registryUrl=$($sharedResourceVars.registryUrl) `
-#     registryUsername=$($sharedResourceVars.registryUsername) `
-#     registryPassword=$($sharedResourceVars.registryUsername) `
-#     imageName=$clientImageName `
-#     containerName=$clientContainerName `
-#     auth0ReturnToUrl=$auth0ReturnToUrl `
-#     auth0CallbackUrl=$auth0CallbackUrl `
-#     auth0ClientId=$auth0ClientId `
-#     auth0ClientSecret=$auth0ClientSecret `
-#     auth0Domain=$auth0Domain `
-#     auth0LogoutUrl=$auth0LogoutUrl `
-#     auth0managementClientId=$auth0managementClientId `
-#     auth0managementClientSecret=$auth0managementClientSecret `
-#     databaseUrl=$databaseUrlSecret `
-#     cookieSecret=$cookieSecret `
-#     --what-if
-# }
-# else {
-#   $clientFqdn = $(az deployment group create `
-#     -g $sc2iqResourceGroupName `
-#     -f $clientBicepContainerDeploymentFilePath `
-#     -p managedEnvironmentResourceId=$($sharedResourceVars.containerAppsEnvResourceId) `
-#     registryUrl=$($sharedResourceVars.registryUrl) `
-#     registryUsername=$($sharedResourceVars.registryUsername) `
-#     registryPassword=$($sharedResourceVars.registryUsername) `
-#     imageName=$clientImageName `
-#     containerName=$clientContainerName `
-#     auth0ReturnToUrl=$auth0ReturnToUrl `
-#     auth0CallbackUrl=$auth0CallbackUrl `
-#     auth0ClientId=$auth0ClientId `
-#     auth0ClientSecret=$auth0ClientSecret `
-#     auth0Domain=$auth0Domain `
-#     auth0LogoutUrl=$auth0LogoutUrl `
-#     auth0managementClientId=$auth0managementClientId `
-#     auth0managementClientSecret=$auth0managementClientSecret `
-#     databaseUrl=$databaseUrlSecret `
-#     cookieSecret=$cookieSecret `
-#     --query "properties.outputs.fqdn.value" `
-#     -o tsv)
+if ($WhatIf -eq $True) {
+  az deployment group create `
+    -g $sc2iqResourceGroupName `
+    -f $clientBicepContainerDeploymentFilePath `
+    -p managedEnvironmentResourceId=$($sharedResourceVars.containerAppsEnvResourceId) `
+    registryUrl=$($sharedResourceVars.registryUrl) `
+    registryUsername=$($sharedResourceVars.registryUsername) `
+    registryPassword=$($sharedResourceVars.registryUsername) `
+    imageName=$clientImageName `
+    containerName=$clientContainerName `
+    clerkPublishableKey=$clerkPublishableKey `
+    clerkSecretKey=$clerkSecretKey `
+    databaseUrl=$databaseUrlSecret `
+    cookieSecret=$cookieSecret `
+    --what-if
+}
+else {
+  $clientFqdn = $(az deployment group create `
+      -g $sc2iqResourceGroupName `
+      -f $clientBicepContainerDeploymentFilePath `
+      -p managedEnvironmentResourceId=$($sharedResourceVars.containerAppsEnvResourceId) `
+      registryUrl=$($sharedResourceVars.registryUrl) `
+      registryUsername=$($sharedResourceVars.registryUsername) `
+      registryPassword=$($sharedResourceVars.registryUsername) `
+      imageName=$clientImageName `
+      containerName=$clientContainerName `
+      clerkPublishableKey=$clerkPublishableKey `
+      clerkSecretKey=$clerkSecretKey `
+      databaseUrl=$databaseUrlSecret `
+      cookieSecret=$cookieSecret `
+      --query "properties.outputs.fqdn.value" `
+      -o tsv)
 
-#   $clientUrl = "https://$clientFqdn"
-#   Write-Output $clientUrl
-# }
+  $clientUrl = "https://$clientFqdn"
+  Write-Output $clientUrl
+}
