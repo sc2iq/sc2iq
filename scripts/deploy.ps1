@@ -26,9 +26,6 @@ $sc2iqResourceGroupName = "sc2iq"
 $sharedResourceNames = Get-ResourceNames $sharedResourceGroupName $sharedRgString
 $sc2iqResourceNames = Get-LocalResourceNames $sc2iqResourceGroupName 'unused'
 
-Write-Step "Create Resource Group"
-az group create -l $resourceGroupLocation -g $sc2iqResourceGroupName --query name -o tsv
-
 $envFilePath = $(Resolve-Path "$repoRoot/.env").Path
 
 Write-Step "Get ENV Vars from: $envFilePath"
@@ -43,19 +40,20 @@ $sharedResourceVars = Get-SharedResourceDeploymentVars $sharedResourceGroupName 
 $clientContainerName = "$sc2iqResourceGroupName-client"
 $clientImageTag = $(Get-Date -Format "yyyyMMddhhmm")
 $clientImageName = "$($sharedResourceVars.registryUrl)/${clientContainerName}:${clientImageTag}"
+$secrectCharRevealLength = 10
 
 $data = [ordered]@{
-  "cookieSecret"               = "$($cookieSecret.Substring(0, 5))..."
-  "databaseUrlSecret"          = "$($databaseUrlSecret.Substring(0, 5))..."
+  "cookieSecret"               = "$($cookieSecret.Substring(0, $secrectCharRevealLength))..."
+  "databaseUrlSecret"          = "$($databaseUrlSecret.Substring(0, $secrectCharRevealLength))..."
   "clerkPublishableKey"        = $clerkPublishableKey
-  "clerkSecretKey"             = "$($clerkSecretKey.Substring(0, 10))..."
+  "clerkSecretKey"             = "$($clerkSecretKey.Substring(0, $secrectCharRevealLength))..."
 
   "clientImageName"            = $clientImageName
 
   "containerAppsEnvResourceId" = $($sharedResourceVars.containerAppsEnvResourceId)
   "registryUrl"                = $($sharedResourceVars.registryUrl)
   "registryUsername"           = $($sharedResourceVars.registryUsername)
-  "registryPassword"           = "$($($sharedResourceVars.registryPassword).Substring(0, 5))..."
+  "registryPassword"           = "$($($sharedResourceVars.registryPassword).Substring(0, $secrectCharRevealLength))..."
 }
 
 Write-Hash "Data" $data
@@ -77,14 +75,24 @@ else {
     -o tsv
 }
 
+Write-Step "Create Resource Group"
+az group create -l $resourceGroupLocation -g $sc2iqResourceGroupName --query name -o tsv
+
 Write-Step "Provision $sc2iqResourceGroupName Resources (What-If: $($WhatIf))"
 
-Write-Step "Build and Push $clientImageName Image"
+Write-Step "Build $clientImageName Image (What-If: $($WhatIf))"
 docker build -t $clientImageName "$repoRoot/apps/client-remix"
 
 if ($WhatIf -eq $False) {
+  Write-Step "Push $clientImageName Image (What-If: $($WhatIf))"
   docker push $clientImageName
 }
+else {
+  Write-Step "Skipping Push $clientImageName Image (What-If: $($WhatIf))"
+}
+
+Write-Step "Get Top Image from $($sharedResourceVars.registryUrl) respository $clientContainerName to Verify Push (What-If: $($WhatIf))"
+az acr repository show-tags --name $($sharedResourceVars.registryUrl) --repository $clientContainerName --orderby time_desc --top 1 -o tsv
 
 Write-Step "Deploy $clientImageName Container App (What-If: $($WhatIf))"
 $clientBicepContainerDeploymentFilePath = "$repoRoot/bicep/modules/clientContainerApp.bicep"
@@ -96,7 +104,7 @@ if ($WhatIf -eq $True) {
     -p managedEnvironmentResourceId=$($sharedResourceVars.containerAppsEnvResourceId) `
     registryUrl=$($sharedResourceVars.registryUrl) `
     registryUsername=$($sharedResourceVars.registryUsername) `
-    registryPassword=$($sharedResourceVars.registryUsername) `
+    registryPassword=$($sharedResourceVars.registryPassword) `
     imageName=$clientImageName `
     containerName=$clientContainerName `
     clerkPublishableKey=$clerkPublishableKey `
@@ -112,7 +120,7 @@ else {
       -p managedEnvironmentResourceId=$($sharedResourceVars.containerAppsEnvResourceId) `
       registryUrl=$($sharedResourceVars.registryUrl) `
       registryUsername=$($sharedResourceVars.registryUsername) `
-      registryPassword=$($sharedResourceVars.registryUsername) `
+      registryPassword=$($sharedResourceVars.registryPassword) `
       imageName=$clientImageName `
       containerName=$clientContainerName `
       clerkPublishableKey=$clerkPublishableKey `
