@@ -8,6 +8,7 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@azure/storage-blob": "^12.15.0",
     "@heroicons/react": "^2.0.18",
     "@remix-run/css-bundle": "^1.19.2",
     "@remix-run/node": "^1.19.2",

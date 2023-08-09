@@ -1,7 +1,8 @@
-import type { V2_MetaFunction } from "@remix-run/node"
+import type { ActionArgs, V2_MetaFunction } from "@remix-run/node"
 import React from "react"
 import classNames from "classnames"
-import { BeakerIcon, PlayIcon, StopIcon, XMarkIcon } from '@heroicons/react/24/solid'
+import { PlayIcon, StopIcon, XMarkIcon } from '@heroicons/react/24/solid'
+import { audioClipsContainerClient } from "~/services/blobService"
 
 export const meta: V2_MetaFunction = ({ matches }) => {
   const parentRoute = matches.find(m => (m as any)?.id === "root")
@@ -15,6 +16,35 @@ export const meta: V2_MetaFunction = ({ matches }) => {
 type AudioClip = {
   name: string
   url: string
+}
+
+const formIntentUpload = 'upload'
+
+export const action = async ({ request }: ActionArgs) => {
+  const rawFormData = await request.formData()
+  const formData = Object.fromEntries(rawFormData.entries())
+
+  if (formData.intent === formIntentUpload) {
+    console.log('Upload form submitted')
+    console.log({ formData })
+
+    const uploadTime = Date.now()
+    const filename = `audioClip_${uploadTime}.ogg`
+    const fileBuffer = Buffer.from(formData.audioClipUrl as string, 'base64')
+    const uploadResponse = await audioClipsContainerClient.uploadBlockBlob(filename, fileBuffer, fileBuffer.byteLength)
+
+    const uploadData = {
+      url: uploadResponse.blockBlobClient.url,
+      name: uploadResponse.blockBlobClient.name,
+    }
+    console.log({ uploadData })
+
+    return {
+      uploadData,
+    }
+  }
+
+  return null
 }
 
 export default function Index() {
@@ -84,15 +114,15 @@ export default function Index() {
     }
 
     mediaRecorder.onstop = function (e) {
-      const clipName = prompt('Enter a name for your sound clip?', 'My unnamed clip')
-
+      const defaultName = 'Unnamed clip'
+      const clipName = prompt('Enter a name for your sound clip?', defaultName)
 
       const blob = new Blob(audioChunksRef.current, { 'type': 'audio/ogg; codecs=opus' })
       audioChunksRef.current = []
 
       const audioObjectUrl = window.URL.createObjectURL(blob)
       const audioClip: AudioClip = {
-        name: clipName || 'Unnamed clip',
+        name: clipName ?? defaultName,
         url: audioObjectUrl,
       }
 
