@@ -3,6 +3,8 @@ import React from "react"
 import classNames from "classnames"
 import { PlayIcon, StopIcon, XMarkIcon } from '@heroicons/react/24/solid'
 import { audioClipsContainerClient } from "~/services/blobService"
+import { useActionData, useFetcher } from "@remix-run/react"
+import { createId } from "@paralleldrive/cuid2"
 
 export const meta: V2_MetaFunction = ({ matches }) => {
   const parentRoute = matches.find(m => (m as any)?.id === "root")
@@ -14,8 +16,15 @@ export const meta: V2_MetaFunction = ({ matches }) => {
 }
 
 type AudioClip = {
+  id: string
   name: string
   url: string
+}
+
+type UploadedAudioClip = {
+  id: string
+  url: string
+  name: string
 }
 
 const formIntentUpload = 'upload'
@@ -30,10 +39,11 @@ export const action = async ({ request }: ActionArgs) => {
 
     const uploadTime = Date.now()
     const filename = `audioClip_${uploadTime}.ogg`
-    const fileBuffer = Buffer.from(formData.audioClipUrl as string, 'base64')
+    const fileBuffer = Buffer.from(formData.url as string, 'base64')
     const uploadResponse = await audioClipsContainerClient.uploadBlockBlob(filename, fileBuffer, fileBuffer.byteLength)
 
-    const uploadData = {
+    const uploadData: UploadedAudioClip = {
+      id: formData.id as string,
       url: uploadResponse.blockBlobClient.url,
       name: uploadResponse.blockBlobClient.name,
     }
@@ -49,12 +59,15 @@ export const action = async ({ request }: ActionArgs) => {
 
 export default function Index() {
   const [isAudioSupported, setIsAudioSupported] = React.useState(false)
+  const [uploadedAudioClipDatas, setUploadedAudioClipDatas] = React.useState<UploadedAudioClip[]>([])
   const mediaRecorderRef = React.useRef<MediaRecorder>()
   const [mediaRecorderState, setMediaRecorderState] = React.useState<'inactive' | 'recording' | 'paused'>('inactive')
   const audioCtxRef = React.useRef<AudioContext>()
   const audioChunksRef = React.useRef<Blob[]>([])
   const [audioClips, setAudioClips] = React.useState<AudioClip[]>([])
   const canvasRef = React.createRef<HTMLCanvasElement>()
+  const uploadFetcher = useFetcher()
+  const actionData = useActionData<typeof action>()
 
   const onSuccess = (stream: MediaStream) => {
     console.log('onSuccess')
@@ -120,13 +133,28 @@ export default function Index() {
       const blob = new Blob(audioChunksRef.current, { 'type': 'audio/ogg; codecs=opus' })
       audioChunksRef.current = []
 
-      const audioObjectUrl = window.URL.createObjectURL(blob)
+      const audioObjectUrl = globalThis.URL.createObjectURL(blob)
+      fetch(audioObjectUrl).then(r => r.blob()).then(blob => {
+        console.log(`The blob converted: `, { blob })
+
+      })
       const audioClip: AudioClip = {
+        id: createId(),
         name: clipName ?? defaultName,
         url: audioObjectUrl,
       }
 
       setAudioClips((prevAudioClips) => [...prevAudioClips, audioClip])
+
+      const formData = {
+        ...audioClip,
+        intent: formIntentUpload
+      }
+
+      uploadFetcher.submit(formData, {
+        method: 'POST',
+        action: '?index&process=true',
+      })
     }
 
     const mediaStream = mediaRecorder.stream
