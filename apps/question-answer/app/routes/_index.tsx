@@ -38,7 +38,7 @@ export const action = async ({ request }: ActionArgs) => {
     console.log({ formData })
 
     const uploadTime = Date.now()
-    const filename = `audioClip_${uploadTime}.ogg`
+    const filename = `audioClip_${uploadTime}.wav`
     const fileBuffer = Buffer.from(formData.url as string, 'base64')
     const uploadResponse = await audioClipsContainerClient.uploadBlockBlob(filename, fileBuffer, fileBuffer.byteLength)
 
@@ -59,6 +59,8 @@ export const action = async ({ request }: ActionArgs) => {
 
 export default function Index() {
   const [isAudioSupported, setIsAudioSupported] = React.useState(false)
+  const [audioDevices, setAudioDevices] = React.useState<MediaDeviceInfo[]>([])
+  const [selectedAudioDevice, setSelectedAudioDevice] = React.useState<MediaDeviceInfo>()
   const [uploadedAudioClipDatas, setUploadedAudioClipDatas] = React.useState<UploadedAudioClip[]>([])
   const mediaRecorderRef = React.useRef<MediaRecorder>()
   const [mediaRecorderState, setMediaRecorderState] = React.useState<'inactive' | 'recording' | 'paused'>('inactive')
@@ -87,27 +89,32 @@ export default function Index() {
   }
 
   React.useEffect(() => {
-    if (typeof navigator.mediaDevices.getUserMedia === 'function') {
-      console.log('getUserMedia supported.')
-      setIsAudioSupported(true)
+    async function setup() {
 
-      const constraints: MediaStreamConstraints = {
-        audio: true,
+      if (typeof navigator.mediaDevices.getUserMedia === 'function') {
+        console.log('getUserMedia IS supported on your browser!')
+        setIsAudioSupported(true)
+
+        const devices = await navigator.mediaDevices.enumerateDevices()
+        const innerAudioDevices = devices.filter(d => d.kind === 'audioinput')
+        setAudioDevices(innerAudioDevices)
+
+        const defaultDevice = innerAudioDevices.find(d => d.deviceId === 'default')
+        setSelectedAudioDevice(defaultDevice)
+
+        const constraints: MediaStreamConstraints = {
+          audio: true,
+        }
+
+        navigator.mediaDevices.getUserMedia(constraints).then(onSuccess, onError)
       }
-
-      navigator.mediaDevices.getUserMedia(constraints).then(onSuccess, onError)
-    }
-    else {
-      console.error('getUserMedia not supported on your browser!')
-      setIsAudioSupported(false)
+      else {
+        console.error('getUserMedia IS NOT supported on your browser!')
+        setIsAudioSupported(false)
+      }
     }
 
-    async function getDevices() {
-      const devices = await navigator.mediaDevices.enumerateDevices()
-      console.log(devices)
-    }
-
-    getDevices()
+    setup()
   }, [])
 
   const onClickRecord: React.MouseEventHandler<HTMLButtonElement> = () => {
@@ -130,14 +137,14 @@ export default function Index() {
       const defaultName = 'Unnamed clip'
       const clipName = prompt('Enter a name for your sound clip?', defaultName)
 
-      const blob = new Blob(audioChunksRef.current, { 'type': 'audio/ogg; codecs=opus' })
+      // const blob = new Blob(audioChunksRef.current, { 'type': 'audio/ogg; codecs=opus' })
+      const blob = new Blob(audioChunksRef.current)
       audioChunksRef.current = []
 
       const audioObjectUrl = globalThis.URL.createObjectURL(blob)
-      fetch(audioObjectUrl).then(r => r.blob()).then(blob => {
-        console.log(`The blob converted: `, { blob })
-
-      })
+      // fetch(audioObjectUrl).then(r => r.blob()).then(blob => {
+      //   console.log(`The blob converted: `, { blob })
+      // })
       const audioClip: AudioClip = {
         id: createId(),
         name: clipName ?? defaultName,
@@ -210,11 +217,11 @@ export default function Index() {
 
     analyser.getByteTimeDomainData(dataArray)
 
-    canvasCtx.fillStyle = 'rgb(250, 250, 250)'
+    canvasCtx.fillStyle = 'rgb(51, 65, 85)'
     canvasCtx.fillRect(0, 0, WIDTH, HEIGHT)
 
     canvasCtx.lineWidth = 2
-    canvasCtx.strokeStyle = 'rgb(0, 0, 0)'
+    canvasCtx.strokeStyle = 'rgb(255, 255, 255)'
 
     canvasCtx.beginPath()
 
@@ -266,19 +273,56 @@ export default function Index() {
     ['text-white bg-red-500 ring-red-200 ring-offset-slate-900']: true
   })
 
+  const onChangeAudioDevice: React.ChangeEventHandler<HTMLSelectElement> = (event) => {
+    const selectedDeviceId = event.target.value
+    const selectedDevice = audioDevices.find(d => d.deviceId === selectedDeviceId)
+    if (!selectedDevice) {
+      console.error(`No device found with id: ${selectedDeviceId}`)
+      return
+    }
+
+    setSelectedAudioDevice(selectedDevice)
+
+    const onSuccess = (stream: MediaStream) => {
+      console.log(`Audio Device changed to: ${selectedDevice.label}`)
+      // Create a new media recorder
+      const mediaRecorder = new MediaRecorder(stream)
+      mediaRecorderRef.current = mediaRecorder
+
+      stream.getAudioTracks().forEach(track => {
+        console.log(`Audio tracks: `, { track })
+      })
+    }
+
+    const constraints: MediaStreamConstraints = {
+      audio: {
+        deviceId: selectedDeviceId,
+      },
+    }
+
+    navigator.mediaDevices.getUserMedia(constraints).then(onSuccess, onError)
+  }
+
   return (
     <>
       {isAudioSupported ?
         (
-          <div className="flex flex-col gap-8 items-center">
-            <dl className="grid grid-cols-[max-content_1fr] gap-x-4">
-              <dt>Device</dt><dd>{mediaRecorderRef.current?.stream.getAudioTracks().at(0)?.label}</dd>
-              <dt>State</dt><dd>{mediaRecorderRef.current?.state}</dd>
-              <dt>State</dt><dd>{mediaRecorderState}</dd>
+          <div className="flex flex-col gap-8 items-stretch min-w-[700px]">
+            <div className="flex flex-col gap-4">
+              <h2 className="font-semibold text-2xl">Devices:</h2>
+              <select onChange={onChangeAudioDevice} className="w-full h-20 bg-slate-700 text-slate-100 text-2xl px-4 ring-4 ring-offset-4 ring-blue-400 ring-offset-slate-900 m-2 mx-2 rounded-xl">
+                {audioDevices.map(device => (
+                  <option key={device.deviceId} value={device.deviceId}>{device.label}</option>
+                ))}
+              </select>
+            </div>
+            <dl className="grid grid-cols-[max-content_1fr] gap-x-4 text-slate-300">
+              <dt>Selected Device:</dt><dd>{selectedAudioDevice?.label ?? mediaRecorderRef.current?.stream.getAudioTracks().at(0)?.label}</dd>
+              <dt>State:</dt><dd>{mediaRecorderState}</dd>
             </dl>
-            <div className="min-w-[700px] flex flex-col gap-2">
-              <h2 className="font-bold text-xl">Audio Visualizer:</h2>
-              <canvas id="visualizer" ref={canvasRef} className="w-full h-20 bg-slate-500 ring-4 ring-offset-4 ring-blue-400 ring-offset-slate-900 m-2 mx-2 rounded-xl"></canvas>
+            <div className="flex flex-col gap-4">
+              <h2 className="font-semibold text-2xl">Audio Visualizer:</h2>
+              <canvas id="visualizer" ref={canvasRef} className="w-full h-20 bg-slate-700 ring-4 ring-offset-4 ring-blue-400 ring-offset-slate-900 m-2 mx-2 rounded-xl"></canvas>
             </div>
             <div className="flex flex-row gap-4 justify-center">
               <button

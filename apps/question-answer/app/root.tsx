@@ -1,3 +1,4 @@
+import { MicrophoneIcon } from "@heroicons/react/24/solid"
 import { cssBundleHref } from "@remix-run/css-bundle"
 import type { LinksFunction } from "@remix-run/node"
 import {
@@ -31,9 +32,12 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className="min-h-full bg-slate-800 text-slate-200 flex flex-col justify-center items-center gap-8">
+      <body className="min-h-full bg-slate-800 text-xl text-slate-200 flex flex-col justify-center items-center gap-8">
         <header>
-          <h1 className="text-4xl font-bold">Question and Answer</h1>
+          <h1 className="text-8xl text-teal-200 font-bold py-6 flex flex-row gap-4">
+            <MicrophoneIcon className="w-32 h-32 text-teal-300" />
+            <span>Question / Answer</span>
+          </h1>
         </header>
         <main>
           <Outlet />
