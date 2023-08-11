@@ -38,7 +38,7 @@ export const action = async ({ request }: ActionArgs) => {
     console.log({ formData })
 
     const uploadTime = Date.now()
-    const filename = `audioClip_${uploadTime}.wav`
+    const filename = `audioClip_${uploadTime}.ogg`
     const fileBuffer = Buffer.from(formData.url as string, 'base64')
     const uploadResponse = await audioClipsContainerClient.uploadBlockBlob(filename, fileBuffer, fileBuffer.byteLength)
 
@@ -137,8 +137,8 @@ export default function Index() {
       const defaultName = 'Unnamed clip'
       const clipName = prompt('Enter a name for your sound clip?', defaultName)
 
-      // const blob = new Blob(audioChunksRef.current, { 'type': 'audio/ogg; codecs=opus' })
-      const blob = new Blob(audioChunksRef.current)
+      const blob = new Blob(audioChunksRef.current, { 'type': 'audio/ogg; codecs=opus' })
+      // const blob = new Blob(audioChunksRef.current)
       audioChunksRef.current = []
 
       const audioObjectUrl = globalThis.URL.createObjectURL(blob)
@@ -169,13 +169,12 @@ export default function Index() {
       console.error('You attempted to start the visualizer before the Media stream was initialized')
     }
 
-    // Start the visualizer
     visualize(mediaStream)
 
     mediaRecorder.start()
+
     setMediaRecorderState(mediaRecorder.state)
-    console.log(mediaRecorder.state)
-    console.log("Recording started")
+    console.log(`Recording started ${mediaRecorder.state}`)
   }
 
   const onClickStop: React.MouseEventHandler<HTMLButtonElement> = () => {
@@ -187,9 +186,9 @@ export default function Index() {
 
     const mediaRecorder = mediaRecorderRef.current
     mediaRecorder.stop()
-    console.log(mediaRecorder.state)
+
     setMediaRecorderState(mediaRecorder.state)
-    console.log("recorder stopped")
+    console.log(`Recorder stopped! ${mediaRecorder.state}`)
   }
 
   const visualize = (stream: MediaStream) => {
