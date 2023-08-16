@@ -19,6 +19,7 @@ type AudioClip = {
   id: string
   name: string
   url: string
+  blobText: string
 }
 
 type UploadedAudioClip = {
@@ -35,12 +36,15 @@ export const action = async ({ request }: ActionArgs) => {
 
   if (formData.intent === formIntentUpload) {
     console.log('Upload form submitted')
-    console.log({ formData })
+    // console.log({ formData })
 
     const uploadTime = Date.now()
-    const filename = `audioClip_${uploadTime}.ogg`
-    const fileBuffer = Buffer.from(formData.url as string, 'base64')
-    const uploadResponse = await audioClipsContainerClient.uploadBlockBlob(filename, fileBuffer, fileBuffer.byteLength)
+    const audioFile = formData.audioFile as File
+    console.log({ audioFile })
+
+    const filename = `audioClip_${uploadTime}.wav`
+
+    const uploadResponse = await audioClipsContainerClient.uploadBlockBlob(filename, audioFile, audioFile.length)
 
     const uploadData: UploadedAudioClip = {
       id: formData.id as string,
@@ -68,14 +72,13 @@ export default function Index() {
   const audioChunksRef = React.useRef<Blob[]>([])
   const [audioClips, setAudioClips] = React.useState<AudioClip[]>([])
   const canvasRef = React.createRef<HTMLCanvasElement>()
-  const uploadFetcher = useFetcher()
-  const actionData = useActionData<typeof action>()
+  const uploadFetcher = useFetcher<typeof action>()
 
   const onSuccess = (stream: MediaStream) => {
     console.log('onSuccess')
 
     // Create a new media recorder
-    const mediaRecorder = new MediaRecorder(stream)
+    const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' })
     mediaRecorderRef.current = mediaRecorder
 
     stream.getAudioTracks().forEach(track => {
@@ -117,6 +120,19 @@ export default function Index() {
     setup()
   }, [])
 
+  React.useEffect(() => {
+    const uploadData = uploadFetcher.data?.uploadData
+    if (!uploadData) return
+
+    if (uploadedAudioClipDatas.some(d => d.id === uploadData.id)) {
+      console.log(`Upload data already exists for id: ${uploadData.id}`)
+      return
+    }
+
+    setUploadedAudioClipDatas((prevUploadedAudioClipDatas) => [...prevUploadedAudioClipDatas, uploadData])
+    console.log(`Audio clips: ${uploadData.id} successful uploaded!`)
+  }, [uploadFetcher])
+
   const onClickRecord: React.MouseEventHandler<HTMLButtonElement> = () => {
     console.log('onClickRecord')
     if (!mediaRecorderRef.current) {
@@ -133,34 +149,38 @@ export default function Index() {
       audioChunksRef.current.push(e.data)
     }
 
-    mediaRecorder.onstop = function (e) {
-      const defaultName = 'Unnamed clip'
-      const clipName = prompt('Enter a name for your sound clip?', defaultName)
+    mediaRecorder.onstop = async function (e) {
+      const defaultName = `DefaultClipName_${Date.now()}`
+      // const clipName = prompt('Enter a name for your sound clip?', defaultName)
+      const clipName = defaultName
 
-      const blob = new Blob(audioChunksRef.current, { 'type': 'audio/ogg; codecs=opus' })
+      const audioChunksBlob = new Blob(audioChunksRef.current, { 'type': 'audio/webm' })
+      // const blob = new Blob(audioChunksRef.current, { 'type': 'audio/ogg; codecs=opus' })
       // const blob = new Blob(audioChunksRef.current)
       audioChunksRef.current = []
-
-      const audioObjectUrl = globalThis.URL.createObjectURL(blob)
-      // fetch(audioObjectUrl).then(r => r.blob()).then(blob => {
-      //   console.log(`The blob converted: `, { blob })
-      // })
+      const audioObjectUrl = globalThis.URL.createObjectURL(audioChunksBlob)
+      const blobText = await audioChunksBlob.text()
       const audioClip: AudioClip = {
         id: createId(),
         name: clipName ?? defaultName,
         url: audioObjectUrl,
+        blobText,
       }
+
+      const filename = `${audioClip.name}.webm`
 
       setAudioClips((prevAudioClips) => [...prevAudioClips, audioClip])
 
-      const formData = {
-        ...audioClip,
-        intent: formIntentUpload
-      }
+      const formData = new FormData()
+      formData.append('id', audioClip.id)
+      formData.append('intent', formIntentUpload)
+      formData.append('name', audioClip.name)
+      formData.append('blobText', audioClip.blobText)
+      formData.append('audioFile', audioChunksBlob, filename)
 
       uploadFetcher.submit(formData, {
         method: 'POST',
-        action: '?index&process=true',
+        action: `?index&intent=${formIntentUpload}`,
       })
     }
 
@@ -248,6 +268,8 @@ export default function Index() {
   }
 
   const onClickDeleteClip = (audioClip: AudioClip) => {
+    globalThis.URL.revokeObjectURL(audioClip.url)
+
     setAudioClips((prevAudioClips) => prevAudioClips.filter((clip) => clip !== audioClip))
   }
 
@@ -302,6 +324,20 @@ export default function Index() {
     navigator.mediaDevices.getUserMedia(constraints).then(onSuccess, onError)
   }
 
+  const joinedAudioClips = audioClips.map(clientClip => {
+    const joinedObject = {
+      clientClip,
+      uploadedClipData: null as UploadedAudioClip | null,
+    }
+
+    const uploadedAudioClipData = uploadedAudioClipDatas.find(d => d.id === clientClip.id)
+    if (uploadedAudioClipData) {
+      joinedObject.uploadedClipData = uploadedAudioClipData
+    }
+
+    return joinedObject
+  })
+
   return (
     <>
       {isAudioSupported ?
@@ -342,22 +378,27 @@ export default function Index() {
               </button>
             </div>
             <div className="min-w-[500px] flex flex-col gap-2">
-              <h2 className="font-bold text-xl">Recorded Clips ({audioClips.length}):</h2>
+              <h2 className="font-bold text-xl">Recorded Clips ({joinedAudioClips.length}):</h2>
               <div className="rounded-md flex flex-col gap-4">
-                {audioClips.length === 0
+                {joinedAudioClips.length === 0
                   ? "No Clips Recorded"
-                  : audioClips.map(clip => (
-                    <div key={clip.name} className="rounded-md flex flex-col gap-2">
-                      <p>{clip.name}</p>
-                      <div className="flex flex-row gap-6 items-center">
-                        <audio controls src={clip.url} className="w-full"></audio>
-                        <button onClick={() => onClickDeleteClip(clip)} className={deleteButtonClassNames}>
-                          <XMarkIcon className="h-6 w-6" />
-                          Delete
-                        </button>
+                  : joinedAudioClips.map(clip => {
+                    const state = clip.uploadedClipData ? 'Uploaded' : 'Upload...'
+                    return (
+                      <div key={clip.clientClip.name} className="rounded-md flex flex-col gap-2">
+                        <p>{clip.clientClip.name} <span className="text-slate-500 text-sm">({clip.clientClip.id})</span></p>
+                        <p>State: {state}</p>
+                        <p>Download URL: <a href={clip.uploadedClipData?.url} className="text-teal-200" target="_blank">{clip.uploadedClipData?.url.split('/').at(-1)}</a></p>
+                        <div className="flex flex-row gap-6 items-center">
+                          <audio controls src={clip.clientClip.url} className="w-full"></audio>
+                          <button onClick={() => onClickDeleteClip(clip.clientClip)} className={deleteButtonClassNames}>
+                            <XMarkIcon className="h-6 w-6" />
+                            Delete
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
               </div>
             </div>
           </div>
