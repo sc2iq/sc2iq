@@ -3,8 +3,9 @@ import React from "react"
 import classNames from "classnames"
 import { PlayIcon, StopIcon, XMarkIcon } from '@heroicons/react/24/solid'
 import { audioClipsContainerClient } from "~/services/blobService"
-import { useActionData, useFetcher } from "@remix-run/react"
+import { useFetcher } from "@remix-run/react"
 import { createId } from "@paralleldrive/cuid2"
+import { unstable_parseMultipartFormData, unstable_composeUploadHandlers, unstable_createFileUploadHandler, unstable_createMemoryUploadHandler } from "@remix-run/node"
 
 export const meta: V2_MetaFunction = ({ matches }) => {
   const parentRoute = matches.find(m => (m as any)?.id === "root")
@@ -31,23 +32,34 @@ type UploadedAudioClip = {
 const formIntentUpload = 'upload'
 
 export const action = async ({ request }: ActionArgs) => {
-  const rawFormData = await request.formData()
-  const formData = Object.fromEntries(rawFormData.entries())
+  const uploadHandler = unstable_composeUploadHandlers(
+    unstable_createFileUploadHandler({
+      maxPartSize: 5_000_000,
+      file: ({ filename }) => filename,
+    }),
+    // parse everything else into memory
+    unstable_createMemoryUploadHandler()
+  )
 
-  if (formData.intent === formIntentUpload) {
-    console.log('Upload form submitted')
-    // console.log({ formData })
+  const actionUrl = new URL(request.url)
+  console.log({ actionUrl: actionUrl.href })
+
+  if (actionUrl.searchParams.get('intent') === formIntentUpload) {
+    const formData = await unstable_parseMultipartFormData(
+      request,
+      uploadHandler,
+    )
+    const formDataObject = Object.fromEntries(formData.entries())
 
     const uploadTime = Date.now()
-    const audioFile = formData.audioFile as File
-    console.log({ audioFile })
+    const audioFile = formDataObject.audioFile as File
+    const audioFileBuffer = await audioFile.arrayBuffer()
+    const filename = `audioClip_${uploadTime}.mp3`
 
-    const filename = `audioClip_${uploadTime}.wav`
-
-    const uploadResponse = await audioClipsContainerClient.uploadBlockBlob(filename, audioFile, audioFile.length)
+    const uploadResponse = await audioClipsContainerClient.uploadBlockBlob(filename, audioFileBuffer, audioFileBuffer.byteLength)
 
     const uploadData: UploadedAudioClip = {
-      id: formData.id as string,
+      id: formDataObject.id as string,
       url: uploadResponse.blockBlobClient.url,
       name: uploadResponse.blockBlobClient.name,
     }
@@ -151,36 +163,34 @@ export default function Index() {
 
     mediaRecorder.onstop = async function (e) {
       const defaultName = `DefaultClipName_${Date.now()}`
-      // const clipName = prompt('Enter a name for your sound clip?', defaultName)
-      const clipName = defaultName
-
-      const audioChunksBlob = new Blob(audioChunksRef.current, { 'type': 'audio/webm' })
+      const filename = `${defaultName}.webm`
+      const audioFile = new File(audioChunksRef.current, filename, { 'type': 'audio/webm' })
       // const blob = new Blob(audioChunksRef.current, { 'type': 'audio/ogg; codecs=opus' })
       // const blob = new Blob(audioChunksRef.current)
       audioChunksRef.current = []
-      const audioObjectUrl = globalThis.URL.createObjectURL(audioChunksBlob)
-      const blobText = await audioChunksBlob.text()
+
+      const audioObjectUrl = globalThis.URL.createObjectURL(audioFile)
+      const fileText = await audioFile.text()
       const audioClip: AudioClip = {
         id: createId(),
-        name: clipName ?? defaultName,
+        name: audioFile.name,
         url: audioObjectUrl,
-        blobText,
+        blobText: fileText,
       }
 
-      const filename = `${audioClip.name}.webm`
-
-      setAudioClips((prevAudioClips) => [...prevAudioClips, audioClip])
+      setAudioClips(prevAudioClips => [...prevAudioClips, audioClip])
 
       const formData = new FormData()
       formData.append('id', audioClip.id)
       formData.append('intent', formIntentUpload)
       formData.append('name', audioClip.name)
       formData.append('blobText', audioClip.blobText)
-      formData.append('audioFile', audioChunksBlob, filename)
+      formData.append('audioFile', audioFile, filename)
 
       uploadFetcher.submit(formData, {
         method: 'POST',
         action: `?index&intent=${formIntentUpload}`,
+        encType: 'multipart/form-data',
       })
     }
 
