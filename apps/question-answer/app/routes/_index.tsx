@@ -51,12 +51,10 @@ export const action = async ({ request }: ActionArgs) => {
     )
     const formDataObject = Object.fromEntries(formData.entries())
 
-    const uploadTime = Date.now()
     const audioFile = formDataObject.audioFile as File
     const audioFileBuffer = await audioFile.arrayBuffer()
-    const filename = `audioClip_${uploadTime}.mp3`
 
-    const uploadResponse = await audioClipsContainerClient.uploadBlockBlob(filename, audioFileBuffer, audioFileBuffer.byteLength)
+    const uploadResponse = await audioClipsContainerClient.uploadBlockBlob(audioFile.name, audioFileBuffer, audioFileBuffer.byteLength)
 
     const uploadData: UploadedAudioClip = {
       id: formDataObject.id as string,
@@ -163,7 +161,7 @@ export default function Index() {
 
     mediaRecorder.onstop = async function (e) {
       const defaultName = `DefaultClipName_${Date.now()}`
-      const filename = `${defaultName}.webm`
+      const filename = `${defaultName}.mp3`
       const audioFile = new File(audioChunksRef.current, filename, { 'type': 'audio/webm' })
       // const blob = new Blob(audioChunksRef.current, { 'type': 'audio/ogg; codecs=opus' })
       // const blob = new Blob(audioChunksRef.current)
@@ -317,7 +315,7 @@ export default function Index() {
     const onSuccess = (stream: MediaStream) => {
       console.log(`Audio Device changed to: ${selectedDevice.label}`)
       // Create a new media recorder
-      const mediaRecorder = new MediaRecorder(stream)
+      const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' })
       mediaRecorderRef.current = mediaRecorder
 
       stream.getAudioTracks().forEach(track => {
