@@ -18,18 +18,17 @@ export const meta: V2_MetaFunction = ({ matches }) => {
 
 type AudioClip = {
   id: string
-  name: string
-  url: string
-  blobText: string
+  file: File
+  objectUrl: string
 }
 
 type UploadedAudioClip = {
   id: string
-  url: string
-  name: string
+  blobUrl: string
 }
 
 const formIntentUpload = 'upload'
+const bytesPerKilobyte = 1024
 
 export const action = async ({ request }: ActionArgs) => {
   const uploadHandler = unstable_composeUploadHandlers(
@@ -58,8 +57,7 @@ export const action = async ({ request }: ActionArgs) => {
 
     const uploadData: UploadedAudioClip = {
       id: formDataObject.id as string,
-      url: uploadResponse.blockBlobClient.url,
-      name: uploadResponse.blockBlobClient.name,
+      blobUrl: uploadResponse.blockBlobClient.url,
     }
     console.log({ uploadData })
 
@@ -168,12 +166,10 @@ export default function Index() {
       audioChunksRef.current = []
 
       const audioObjectUrl = globalThis.URL.createObjectURL(audioFile)
-      const fileText = await audioFile.text()
       const audioClip: AudioClip = {
         id: createId(),
-        name: audioFile.name,
-        url: audioObjectUrl,
-        blobText: fileText,
+        file: audioFile,
+        objectUrl: audioObjectUrl,
       }
 
       setAudioClips(prevAudioClips => [...prevAudioClips, audioClip])
@@ -181,9 +177,7 @@ export default function Index() {
       const formData = new FormData()
       formData.append('id', audioClip.id)
       formData.append('intent', formIntentUpload)
-      formData.append('name', audioClip.name)
-      formData.append('blobText', audioClip.blobText)
-      formData.append('audioFile', audioFile, filename)
+      formData.append('audioFile', audioFile)
 
       uploadFetcher.submit(formData, {
         method: 'POST',
@@ -276,7 +270,7 @@ export default function Index() {
   }
 
   const onClickDeleteClip = (audioClip: AudioClip) => {
-    globalThis.URL.revokeObjectURL(audioClip.url)
+    globalThis.URL.revokeObjectURL(audioClip.objectUrl)
 
     setAudioClips((prevAudioClips) => prevAudioClips.filter((clip) => clip !== audioClip))
   }
@@ -298,7 +292,7 @@ export default function Index() {
   })
 
   const deleteButtonClassNames = classNames({
-    [`flex flex-row gap-2 p-2 px-4 m-1 mx-2 rounded-lg ring-2 ring-offset-4 border-none font-semibold`]: true,
+    [`flex flex-row gap-2 p-2 px-4 m-1 mx-2 items-center rounded-lg ring-2 ring-offset-4 border-none font-semibold`]: true,
     ['text-white bg-red-500 ring-red-200 ring-offset-slate-900']: true
   })
 
@@ -393,12 +387,13 @@ export default function Index() {
                   : joinedAudioClips.map(clip => {
                     const state = clip.uploadedClipData ? 'Uploaded' : 'Upload...'
                     return (
-                      <div key={clip.clientClip.name} className="rounded-md flex flex-col gap-2">
-                        <p>{clip.clientClip.name} <span className="text-slate-500 text-sm">({clip.clientClip.id})</span></p>
-                        <p>State: {state}</p>
-                        <p>Download URL: <a href={clip.uploadedClipData?.url} className="text-teal-200" target="_blank">{clip.uploadedClipData?.url.split('/').at(-1)}</a></p>
+                      <div key={clip.clientClip.id} className="rounded-md flex flex-col gap-2">
+                        <div>{clip.uploadedClipData
+                          ? <a href={clip.uploadedClipData?.blobUrl} className="text-teal-200" target="_blank">{clip.uploadedClipData?.blobUrl.split('/').at(-1)}</a>
+                          : <span>{clip.clientClip.file.name}</span>} <span className="text-slate-500 text-sm">({clip.clientClip.id})</span></div>
+                        <div className="flex flex-row gap-2">Size: {(clip.clientClip.file.size /  bytesPerKilobyte).toFixed(2)} KB</div>
                         <div className="flex flex-row gap-6 items-center">
-                          <audio controls src={clip.clientClip.url} className="w-full"></audio>
+                          <audio controls src={clip.clientClip.objectUrl} className="w-full"></audio>
                           <button onClick={() => onClickDeleteClip(clip.clientClip)} className={deleteButtonClassNames}>
                             <XMarkIcon className="h-6 w-6" />
                             Delete
