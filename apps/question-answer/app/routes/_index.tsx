@@ -6,6 +6,7 @@ import { audioClipsContainerClient } from "~/services/blobService"
 import { useFetcher } from "@remix-run/react"
 import { createId } from "@paralleldrive/cuid2"
 import { unstable_parseMultipartFormData, unstable_composeUploadHandlers, unstable_createFileUploadHandler, unstable_createMemoryUploadHandler } from "@remix-run/node"
+import { audioToText } from "~/services/openAiService"
 
 export const meta: V2_MetaFunction = ({ matches }) => {
   const parentRoute = matches.find(m => (m as any)?.id === "root")
@@ -49,6 +50,7 @@ export const action = async ({ request }: ActionArgs) => {
       request,
       uploadHandler,
     )
+
     const formDataObject = Object.fromEntries(formData.entries())
 
     const audioFile = formDataObject.audioFile as File
@@ -59,7 +61,9 @@ export const action = async ({ request }: ActionArgs) => {
       blobUrl: uploadResponse.blockBlobClient.url,
     }
 
-    console.log({ uploadData })
+    const audioData = await audioToText(audioFile)
+
+    console.log({ uploadData, audioData })
 
     return {
       uploadData,
