@@ -36,7 +36,6 @@ export const action = async ({ request }: ActionArgs) => {
       maxPartSize: 5_000_000,
       file: ({ filename }) => filename,
     }),
-    // parse everything else into memory
     unstable_createMemoryUploadHandler()
   )
 
@@ -44,6 +43,8 @@ export const action = async ({ request }: ActionArgs) => {
   console.log({ actionUrl: actionUrl.href })
 
   if (actionUrl.searchParams.get('intent') === formIntentUpload) {
+    console.log(`${formIntentUpload} action invoked`)
+
     const formData = await unstable_parseMultipartFormData(
       request,
       uploadHandler,
@@ -52,13 +53,12 @@ export const action = async ({ request }: ActionArgs) => {
 
     const audioFile = formDataObject.audioFile as File
     const audioFileBuffer = await audioFile.arrayBuffer()
-
     const uploadResponse = await audioClipsContainerClient.uploadBlockBlob(audioFile.name, audioFileBuffer, audioFileBuffer.byteLength)
-
     const uploadData: UploadedAudioClip = {
       id: formDataObject.id as string,
       blobUrl: uploadResponse.blockBlobClient.url,
     }
+
     console.log({ uploadData })
 
     return {
