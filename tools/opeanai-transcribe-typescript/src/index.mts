@@ -1,17 +1,15 @@
 import { config } from "dotenv-flow"
 import fetch from 'node-fetch'
-import fs from 'fs/promises'
+import { openAsBlob } from "fs"
 
 config()
 
 export async function audioToText(audioFilePath: string, model = 'whisper-1'): Promise<unknown> {
 
-  const audioFileBuffer = await fs.readFile(audioFilePath)
-  const audioFile = new Blob([audioFileBuffer], { type: 'audio/mpeg' })
   const OPENAI_API_KEY = process.env.OPENAI_API_KEY!
-
+  const audioFileBlob = await openAsBlob(audioFilePath)
   const formData = new FormData()
-  formData.append('file', audioFile as any, 'audioFile.mp3')
+  formData.append('file', audioFileBlob as any)
   formData.append('model', model)
 
   const headers = {
