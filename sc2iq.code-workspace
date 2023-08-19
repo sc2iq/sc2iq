@@ -12,6 +12,10 @@
 	],
 	"settings": {
 		"powershell.cwd": "c:\\repos\\sc2\\sc2iq",
-		"dotenv.enableAutocloaking": false
+		"dotenv.enableAutocloaking": false,
+		"[python]": {
+			"editor.defaultFormatter": "ms-python.black-formatter"
+		},
+		"python.formatting.provider": "none"
 	}
 }
