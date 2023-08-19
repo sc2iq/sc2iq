@@ -1,24 +1,53 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Generated Question Input Submitter",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "program": "${workspaceFolder}/tools/m2m-client/build/index.js",
-            "outFiles": [
-                "${workspaceFolder}/tools/m2m-client/**/*.js"
-            ],
-            "sourceMaps": true,
-            "cwd": "${workspaceFolder}/tools/m2m-client/",
-            "preLaunchTask": "npm: build - tools/m2m-client",
-            "console": "integratedTerminal"
-        }
-    ]
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Generated Question Input Submitter",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "program": "${workspaceFolder}/tools/m2m-client/build/index.js",
+      "outFiles": [
+        "${workspaceFolder}/tools/m2m-client/**/*.js"
+      ],
+      "sourceMaps": true,
+      "cwd": "${workspaceFolder}/tools/m2m-client/",
+      "preLaunchTask": "npm: build - tools/m2m-client",
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "OpenAI Transcribe",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "program": "${workspaceFolder}/tools/opeanai-transcribe-typescript/build/index.js",
+      "outFiles": [
+        "${workspaceFolder}/tools/opeanai-transcribe-typescript/**/*.js"
+      ],
+      "sourceMaps": true,
+      "cwd": "${workspaceFolder}/tools/opeanai-transcribe-typescript/",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Launch via NPM",
+      "request": "launch",
+      "runtimeArgs": [
+        "run-script",
+        "start"
+      ],
+      "runtimeExecutable": "npm",
+      "cwd": "${workspaceFolder}/tools/opeanai-transcribe-typescript",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node"
+    }
+  ]
 }

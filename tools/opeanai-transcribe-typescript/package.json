@@ -1,0 +1,25 @@
+{
+  "type": "module",
+  "name": "opeanai-transcribe-typescript",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build/index.mjs",
+  "scripts": {
+    "prestart": "tsc",
+    "start": "node .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/dotenv-flow": "^3.2.0",
+    "@types/node": "^20.5.1",
+    "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "@types/node-fetch": "^2.6.4",
+    "dotenv-flow": "^3.2.0",
+    "node-fetch": "^3.3.2"
+  }
+}
