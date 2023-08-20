@@ -43,7 +43,7 @@
       "runtimeArgs": [
         "run-script",
         "start",
-        "--ignore-scripts"
+        // "--ignore-scripts"
       ],
       "runtimeExecutable": "npm",
       "cwd": "${workspaceFolder}/tools/openai-transcribe-typescript",

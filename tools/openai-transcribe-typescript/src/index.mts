@@ -1,12 +1,14 @@
 import { config } from "dotenv-flow"
 import fetch from 'node-fetch'
-import { openAsBlob } from "fs"
+import fs, { openAsBlob } from 'fs'
 
 config()
 
 export async function audioToText(audioFilePath: string, model = 'whisper-1'): Promise<unknown> {
 
   const audioFileBlob = await openAsBlob(audioFilePath)
+  // const audioFileBuffer = await fs.promises.readFile(audioFilePath)
+  // const audioFileBlob = new Blob([audioFileBuffer], { type: 'audio/m4a' })
 
   const formData = new FormData()
   formData.append("file", audioFileBlob, "Recording.m4a")
@@ -21,10 +23,13 @@ export async function audioToText(audioFilePath: string, model = 'whisper-1'): P
   const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
     method: 'POST',
     headers: headers,
-    body: formData as any
+    body: formData as any,
+    redirect: 'follow'
   })
 
   if (!response.ok) {
+    const text = await response.text()
+    console.log(text)
     throw new Error(`Error: ${response.status} ${response.statusText}`)
   }
 
