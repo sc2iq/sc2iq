@@ -11,5 +11,5 @@ $env:OPENAI_API_KEY = <OPENAI_API_KEY>
 ## Rurn
 
 ```powershell
-poetry run python -m ./transcribe
+poetry run python -m openai_transcribe_python.transcribe
 ```
