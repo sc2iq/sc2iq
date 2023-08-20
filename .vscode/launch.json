@@ -38,11 +38,12 @@
       "console": "integratedTerminal"
     },
     {
-      "name": "OpenAI Transcribe NPM",
+      "name": "NPM: OpenAI Transcribe",
       "request": "launch",
       "runtimeArgs": [
         "run-script",
-        "start"
+        "start",
+        "--ignore-scripts"
       ],
       "runtimeExecutable": "npm",
       "cwd": "${workspaceFolder}/tools/openai-transcribe-typescript",
