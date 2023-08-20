@@ -29,29 +29,14 @@
       "console": "integratedTerminal"
     },
     {
-      "type": "node",
-      "request": "launch",
-      "name": "OpenAI Transcribe",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
-      "program": "${workspaceFolder}/tools/opeanai-transcribe-typescript/build/index.js",
-      "outFiles": [
-        "${workspaceFolder}/tools/opeanai-transcribe-typescript/**/*.js"
-      ],
-      "sourceMaps": true,
-      "cwd": "${workspaceFolder}/tools/opeanai-transcribe-typescript/",
-      "console": "integratedTerminal"
-    },
-    {
-      "name": "Launch via NPM",
+      "name": "OpenAI Transcribe NPM",
       "request": "launch",
       "runtimeArgs": [
         "run-script",
         "start"
       ],
       "runtimeExecutable": "npm",
-      "cwd": "${workspaceFolder}/tools/opeanai-transcribe-typescript",
+      "cwd": "${workspaceFolder}/tools/openai-transcribe-typescript",
       "skipFiles": [
         "<node_internals>/**"
       ],

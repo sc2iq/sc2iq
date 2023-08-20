@@ -23,6 +23,10 @@ export async function audioToText(audioFilePath: string, model = 'whisper-1'): P
     body: formData as any
   })
 
+  if (!response.ok) {
+    throw new Error(`Error: ${response.status} ${response.statusText}`)
+  }
+
   const data = await response.json()
 
   return data
@@ -30,7 +34,8 @@ export async function audioToText(audioFilePath: string, model = 'whisper-1'): P
 
 export async function main() {
   const audioFilePath = 'C:/repos/sc2/sc2iq/tools/opeanai-transcribe-typescript/resources/sample-6s.mp3'
-  const data = await audioToText(audioFilePath)
+  const audioFilePath2 = "C:/repos/sc2/sc2iq/tools/openai-transcribe-typescript/resources/Recording.m4a"
+  const data = await audioToText(audioFilePath2)
   console.log(data)
 }
 
