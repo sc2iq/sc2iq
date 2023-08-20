@@ -13,6 +13,15 @@
       "justMyCode": true
     },
     {
+      "name": "Python: OpenAI Transcribe",
+      "type": "python",
+      "request": "launch",
+      "program": "poetry run python -m openai-transcribe-python.transcribe",
+      "cwd": "${workspaceFolder}/tools/openai-transcribe-python",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
       "type": "node",
       "request": "launch",
       "name": "Generated Question Input Submitter",
