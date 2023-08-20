@@ -6,12 +6,13 @@ config()
 
 export async function audioToText(audioFilePath: string, model = 'whisper-1'): Promise<unknown> {
 
-  const OPENAI_API_KEY = process.env.OPENAI_API_KEY!
   const audioFileBlob = await openAsBlob(audioFilePath)
-  const formData = new FormData()
-  formData.append('file', audioFileBlob as any)
-  formData.append('model', model)
 
+  const formData = new FormData()
+  formData.append("file", audioFileBlob, "Recording.m4a")
+  formData.append("model", model)
+
+  const OPENAI_API_KEY = process.env.OPENAI_API_KEY!
   const headers = {
     'Authorization': `Bearer ${OPENAI_API_KEY}`,
     'Content-Type': 'multipart/form-data'
