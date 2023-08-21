@@ -21,6 +21,7 @@
   "dependencies": {
     "@types/node-fetch": "^2.6.4",
     "dotenv-flow": "^3.2.0",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "openai": "^4.0.1"
   }
 }
