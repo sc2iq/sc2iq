@@ -1,24 +1,16 @@
-import fetch from 'node-fetch'
+import OpenAI from "openai"
+import fs from 'node:fs'
 
-export async function audioToText(audioFile: File, model = 'whisper-1'): Promise<string> {
-  const OPENAI_API_KEY = process.env.OPENAI_API_KEY!
-  const formData = new FormData()
-  formData.append('file', audioFile)
-  formData.append('model', model)
+export async function audioToText(audioFilePathOrStream: string | fs.ReadStream, model = 'whisper-1') {
+  const fileStream = typeof audioFilePathOrStream === 'string'
+    ? fs.createReadStream(audioFilePathOrStream)
+    : audioFilePathOrStream
 
-  const headers = {
-    'Authorization': `Bearer ${OPENAI_API_KEY}`,
-    'Content-Type': 'multipart/form-data'
-  }
-
-  const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
-    method: 'POST',
-    headers: headers,
-    body: formData as any
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! })
+  const transcription = await openai.audio.transcriptions.create({
+    file: fileStream,
+    model,
   })
 
-  const data = await response.json()
-
-  return data
-
+  return transcription
 }

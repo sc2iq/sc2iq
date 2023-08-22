@@ -7,6 +7,10 @@ import { useFetcher } from "@remix-run/react"
 import { createId } from "@paralleldrive/cuid2"
 import { unstable_parseMultipartFormData, unstable_composeUploadHandlers, unstable_createFileUploadHandler, unstable_createMemoryUploadHandler } from "@remix-run/node"
 import { audioToText } from "~/services/openAiService"
+import stream from "node:stream"
+import fs from "node:fs"
+import { tmpdir } from "os"
+import { join } from "path"
 
 export const meta: V2_MetaFunction = ({ matches }) => {
   const parentRoute = matches.find(m => (m as any)?.id === "root")
@@ -55,13 +59,17 @@ export const action = async ({ request }: ActionArgs) => {
 
     const audioFile = formDataObject.audioFile as File
     const audioFileBuffer = await audioFile.arrayBuffer()
+    const tempFilePath = join(tmpdir(), audioFile.name)
+    fs.writeFileSync(tempFilePath, audioFileBuffer as any)
+    const audioFileStream = fs.createReadStream(tempFilePath)
+
     const uploadResponse = await audioClipsContainerClient.uploadBlockBlob(audioFile.name, audioFileBuffer, audioFileBuffer.byteLength)
     const uploadData: UploadedAudioClip = {
       id: formDataObject.id as string,
       blobUrl: uploadResponse.blockBlobClient.url,
     }
 
-    const audioData = await audioToText(audioFile)
+    const audioData = await audioToText(audioFileStream as any)
 
     console.log({ uploadData, audioData })
 
