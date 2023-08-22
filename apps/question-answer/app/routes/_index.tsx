@@ -27,9 +27,20 @@ type AudioClip = {
   objectUrl: string
 }
 
-type UploadedAudioClip = {
+type AudioClipBlobData = {
   id: string
   blobUrl: string
+}
+
+type AudioClipMetadata = {
+  id: string
+  filename: string
+  text: string
+}
+
+type AudioClipDatas = {
+  audioBlobData: AudioClipBlobData
+  audioMetaData: AudioClipMetadata
 }
 
 const formIntentUpload = 'upload'
@@ -59,22 +70,37 @@ export const action = async ({ request }: ActionArgs) => {
 
     const audioFile = formDataObject.audioFile as File
     const audioFileBuffer = await audioFile.arrayBuffer()
+
+    const audioFileName = `${formDataObject.id as string}.mp3`
+    const audioFileUploadResponse = await audioClipsContainerClient.uploadBlockBlob(audioFileName, audioFileBuffer, audioFileBuffer.byteLength)
+    const audioFileUploadData: AudioClipBlobData = {
+      id: formDataObject.id as string,
+      blobUrl: audioFileUploadResponse.blockBlobClient.url,
+    }
+
+    // Get read stream from file
+    // TODO: Find alternative to saving as temporary file
+    // It seems unecessary given we already have the file buffer in memory
     const tempFilePath = join(tmpdir(), audioFile.name)
     fs.writeFileSync(tempFilePath, audioFileBuffer as any)
     const audioFileStream = fs.createReadStream(tempFilePath)
-
-    const uploadResponse = await audioClipsContainerClient.uploadBlockBlob(audioFile.name, audioFileBuffer, audioFileBuffer.byteLength)
-    const uploadData: UploadedAudioClip = {
-      id: formDataObject.id as string,
-      blobUrl: uploadResponse.blockBlobClient.url,
-    }
-
     const audioData = await audioToText(audioFileStream as any)
 
-    console.log({ uploadData, audioData })
+    const metadataFileName = formDataObject.id as string
+    const metadata: AudioClipMetadata = {
+      id: formDataObject.id as string,
+      filename: audioFile.name,
+      text: audioData.text,
+    }
+    const metadataString = JSON.stringify(metadata)
+    const metadataUploadResponse = await audioClipsContainerClient.uploadBlockBlob(metadataFileName, metadataString, metadataString.length)
+
+    console.log({ audioFileUploadData, metadata })
 
     return {
-      uploadData,
+      id: formDataObject.id as string,
+      audioBlobData: audioFileUploadData,
+      audioMetaData: metadata
     }
   }
 
@@ -85,7 +111,7 @@ export default function Index() {
   const [isAudioSupported, setIsAudioSupported] = React.useState(false)
   const [audioDevices, setAudioDevices] = React.useState<MediaDeviceInfo[]>([])
   const [selectedAudioDevice, setSelectedAudioDevice] = React.useState<MediaDeviceInfo>()
-  const [uploadedAudioClipDatas, setUploadedAudioClipDatas] = React.useState<UploadedAudioClip[]>([])
+  const [uploadedAudioClipDatas, setUploadedAudioClipDatas] = React.useState<AudioClipDatas[]>([])
   const mediaRecorderRef = React.useRef<MediaRecorder>()
   const [mediaRecorderState, setMediaRecorderState] = React.useState<'inactive' | 'recording' | 'paused'>('inactive')
   const audioCtxRef = React.useRef<AudioContext>()
@@ -141,16 +167,17 @@ export default function Index() {
   }, [])
 
   React.useEffect(() => {
-    const uploadData = uploadFetcher.data?.uploadData
-    if (!uploadData) return
-
-    if (uploadedAudioClipDatas.some(d => d.id === uploadData.id)) {
-      console.log(`Upload data already exists for id: ${uploadData.id}`)
+    if (!uploadFetcher.data?.audioBlobData || !uploadFetcher.data?.audioMetaData) {
       return
     }
 
-    setUploadedAudioClipDatas((prevUploadedAudioClipDatas) => [...prevUploadedAudioClipDatas, uploadData])
-    console.log(`Audio clips: ${uploadData.id} successful uploaded!`)
+    if (uploadedAudioClipDatas.some(d => d.audioBlobData.id === uploadFetcher.data?.audioBlobData.id)) {
+      console.log(`Upload data already exists for id: ${uploadFetcher.data.audioBlobData.id}`)
+      return
+    }
+
+    setUploadedAudioClipDatas((prevUploadedAudioClipDatas) => [...prevUploadedAudioClipDatas, uploadFetcher.data!])
+    console.log(`Audio clips: ${uploadFetcher.data.audioBlobData.id} successful uploaded!`)
   }, [uploadFetcher])
 
   const onClickRecord: React.MouseEventHandler<HTMLButtonElement> = () => {
@@ -341,12 +368,14 @@ export default function Index() {
   const joinedAudioClips = audioClips.map(clientClip => {
     const joinedObject = {
       clientClip,
-      uploadedClipData: null as UploadedAudioClip | null,
+      blobData: null as AudioClipBlobData | null,
+      metaData: null as AudioClipMetadata | null,
     }
 
-    const uploadedAudioClipData = uploadedAudioClipDatas.find(d => d.id === clientClip.id)
+    const uploadedAudioClipData = uploadedAudioClipDatas.find(d => d.audioBlobData.id === clientClip.id)
     if (uploadedAudioClipData) {
-      joinedObject.uploadedClipData = uploadedAudioClipData
+      joinedObject.blobData = uploadedAudioClipData.audioBlobData
+      joinedObject.metaData = uploadedAudioClipData.audioMetaData
     }
 
     return joinedObject
@@ -397,13 +426,14 @@ export default function Index() {
                 {joinedAudioClips.length === 0
                   ? "No Clips Recorded"
                   : joinedAudioClips.map(clip => {
-                    const state = clip.uploadedClipData ? 'Uploaded' : 'Upload...'
+                    const state = clip.blobData ? 'Uploaded' : 'Upload...'
                     return (
                       <div key={clip.clientClip.id} className="rounded-md flex flex-col gap-2">
-                        <div>{clip.uploadedClipData
-                          ? <a href={clip.uploadedClipData?.blobUrl} className="text-teal-200" target="_blank">{clip.uploadedClipData?.blobUrl.split('/').at(-1)}</a>
+                        <div>{clip.blobData
+                          ? <a href={clip.blobData?.blobUrl} className="text-teal-200" target="_blank">{clip.metaData?.filename}</a>
                           : <span>{clip.clientClip.file.name}</span>} <span className="text-slate-500 text-sm">({clip.clientClip.id})</span></div>
                         <div className="flex flex-row gap-2">Size: {(clip.clientClip.file.size /  bytesPerKilobyte).toFixed(2)} KB</div>
+                        <div className="flex flex-row gap-2">Text: {clip.metaData?.text}</div>
                         <div className="flex flex-row gap-6 items-center">
                           <audio controls src={clip.clientClip.objectUrl} className="w-full"></audio>
                           <button onClick={() => onClickDeleteClip(clip.clientClip)} className={deleteButtonClassNames}>
