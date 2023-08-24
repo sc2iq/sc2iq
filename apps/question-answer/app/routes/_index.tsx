@@ -127,6 +127,8 @@ export default function Index() {
   const audioChunksRef = React.useRef<Blob[]>([])
   const [audioClips, setAudioClips] = React.useState<AudioClip[]>([])
   const canvasRef = React.createRef<HTMLCanvasElement>()
+  // TODO: Find alternative to using ref
+  // Current is null, likely because isAudioSupported is false at the time of execution
   const openAiKeyRef = React.createRef<HTMLInputElement>()
   const uploadFetcher = useFetcher<typeof action>()
 
@@ -229,6 +231,8 @@ export default function Index() {
       formData.append('audioFile', audioFile)
       formData.append('openAiKey', openAiKeyRef.current?.value ?? '')
 
+      console.log({ openAiKeyRef })
+
       uploadFetcher.submit(formData, {
         method: 'POST',
         action: `?index&intent=${formIntentUpload}`,
@@ -237,7 +241,7 @@ export default function Index() {
     }
 
     const mediaStream = mediaRecorder.stream
-    if (!mediaStream) {f
+    if (!mediaStream) {
       console.error('You attempted to start the visualizer before the Media stream was initialized')
     }
 
