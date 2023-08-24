@@ -7,7 +7,6 @@ import { useFetcher } from "@remix-run/react"
 import { createId } from "@paralleldrive/cuid2"
 import { unstable_parseMultipartFormData, unstable_composeUploadHandlers, unstable_createFileUploadHandler, unstable_createMemoryUploadHandler } from "@remix-run/node"
 import { audioToText } from "~/services/openAiService"
-import stream from "node:stream"
 import fs from "node:fs"
 import { tmpdir } from "os"
 import { join } from "path"
@@ -84,16 +83,26 @@ export const action = async ({ request }: ActionArgs) => {
     const tempFilePath = join(tmpdir(), audioFile.name)
     fs.writeFileSync(tempFilePath, audioFileBuffer as any)
     const audioFileStream = fs.createReadStream(tempFilePath)
-    const audioData = await audioToText(audioFileStream as any)
+
+    console.log({ formDataObject })
+    const openAiKey = formDataObject.openAiKey as string
+    let audioText = ''
+    if (typeof openAiKey === 'string' && openAiKey.startsWith('sk-')) {
+      const audioData = await audioToText(audioFileStream as any, openAiKey)
+      audioText = audioData.text
+    }
 
     const metadataFileName = formDataObject.id as string
     const metadata: AudioClipMetadata = {
       id: formDataObject.id as string,
       filename: audioFile.name,
-      text: audioData.text,
+      text: audioText,
     }
     const metadataString = JSON.stringify(metadata)
-    const metadataUploadResponse = await audioClipsContainerClient.uploadBlockBlob(metadataFileName, metadataString, metadataString.length)
+    const metadataUploadResponse = await audioClipsContainerClient.uploadBlockBlob(metadataFileName, metadataString, metadataString.length);
+
+    // Add blobUrl to metadata
+    (metadata as any).blobUrl = metadataUploadResponse.blockBlobClient.url
 
     console.log({ audioFileUploadData, metadata })
 
@@ -118,6 +127,7 @@ export default function Index() {
   const audioChunksRef = React.useRef<Blob[]>([])
   const [audioClips, setAudioClips] = React.useState<AudioClip[]>([])
   const canvasRef = React.createRef<HTMLCanvasElement>()
+  const openAiKeyRef = React.createRef<HTMLInputElement>()
   const uploadFetcher = useFetcher<typeof action>()
 
   const onSuccess = (stream: MediaStream) => {
@@ -217,6 +227,7 @@ export default function Index() {
       formData.append('id', audioClip.id)
       formData.append('intent', formIntentUpload)
       formData.append('audioFile', audioFile)
+      formData.append('openAiKey', openAiKeyRef.current?.value ?? '')
 
       uploadFetcher.submit(formData, {
         method: 'POST',
@@ -226,7 +237,7 @@ export default function Index() {
     }
 
     const mediaStream = mediaRecorder.stream
-    if (!mediaStream) {
+    if (!mediaStream) {f
       console.error('You attempted to start the visualizer before the Media stream was initialized')
     }
 
@@ -388,7 +399,7 @@ export default function Index() {
           <div className="flex flex-col gap-8 items-stretch min-w-[700px]">
             <div className="flex flex-col gap-4">
               <h2 className="font-semibold text-2xl">Devices:</h2>
-              <select onChange={onChangeAudioDevice} className="w-full h-20 bg-slate-700 text-slate-100 text-2xl px-4 ring-4 ring-offset-4 ring-blue-400 ring-offset-slate-900 m-2 mx-2 rounded-xl">
+              <select onChange={onChangeAudioDevice} className="w-full h-16 bg-slate-700 text-slate-100 text-2xl px-4 ring-4 ring-offset-4 ring-blue-400 ring-offset-slate-900 m-2 mx-2 rounded-xl">
                 {audioDevices.map(device => (
                   <option key={device.deviceId} value={device.deviceId}>{device.label}</option>
                 ))}
@@ -399,8 +410,12 @@ export default function Index() {
               <dt>State:</dt><dd>{mediaRecorderState}</dd>
             </dl>
             <div className="flex flex-col gap-4">
+              <h2 className="font-semibold text-2xl">OpenAI Key: <span className="text-slate-400 text-sm">(Required for Translation)</span></h2>
+              <input type="text" placeholder="sk-Abc234..." ref={openAiKeyRef} name="openAiKey" className="w-full h-16 bg-slate-700 text-slate-100 text-2xl px-4 ring-4 ring-offset-4 ring-blue-400 ring-offset-slate-900 m-2 mx-2 rounded-xl" />
+            </div>
+            <div className="flex flex-col gap-4">
               <h2 className="font-semibold text-2xl">Audio Visualizer:</h2>
-              <canvas id="visualizer" ref={canvasRef} className="w-full h-20 bg-slate-700 ring-4 ring-offset-4 ring-blue-400 ring-offset-slate-900 m-2 mx-2 rounded-xl"></canvas>
+              <canvas id="visualizer" ref={canvasRef} className="w-full h-24 bg-slate-700 ring-4 ring-offset-4 ring-blue-400 ring-offset-slate-900 m-2 mx-2 rounded-xl"></canvas>
             </div>
             <div className="flex flex-row gap-4 justify-center">
               <button
@@ -431,7 +446,7 @@ export default function Index() {
                       <div key={clip.clientClip.id} className="rounded-md flex flex-col gap-2">
                         <div>{clip.blobData
                           ? <a href={clip.blobData?.blobUrl} className="text-teal-200" target="_blank">{clip.metaData?.filename}</a>
-                          : <span>{clip.clientClip.file.name}</span>} <span className="text-slate-500 text-sm">({clip.clientClip.id})</span></div>
+                          : <span>{clip.clientClip.file.name}</span>} <span className="text-slate-400 text-sm">({clip.clientClip.id})</span></div>
                         <div className="flex flex-row gap-2">Size: {(clip.clientClip.file.size /  bytesPerKilobyte).toFixed(2)} KB</div>
                         <div className="flex flex-row gap-2">Text: {clip.metaData?.text}</div>
                         <div className="flex flex-row gap-6 items-center">
