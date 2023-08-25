@@ -16,5 +16,18 @@ services:
     networks:
       - sc2iqnetwork
 
+  qna:
+    build:
+      context: apps/question-answer
+      dockerfile: Dockerfile
+    environment:
+      - PORT=${QNA_PORT}
+      - AZURE_STORAGE_CONNECTION_STRING=${AZURE_STORAGE_CONNECTION_STRING}
+      - AZURE_STORAGE_BLOB_CONTAINER_NAME_AUDIO_CLIPS=${AZURE_STORAGE_BLOB_CONTAINER_NAME_AUDIO_CLIPS}
+    ports:
+      - "${QNA_PORT}:${QNA_PORT}"
+    networks:
+      - sc2iqnetwork
+
 networks:
   sc2iqnetwork:

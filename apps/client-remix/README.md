@@ -48,5 +48,5 @@ docker build -t sc2-iq-client .
 
 docker run -it --rm `
     -p 8080:3000 `
-    scc2-iq-client
+    sc2-iq-client
 ```
