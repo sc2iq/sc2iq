@@ -10,7 +10,7 @@ import {
   ScrollRestoration,
   V2_MetaFunction,
 } from "@remix-run/react"
-import stylesheet from "~/styles/tailwind.css";
+import stylesheet from "~/styles/tailwind.css"
 
 export const meta: V2_MetaFunction = () => {
   return [
@@ -42,8 +42,11 @@ export default function App() {
         <main>
           <Outlet />
         </main>
-        <footer>
-          <p>Record audio using the <a href="https://developer.mozilla.org/en-US/docs/Web/API/MediaStream_Recording_API/Using_the_MediaStream_Recording_API" target="_blank" className="underline underline-offset-4">Media Streaming API</a></p>
+        <footer className="mb-6">
+          <p>Record audio using the <a href="https://remix.run/" target="_blank" className="underline underline-offset-8">RemixJS</a> +&nbsp;
+            <a href="https://developer.mozilla.org/en-US/docs/Web/API/MediaStream_Recording_API/Using_the_MediaStream_Recording_API" target="_blank" className="underline underline-offset-8">Media Streaming API</a> +&nbsp;
+            <a href="https://platform.openai.com/docs/api-reference/audio/createTranscription?lang=node" target="_blank" className="underline underline-offset-8">OpenAI Whisper</a>
+          </p>
         </footer>
         <ScrollRestoration />
         <Scripts />

@@ -400,7 +400,7 @@ export default function Index() {
     <>
       {isAudioSupported ?
         (
-          <div className="flex flex-col gap-8 items-stretch min-w-[700px] max-w-4xl">
+          <div className="flex flex-col gap-8 items-stretch w-[800px]">
             <div className="flex flex-col gap-4">
               <h2 className="font-semibold text-2xl">Devices:</h2>
               <select onChange={onChangeAudioDevice} className="w-full h-16 bg-slate-700 text-slate-100 text-2xl px-4 ring-4 ring-offset-4 ring-blue-400 ring-offset-slate-900 m-2 mx-2 rounded-xl">
@@ -451,7 +451,7 @@ export default function Index() {
                         <div>{clip.blobData
                           ? <a href={clip.blobData?.blobUrl} className="text-teal-200" target="_blank">{clip.metaData?.filename}</a>
                           : <span>{clip.clientClip.file.name}</span>} <span className="text-slate-400 text-sm">({clip.clientClip.id})</span></div>
-                        <div className="flex flex-row gap-2">Size: {(clip.clientClip.file.size /  bytesPerKilobyte).toFixed(2)} KB</div>
+                        <div className="flex flex-row gap-2">Size: {(clip.clientClip.file.size / bytesPerKilobyte).toFixed(2)} KB</div>
                         <div className="flex flex-row gap-2">Text: {clip.metaData?.text}</div>
                         <div className="flex flex-row gap-6 items-center">
                           <audio controls src={clip.clientClip.objectUrl} className="w-full"></audio>
