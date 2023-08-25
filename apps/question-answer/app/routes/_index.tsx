@@ -126,10 +126,10 @@ export default function Index() {
   const audioCtxRef = React.useRef<AudioContext>()
   const audioChunksRef = React.useRef<Blob[]>([])
   const [audioClips, setAudioClips] = React.useState<AudioClip[]>([])
-  const canvasRef = React.createRef<HTMLCanvasElement>()
+  const canvasRef = React.useRef<HTMLCanvasElement>(null)
   // TODO: Find alternative to using ref
   // Current is null, likely because isAudioSupported is false at the time of execution
-  const openAiKeyRef = React.createRef<HTMLInputElement>()
+  const openAiKeyRef = React.useRef<HTMLInputElement>(null)
   const uploadFetcher = useFetcher<typeof action>()
 
   const onSuccess = (stream: MediaStream) => {
