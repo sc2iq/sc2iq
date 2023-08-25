@@ -400,7 +400,7 @@ export default function Index() {
     <>
       {isAudioSupported ?
         (
-          <div className="flex flex-col gap-8 items-stretch min-w-[700px]">
+          <div className="flex flex-col gap-8 items-stretch min-w-[700px] max-w-4xl">
             <div className="flex flex-col gap-4">
               <h2 className="font-semibold text-2xl">Devices:</h2>
               <select onChange={onChangeAudioDevice} className="w-full h-16 bg-slate-700 text-slate-100 text-2xl px-4 ring-4 ring-offset-4 ring-blue-400 ring-offset-slate-900 m-2 mx-2 rounded-xl">
@@ -415,7 +415,7 @@ export default function Index() {
             </dl>
             <div className="flex flex-col gap-4">
               <h2 className="font-semibold text-2xl">OpenAI Key: <span className="text-slate-400 text-sm">(Required for Translation)</span></h2>
-              <input type="text" placeholder="sk-Abc234..." ref={openAiKeyRef} name="openAiKey" className="w-full h-16 bg-slate-700 text-slate-100 text-2xl px-4 ring-4 ring-offset-4 ring-blue-400 ring-offset-slate-900 m-2 mx-2 rounded-xl" />
+              <input type="password" placeholder="sk-Abc234..." ref={openAiKeyRef} name="openAiKey" className="w-full h-16 bg-slate-700 text-slate-100 text-2xl px-4 ring-4 ring-offset-4 ring-blue-400 ring-offset-slate-900 m-2 mx-2 rounded-xl" />
             </div>
             <div className="flex flex-col gap-4">
               <h2 className="font-semibold text-2xl">Audio Visualizer:</h2>
