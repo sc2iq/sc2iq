@@ -3,7 +3,8 @@ Param([switch]$WhatIf = $True)
 echo "PScriptRoot: $PScriptRoot"
 $repoRoot = If ('' -eq $PScriptRoot) {
   "$PSScriptRoot/../.."
-} Else {
+}
+Else {
   "."
 }
 
@@ -40,6 +41,11 @@ $sharedResourceVars = Get-SharedResourceDeploymentVars $sharedResourceGroupName 
 $clientContainerName = "$sc2iqResourceGroupName-client"
 $clientImageTag = $(Get-Date -Format "yyyyMMddhhmm")
 $clientImageName = "$($sharedResourceVars.registryUrl)/${clientContainerName}:${clientImageTag}"
+
+$qnaContainerName = "$sc2iqResourceGroupName-qna"
+$qnaImageTag = $(Get-Date -Format "yyyyMMddhhmm")
+$qnaImageName = "$($sharedResourceVars.registryUrl)/${qnaContainerName}:${qnaImageTag}"
+
 $secrectCharRevealLength = 10
 
 $data = [ordered]@{
@@ -49,6 +55,7 @@ $data = [ordered]@{
   "clerkSecretKey"             = "$($clerkSecretKey.Substring(0, $secrectCharRevealLength))..."
 
   "clientImageName"            = $clientImageName
+  "qnaImageName"               = $qnaImageName
 
   "containerAppsEnvResourceId" = $($sharedResourceVars.containerAppsEnvResourceId)
   "registryUrl"                = $($sharedResourceVars.registryUrl)
@@ -80,6 +87,62 @@ az group create -l $resourceGroupLocation -g $sc2iqResourceGroupName --query nam
 
 Write-Step "Provision $sc2iqResourceGroupName Resources (What-If: $($WhatIf))"
 
+# Provision Question and Answer Container App
+Write-Step "Build $qnaImageName Image (What-If: $($WhatIf))"
+docker build -t $qnaImageName "$repoRoot/apps/question-answer"
+
+if ($WhatIf -eq $False) {
+  Write-Step "Push $qnaImageName Image (What-If: $($WhatIf))"
+  docker push $qnaImageName
+}
+else {
+  Write-Step "Skipping Push $qnaImageName Image (What-If: $($WhatIf))"
+}
+
+Write-Step "Get Top Image from $($sharedResourceVars.registryUrl) respository $qnaContainerName to Verify Push (What-If: $($WhatIf))"
+az acr repository show-tags --name $($sharedResourceVars.registryUrl) --repository $qnaContainerName --orderby time_desc --top 1 -o tsv
+
+Write-Step "Deploy $qnaImageName Container App (What-If: $($WhatIf))"
+$qnaBicepContainerDeploymentFilePath = "$repoRoot/bicep/modules/qnaContainerApp.bicep"
+
+if ($WhatIf -eq $True) {
+  az deployment group create `
+    -g $sc2iqResourceGroupName `
+    -f $qnaBicepContainerDeploymentFilePath `
+    -p managedEnvironmentResourceId=$($sharedResourceVars.containerAppsEnvResourceId) `
+    registryUrl=$($sharedResourceVars.registryUrl) `
+    registryUsername=$($sharedResourceVars.registryUsername) `
+    registryPassword=$($sharedResourceVars.registryPassword) `
+    imageName=$qnaImageName `
+    containerName=$qnaContainerName `
+    clerkPublishableKey=$clerkPublishableKey `
+    clerkSecretKey=$clerkSecretKey `
+    databaseUrl=$databaseUrlSecret `
+    cookieSecret=$cookieSecret `
+    --what-if
+}
+else {
+  $qnaFqdn = $(az deployment group create `
+      -g $sc2iqResourceGroupName `
+      -f $qnaBicepContainerDeploymentFilePath `
+      -p managedEnvironmentResourceId=$($sharedResourceVars.containerAppsEnvResourceId) `
+      registryUrl=$($sharedResourceVars.registryUrl) `
+      registryUsername=$($sharedResourceVars.registryUsername) `
+      registryPassword=$($sharedResourceVars.registryPassword) `
+      imageName=$qnaImageName `
+      containerName=$qnaContainerName `
+      clerkPublishableKey=$clerkPublishableKey `
+      clerkSecretKey=$clerkSecretKey `
+      databaseUrl=$databaseUrlSecret `
+      cookieSecret=$cookieSecret `
+      --query "properties.outputs.fqdn.value" `
+      -o tsv)
+
+  $qnaUrl = "https://$qnaFqdn"
+  Write-Output $qnaUrl
+}
+
+# Provision SC2IQ Container App
 Write-Step "Build $clientImageName Image (What-If: $($WhatIf))"
 docker build -t $clientImageName "$repoRoot/apps/client-remix"
 
