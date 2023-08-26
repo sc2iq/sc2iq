@@ -34,6 +34,8 @@ $clerkPublishableKey = Get-EnvVarFromFile -envFilePath $envFilePath -variableNam
 $clerkSecretKey = Get-EnvVarFromFile -envFilePath $envFilePath -variableName 'CLERK_SECRET_KEY'
 $cookieSecret = Get-EnvVarFromFile -envFilePath $envFilePath -variableName 'COOKIE_SECRET'
 $databaseUrlSecret = Get-EnvVarFromFile -envFilePath $envFilePath -variableName 'DATABASE_URL'
+$storageConnectionStringSecret = Get-EnvVarFromFile -envFilePath $envFilePath -variableName 'AZURE_STORAGE_CONNECTION_STRING'
+$storageContainerNameAudioClips = Get-EnvVarFromFile -envFilePath $envFilePath -variableName 'AZURE_STORAGE_BLOB_CONTAINER_NAME_AUDIO_CLIPS'
 
 Write-Step "Fetch params from Azure"
 $sharedResourceVars = Get-SharedResourceDeploymentVars $sharedResourceGroupName $sharedRgString
@@ -49,18 +51,20 @@ $qnaImageName = "$($sharedResourceVars.registryUrl)/${qnaContainerName}:${qnaIma
 $secrectCharRevealLength = 10
 
 $data = [ordered]@{
-  "cookieSecret"               = "$($cookieSecret.Substring(0, $secrectCharRevealLength))..."
-  "databaseUrlSecret"          = "$($databaseUrlSecret.Substring(0, $secrectCharRevealLength))..."
-  "clerkPublishableKey"        = $clerkPublishableKey
-  "clerkSecretKey"             = "$($clerkSecretKey.Substring(0, $secrectCharRevealLength))..."
+  "cookieSecret"                   = "$($cookieSecret.Substring(0, $secrectCharRevealLength))..."
+  "databaseUrlSecret"              = "$($databaseUrlSecret.Substring(0, $secrectCharRevealLength))..."
+  "clerkPublishableKey"            = $clerkPublishableKey
+  "clerkSecretKey"                 = "$($clerkSecretKey.Substring(0, $secrectCharRevealLength))..."
+  "storageConnectionStringSecret"  = "$($storageConnectionStringSecret.Substring(0, $secrectCharRevealLength))..."
+  "storageContainerNameAudioClips" = $storageContainerNameAudioClips
 
-  "clientImageName"            = $clientImageName
-  "qnaImageName"               = $qnaImageName
+  "clientImageName"                = $clientImageName
+  "qnaImageName"                   = $qnaImageName
 
-  "containerAppsEnvResourceId" = $($sharedResourceVars.containerAppsEnvResourceId)
-  "registryUrl"                = $($sharedResourceVars.registryUrl)
-  "registryUsername"           = $($sharedResourceVars.registryUsername)
-  "registryPassword"           = "$($($sharedResourceVars.registryPassword).Substring(0, $secrectCharRevealLength))..."
+  "containerAppsEnvResourceId"     = $($sharedResourceVars.containerAppsEnvResourceId)
+  "registryUrl"                    = $($sharedResourceVars.registryUrl)
+  "registryUsername"               = $($sharedResourceVars.registryUsername)
+  "registryPassword"               = "$($($sharedResourceVars.registryPassword).Substring(0, $secrectCharRevealLength))..."
 }
 
 Write-Hash "Data" $data
@@ -103,7 +107,7 @@ Write-Step "Get Top Image from $($sharedResourceVars.registryUrl) respository $q
 az acr repository show-tags --name $($sharedResourceVars.registryUrl) --repository $qnaContainerName --orderby time_desc --top 1 -o tsv
 
 Write-Step "Deploy $qnaImageName Container App (What-If: $($WhatIf))"
-$qnaBicepContainerDeploymentFilePath = "$repoRoot/bicep/modules/qnaContainerApp.bicep"
+$qnaBicepContainerDeploymentFilePath = "$repoRoot/bicep/modules/questionAnswerContainerApp.bicep"
 
 if ($WhatIf -eq $True) {
   az deployment group create `
@@ -115,10 +119,8 @@ if ($WhatIf -eq $True) {
     registryPassword=$($sharedResourceVars.registryPassword) `
     imageName=$qnaImageName `
     containerName=$qnaContainerName `
-    clerkPublishableKey=$clerkPublishableKey `
-    clerkSecretKey=$clerkSecretKey `
-    databaseUrl=$databaseUrlSecret `
-    cookieSecret=$cookieSecret `
+    storageConnectionString=$storageConnectionStringSecret `
+    storageContainerName=$storageContainerNameAudioClips `
     --what-if
 }
 else {
@@ -131,10 +133,8 @@ else {
       registryPassword=$($sharedResourceVars.registryPassword) `
       imageName=$qnaImageName `
       containerName=$qnaContainerName `
-      clerkPublishableKey=$clerkPublishableKey `
-      clerkSecretKey=$clerkSecretKey `
-      databaseUrl=$databaseUrlSecret `
-      cookieSecret=$cookieSecret `
+      storageConnectionString=$storageConnectionStringSecret `
+      storageContainerName=$storageContainerNameAudioClips `
       --query "properties.outputs.fqdn.value" `
       -o tsv)
 

@@ -11,7 +11,12 @@ param registryUsername string
 @secure()
 param registryPassword string
 
+@secure()
+param storageConnectionString string
+param storageContainerName string
+
 var registryPasswordName = 'container-registry-password'
+var storageConnectionStringSecretName = 'azure-storage-connection-string'
 
 resource containerApp 'Microsoft.App/containerapps@2022-03-01' = {
   name: name
@@ -36,6 +41,10 @@ resource containerApp 'Microsoft.App/containerapps@2022-03-01' = {
           name: registryPasswordName
           value: registryPassword
         }
+        {
+          name: storageConnectionStringSecretName
+          value: storageConnectionString
+        }
       ]
     }
     template: {
@@ -49,6 +58,14 @@ resource containerApp 'Microsoft.App/containerapps@2022-03-01' = {
             memory: '0.5Gi'
           }
           env: [
+            {
+              name: 'AZURE_STORAGE_CONNECTION_STRING'
+              secretRef: storageConnectionStringSecretName
+            }
+            {
+              name: 'AZURE_STORAGE_BLOB_CONTAINER_NAME_AUDIO_CLIPS'
+              value: storageContainerName
+            }
           ]
         }
       ]
