@@ -16,6 +16,9 @@
 		"[python]": {
 			"editor.defaultFormatter": "ms-python.black-formatter"
 		},
-		"python.formatting.provider": "none"
+		"python.formatting.provider": "none",
+		"editor.stickyScroll.defaultModel": "outlineModel",
+		"editor.stickyScroll.enabled": true,
+		"notebook.stickyScroll.enabled": true
 	}
 }
