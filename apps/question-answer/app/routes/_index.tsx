@@ -98,6 +98,10 @@ export const action = async ({ request }: ActionArgs) => {
       filename: audioFile.name,
       text: audioText,
     }
+
+    // delete temp file
+    fs.unlinkSync(tempFilePath)
+
     const metadataString = JSON.stringify(metadata)
     const metadataUploadResponse = await audioClipsContainerClient.uploadBlockBlob(metadataFileName, metadataString, metadataString.length);
 
