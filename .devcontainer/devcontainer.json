@@ -8,6 +8,7 @@
 		"ghcr.io/devcontainers/features/common-utils:2": {},
 		"ghcr.io/devcontainers-contrib/features/zsh-plugins:0": {},
 		"ghcr.io/eitsupi/devcontainer-features/jq-likes:2": {},
+		"ghcr.io/devcontainers/features/docker-in-docker": {},
 	},
 	// "forwardPorts": [],
 	// "postCreateCommand": "yarn install",
@@ -25,7 +26,8 @@
 			"extensions": [
 				"EditorConfig.EditorConfig",
 				"GitHub.copilot-chat",
-				"eamodio.gitlens"
+				"eamodio.gitlens",
+				"ms-azuretools.vscode-docker"
 			]
 		}
 	},
