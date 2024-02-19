@@ -1,0 +1,46 @@
+{
+	"name": "SC2IQ",
+	"image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
+	"features": {
+		"ghcr.io/devcontainers/features/azure-cli:1": {},
+		"ghcr.io/azure/azure-dev/azd:0": {},
+		"ghcr.io/devcontainers/features/powershell:1": {},
+		"ghcr.io/devcontainers/features/common-utils:2": {},
+		"ghcr.io/devcontainers-contrib/features/zsh-plugins:0": {},
+		"ghcr.io/eitsupi/devcontainer-features/jq-likes:2": {},
+	},
+	// "forwardPorts": [],
+	// "postCreateCommand": "yarn install",
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"editor.stickyScroll.defaultModel": "outlineModel",
+				"editor.stickyScroll.enabled": true,
+				"notebook.stickyScroll.enabled": true,
+				"editor.codeActionsOnSave": {
+					"source.fixAll": "explicit",
+					"source.organizeImports": "explicit"
+				}
+			},
+			"extensions": [
+				"EditorConfig.EditorConfig",
+				"GitHub.copilot-chat",
+				"eamodio.gitlens"
+			]
+		}
+	},
+	"runArgs": [
+		"--env-file",
+		".devcontainer/devcontainer.env"
+	],
+	"postCreateCommand": "bash .devcontainer/postCreateCommand.sh",
+	"workspaceMount": "source=${localWorkspaceFolder},target=/workspace/dummyOne/dummyTwo,type=bind",
+	"workspaceFolder": "/workspace/dummyOne/dummyTwo",
+	"mounts": [
+		{
+			"source": "${localWorkspaceFolder}/../../shared-resources",
+			"target": "/workspace/shared-resources",
+			"type": "bind",
+		}
+	]
+}
