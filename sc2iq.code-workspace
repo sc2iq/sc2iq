@@ -14,6 +14,6 @@
 		"powershell.cwd": "c:\\repos\\sc2\\sc2iq",
 		"editor.stickyScroll.defaultModel": "outlineModel",
 		"editor.stickyScroll.enabled": true,
-		"notebook.stickyScroll.enabled": true
+		"notebook.stickyScroll.enabled": true,
 	}
 }
