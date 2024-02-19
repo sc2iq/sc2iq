@@ -1,1 +1,1 @@
-git config --global --add safe.directory /workspace/dummyOne/dummyTwo
+git config --global --add safe.directory "*"
