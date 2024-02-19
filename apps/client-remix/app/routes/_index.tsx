@@ -1,5 +1,5 @@
 import { SignedIn, SignedOut, useUser } from "@clerk/remix"
-import { ActionArgs, V2_MetaFunction } from "@remix-run/node"
+import type { ActionArgs, V2_MetaFunction } from "@remix-run/node"
 import { Link, useActionData } from "@remix-run/react"
 import { ErrorBoundaryComponent } from "~/components/ErrorBoundary"
 
@@ -59,9 +59,9 @@ export default function IndexRoute() {
           <div>
             <h2 className="font-semibold text-3xl py-2">How do I use SC2IQ?</h2>
             <p className="leading-7">
-              1. Study <Link to="questions" className="underline underline-offset-2">questions</Link> to learn about Starcraft<br />
-              2. Take <Link to="test" className="underline underline-offset-2">tests</Link> to establish your StarCraft 2 Intelligence metric and collect Votes!<br />
-              3. Vote on <Link to="polls" className="underline underline-offset-2">polls</Link> influence discussion and perhaps balance changes!
+              1. Study <Link to="/questions" className="underline underline-offset-2">questions</Link> to learn about Starcraft<br />
+              2. Take <Link to="/test" className="underline underline-offset-2">tests</Link> to establish your StarCraft 2 Intelligence metric and collect Votes!<br />
+              3. Vote on <Link to="/polls" className="underline underline-offset-2">polls</Link> influence discussion and perhaps balance changes!
             </p>
           </div>
         </div>
