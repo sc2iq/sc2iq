@@ -12,11 +12,6 @@
 	],
 	"settings": {
 		"powershell.cwd": "c:\\repos\\sc2\\sc2iq",
-		"dotenv.enableAutocloaking": false,
-		"[python]": {
-			"editor.defaultFormatter": "ms-python.black-formatter"
-		},
-		"python.formatting.provider": "none",
 		"editor.stickyScroll.defaultModel": "outlineModel",
 		"editor.stickyScroll.enabled": true,
 		"notebook.stickyScroll.enabled": true
