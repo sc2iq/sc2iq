@@ -11,7 +11,7 @@
 		}
 	],
 	"settings": {
-		"powershell.cwd": "c:\\repos\\sc2\\sc2iq",
+		"powershell.cwd": "/workspace/dummyOne/sc2iqDev",
 		"editor.stickyScroll.defaultModel": "outlineModel",
 		"editor.stickyScroll.enabled": true,
 		"notebook.stickyScroll.enabled": true,

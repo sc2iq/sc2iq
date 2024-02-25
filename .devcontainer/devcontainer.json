@@ -10,8 +10,6 @@
 		"ghcr.io/eitsupi/devcontainer-features/jq-likes:2": {},
 		"ghcr.io/devcontainers/features/docker-in-docker": {},
 	},
-	// "forwardPorts": [],
-	// "postCreateCommand": "yarn install",
 	"customizations": {
 		"vscode": {
 			"settings": {
@@ -36,8 +34,8 @@
 		".devcontainer/devcontainer.env"
 	],
 	"postCreateCommand": "bash .devcontainer/postCreateCommand.sh",
-	"workspaceMount": "source=${localWorkspaceFolder},target=/workspace/dummyOne/dummyTwo,type=bind",
-	"workspaceFolder": "/workspace/dummyOne/dummyTwo",
+	"workspaceMount": "source=${localWorkspaceFolder},target=/workspace/dummyOne/sc2iqDev,type=bind",
+	"workspaceFolder": "/workspace/dummyOne/sc2iqDev",
 	"mounts": [
 		{
 			"source": "${localWorkspaceFolder}/../../shared-resources",
