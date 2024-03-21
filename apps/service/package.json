@@ -17,7 +17,7 @@
       "fluent-schema": "^0.10.0",
       "mssql": "^6.0.1",
       "reflect-metadata": "^0.1.13",
-      "typeorm": "0.2.22",
+      "typeorm": "0.3.0",
       "uuid": "^8.0.0"
    },
    "scripts": {
