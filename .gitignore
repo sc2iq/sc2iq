@@ -2,5 +2,8 @@ node_modules/
 build/
 
 *.har*
-.env
 *.log
+
+.env
+
+!.devcontainer/devcontainer.env
