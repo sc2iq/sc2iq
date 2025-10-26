@@ -1,6 +1,6 @@
 # Twitch Stats Bot
 
-This bot is intended to be used by companies running events on twitch. The bot will enter the chat and monitor the sentiment. 
+This bot is intended to be used by companies running events on twitch. The bot will enter the chat and monitor the sentiment.
 
 1. It could be used to monitor the reactions to content on the screen
 2. It could be used to pick specific phrases from the fans which can be used to promote the event
