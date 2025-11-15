@@ -1,5 +1,6 @@
 param name string = '${resourceGroup().name}-client'
 param location string = resourceGroup().location
+param tags object = {}
 
 param managedEnvironmentResourceId string
 
@@ -16,7 +17,6 @@ param databaseUrl string
 @secure()
 param cookieSecret string
 
-param registryUrl string
 param registryUsername string
 @secure()
 param registryPassword string
@@ -26,9 +26,10 @@ var clerkSecretName = 'clerk-api-secret'
 var cookieSecretName = 'cookie-secret'
 var databaseUrlSecretName = 'database-url'
 
-resource containerApp 'Microsoft.App/containerapps@2022-03-01' = {
+resource containerApp 'Microsoft.App/containerApps@2025-02-02-preview' = {
   name: name
   location: location
+  tags: tags
   properties: {
     managedEnvironmentId: managedEnvironmentResourceId
     configuration: {
@@ -39,7 +40,7 @@ resource containerApp 'Microsoft.App/containerapps@2022-03-01' = {
       }
       registries: [
         {
-          server: registryUrl
+          server: '${registryUsername}.azurecr.io'
           username: registryUsername
           passwordSecretRef: registryPasswordName
         }
@@ -96,9 +97,11 @@ resource containerApp 'Microsoft.App/containerapps@2022-03-01' = {
       scale: {
         minReplicas: 0
         maxReplicas: 1
+        cooldownPeriod: 1800
       }
     }
   }
 }
 
-output fqdn string = containerApp.properties.configuration.ingress.fqdn
+output name string = containerApp.name
+output appUrl string = 'https://${containerApp.properties.configuration.ingress.fqdn}'

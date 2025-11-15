@@ -6,16 +6,16 @@ param uniqueRgString string
 @maxLength(24)
 param storageAccountName string = '${resourceGroup().name}${uniqueRgString}storage'
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2022-05-01' existing = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2025-01-01' existing = {
   name: storageAccountName
 }
 
-resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01' existing = {
+resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2025-01-01' existing = {
   parent: storageAccount
   name: 'default'
 }
 
-resource audioClipsContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
+resource audioClipsContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2025-01-01' = {
   parent: blobService
   name: 'sc2-iq-audioclips'
   properties: {
@@ -23,7 +23,7 @@ resource audioClipsContainer 'Microsoft.Storage/storageAccounts/blobServices/con
   }
 }
 
-resource transcribedAudioClipsContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
+resource transcribedAudioClipsContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2025-01-01' = {
   parent: blobService
   name: 'sc2-iq-audioclips-transcribed'
   properties: {

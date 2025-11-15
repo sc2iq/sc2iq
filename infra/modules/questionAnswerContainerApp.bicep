@@ -1,12 +1,12 @@
 param name string = '${resourceGroup().name}-qna'
 param location string = resourceGroup().location
+param tags object = {}
 
 param managedEnvironmentResourceId string
 
 param imageName string
 param containerName string
 
-param registryUrl string
 param registryUsername string
 @secure()
 param registryPassword string
@@ -18,9 +18,10 @@ param storageContainerName string
 var registryPasswordName = 'container-registry-password'
 var storageConnectionStringSecretName = 'azure-storage-connection-string'
 
-resource containerApp 'Microsoft.App/containerapps@2022-03-01' = {
+resource containerApp 'Microsoft.App/containerApps@2025-02-02-preview' = {
   name: name
   location: location
+  tags: tags
   properties: {
     managedEnvironmentId: managedEnvironmentResourceId
     configuration: {
@@ -31,7 +32,7 @@ resource containerApp 'Microsoft.App/containerapps@2022-03-01' = {
       }
       registries: [
         {
-          server: registryUrl
+          server: '${registryUsername}.azurecr.io'
           username: registryUsername
           passwordSecretRef: registryPasswordName
         }
@@ -77,4 +78,5 @@ resource containerApp 'Microsoft.App/containerapps@2022-03-01' = {
   }
 }
 
-output fqdn string = containerApp.properties.configuration.ingress.fqdn
+output name string = containerApp.name
+output appUrl string = 'https://${containerApp.properties.configuration.ingress.fqdn}'

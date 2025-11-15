@@ -1,0 +1,54 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: sc2iq
+
+metadata:
+  template: azd-init@1.21.2
+
+services:
+  client:
+    project: apps/client-remix
+    host: containerapp
+    language: ts
+    dist: build
+    docker:
+      path: Dockerfile
+
+  question-answer:
+    project: apps/question-answer
+    host: containerapp
+    language: js
+    dist: build
+    docker:
+      path: Dockerfile
+
+  # service:
+  #   project: apps/service
+  #   host: containerapp
+  #   language: ts
+
+  # twitch-stats:
+  #   project: apps/bots/twitch-stats
+  #   host: containerapp
+  #   language: ts
+
+resources:
+  client-remix:
+    type: host.containerapp
+    uses:
+      - twitch-stats
+      - graphql
+      - service
+      - rating-system
+    port: 8080
+
+  question-answer:
+    type: host.containerapp
+    uses:
+      - twitch-stats
+      - graphql
+      - service
+      - rating-system
+    port: 8080
+
+

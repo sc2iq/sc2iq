@@ -14,11 +14,11 @@ param dbName string = '${resourceGroup().name}-${uniqueRgString}-sql-db-${projec
 
 param location string = resourceGroup().location
 
-resource sqlServer 'Microsoft.Sql/servers@2022-05-01-preview' existing = {
+resource sqlServer 'Microsoft.Sql/servers@2024-11-01-preview' existing = {
   name: serverName
 }
 
-resource sqlDatabase 'Microsoft.Sql/servers/databases@2022-05-01-preview' = {
+resource sqlDatabase 'Microsoft.Sql/servers/databases@2024-11-01-preview' = {
   parent: sqlServer
   location: location
   name: dbName

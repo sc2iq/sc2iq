@@ -6,19 +6,25 @@
 
 ```bash
 az login
-az account set -n "Matt Mazzola - Personal Projects Recovered"
+# Matt Mazzola - Personal
+az account set -n 375b0f6d-8ad5-412d-9e11-15d36d14dc63
 az account show --query "name" -o tsv
 az acr login --name sharedklgoyiacr
 ```
 
+## Deployment
+
 ### What If Deployment
 
-```pwsh
-.\scripts\deploy.ps1
+```sh
+azd provision --preview
+
+./pipelines/scripts/what-if.sh
 ```
 
-### Deploy
+### Deployment
 
-```powershell
-.\scripts\deploy.ps1 -WhatIf:$False
+```sh
+azd up
 ```
+

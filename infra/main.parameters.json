@@ -1,0 +1,45 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environmentName": {
+      "value": "${AZURE_ENV_NAME}"
+    },
+    "location": {
+      "value": "${AZURE_LOCATION}"
+    },
+    "resourceGroupName": {
+      "value": "${AZURE_RESOURCE_GROUP}"
+    },
+    "sharedResourceGroupName": {
+      "value": "${SHARED_RESOURCE_GROUP}"
+    },
+    "sharedContainerAppsEnvironmentName": {
+      "value": "${SHARED_CONTAINER_APPS_ENVIRONMENT_NAME}"
+    },
+    "sharedAcrName": {
+      "value": "${SHARED_ACR_NAME}"
+    },
+    "storageAccountConnectionString": {
+      "value": "${AZURE_STORAGE_CONNECTION_STRING}"
+    },
+    "clerkPublishableKey": {
+      "value": "${CLERK_PUBLISHABLE_KEY}"
+    },
+    "clerkSecretKey": {
+      "value": "${CLERK_SECRET_KEY}"
+    },
+    "cookieSecret": {
+      "value": "${COOKIE_SECRET}"
+    },
+    "databaseUrl": {
+      "value": "${DATABASE_URL}"
+    },
+    "storageConnectionStringSecret": {
+      "value": "${AZURE_STORAGE_CONNECTION_STRING}"
+    },
+    "storageContainerNameAudioClips": {
+      "value": "${AZURE_STORAGE_BLOB_CONTAINER_NAME_AUDIO_CLIPS}"
+    }
+  }
+}

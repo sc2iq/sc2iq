@@ -1,9 +1,19 @@
+# Node.js dependencies
 node_modules/
+
+# Build output
 build/
 
-*.har*
-*.log
+# Azure Developer CLI
+.azure/*
+!.azure/.gitignore
+!.azure/config.json
 
+# Local environment variables
 .env
 
 !.devcontainer/devcontainer.env
+
+# Logs
+*.har*
+*.log
