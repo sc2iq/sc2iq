@@ -6,7 +6,7 @@ metadata:
   template: azd-init@1.21.2
 
 services:
-  client-remix:
+  client:
     project: apps/client-remix
     host: containerapp
     language: ts
@@ -22,18 +22,16 @@ services:
     docker:
       path: Dockerfile
 
-  rating-system:
-    project: packages/ratingSystem
-    host: containerapp
-    language: ts
-  service:
-    project: apps/service
-    host: containerapp
-    language: ts
-  twitch-stats:
-    project: apps/bots/twitch-stats
-    host: containerapp
-    language: ts
+  # service:
+  #   project: apps/service
+  #   host: containerapp
+  #   language: ts
+
+  # twitch-stats:
+  #   project: apps/bots/twitch-stats
+  #   host: containerapp
+  #   language: ts
+
 resources:
   client-remix:
     type: host.containerapp
@@ -43,11 +41,7 @@ resources:
       - service
       - rating-system
     port: 8080
-  graphql:
-    type: host.containerapp
-    uses:
-      - sql
-    port: 80
+
   question-answer:
     type: host.containerapp
     uses:
@@ -56,14 +50,5 @@ resources:
       - service
       - rating-system
     port: 8080
-  rating-system:
-    type: host.containerapp
-    port: 80
-  service:
-    type: host.containerapp
-    port: 80
-  sql:
-    type: db.mongo
-  twitch-stats:
-    type: host.containerapp
-    port: 80
+
+

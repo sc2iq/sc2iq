@@ -12,24 +12,24 @@ https://heroicons.com/
 
 [Prisma Docker Docs](https://www.prisma.io/docs/concepts/database-connectors/sql-server/sql-server-docker)
 
-```
+```sh
 docker run -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=<YourStrong@Passw0rd>' -p 1433:1433 --name sql1 -d mcr.microsoft.com/mssql/server:2019-latest
 ```
 
-```
+```sh
 docker exec -it sql1 "bash"
 ```
 
-```
+```sh
 /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "<YourStrong@Passw0rd>"
 ```
 
-```
+```sh
 CREATE DATABASE sc2iq
 GO
 ```
 
-```
+```sh
 npx prisma db push
 ```
 
@@ -37,13 +37,13 @@ npx prisma db push
 
 <https://www.prisma.io/docs/reference/api-reference/command-reference#db-execute>
 
-```
+```sh
 prisma db execute --file ./prisma/scripts/create-dbs.sql
 ```
 
 ## Docker
 
-```
+```sh
 docker build -t sc2-iq-client .
 
 docker run -it --rm `

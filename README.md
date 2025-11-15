@@ -12,14 +12,19 @@ az account show --query "name" -o tsv
 az acr login --name sharedklgoyiacr
 ```
 
+## Deployment
+
 ### What If Deployment
 
-```pwsh
-.\scripts\deploy.ps1
+```sh
+azd provision --preview
+
+./pipelines/scripts/what-if.sh
 ```
 
-### Deploy
+### Deployment
 
-```powershell
-.\scripts\deploy.ps1 -WhatIf:$False
+```sh
+azd up
 ```
+
