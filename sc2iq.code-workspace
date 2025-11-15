@@ -1,19 +1,26 @@
 {
-	"folders": [
-		{
-			"path": "."
-		},
-		{
-			"path": "apps/client-remix"
-		},
-		{
-			"path": "../../shared-resources"
-		}
-	],
-	"settings": {
-		"powershell.cwd": "/workspace/dummyOne/sc2iqDev",
-		"editor.stickyScroll.defaultModel": "outlineModel",
-		"editor.stickyScroll.enabled": true,
-		"notebook.stickyScroll.enabled": true,
-	}
+  "folders": [
+    {
+      "path": "."
+    },
+    {
+      "path": "apps/client-remix"
+    },
+    {
+      "path": "../../shared-resources"
+    }
+  ],
+  "settings": {
+    "powershell.cwd": "sc2iq",
+    "editor.stickyScroll.defaultModel": "outlineModel",
+    "editor.stickyScroll.enabled": true,
+    "notebook.stickyScroll.enabled": true,
+    "files.watcherExclude": {
+      "**/.git/objects/**": true,
+      "**/.git/subtree-cache/**": true,
+      "**/.hg/store/**": true,
+      "**/node_modules/**": true,
+      "**/tmp/**": true
+    }
+  }
 }
